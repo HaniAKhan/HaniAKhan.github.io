@@ -283,16 +283,16 @@ html.is-loading .wordmark { visibility: hidden; }
 }
 .preloader__tint { position: absolute; inset: 0; background: rgba(214, 232, 250, 0.25); }
 
-/* Dark mode: night sky. The file is the photo's top half (where the sky is darkest behind
-   the name), pinned to the top so wide screens crop from the bottom. */
+/* Dark mode: aurora over a treeline. Anchored to the bottom so the trees always frame the
+   lower edge; tall phone screens crop the sides instead. */
 [data-theme="dark"] .preloader { background: #0d1117; }
 [data-theme="dark"] .preloader__image {
   background-image: url('assets/night-sky.jpg');
-  background-position: center top;
+  background-position: center bottom;
 }
 /* Darken only behind the name, so the stars elsewhere keep their full contrast */
 [data-theme="dark"] .preloader__tint {
-  background: radial-gradient(ellipse 60% 45% at 50% 50%, rgba(13, 17, 23, 0.45), rgba(13, 17, 23, 0) 70%);
+  background: radial-gradient(ellipse 65% 50% at 50% 50%, rgba(13, 17, 23, 0.6), rgba(13, 17, 23, 0) 70%);
 }
 [data-theme="dark"] .intro-name { color: #f2f5f8; }
 
