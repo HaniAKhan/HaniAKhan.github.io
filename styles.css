@@ -295,7 +295,9 @@ html:not(.is-loading) .intro-name { display: none; }
 /* Initial states for intro reveals, only while JS drives them */
 html.is-loading [data-reveal] { opacity: 0; }
 html.is-loading .theme-toggle { opacity: 0; }
-.split-mask { display: inline-block; overflow: hidden; vertical-align: top; }
+/* Word reveal mask. Boldonse's glyphs are taller than the line height, so the clip extends past the
+   line box (instead of overflow: hidden) to keep ascenders and descenders like "g" intact. */
+.split-mask { display: inline-block; vertical-align: top; clip-path: inset(-0.3em -0.15em -0.4em -0.15em); }
 .split-word { display: inline-block; will-change: transform; }
 
 /* Scroll reveals */
