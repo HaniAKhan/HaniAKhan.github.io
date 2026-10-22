@@ -290,6 +290,16 @@ html.is-loading .wordmark { visibility: hidden; }
   background-image: url('assets/night-sky.jpg');
   background-position: center bottom;
 }
+/* Film grain to match the clouds photo's built-in grain: browser-generated monochrome noise,
+   recentred on mid-grey so the overlay blend adds texture without shifting brightness */
+[data-theme="dark"] .preloader__image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 0 1'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='3' intercept='-0.985'/%3E%3CfeFuncG type='linear' slope='3' intercept='-0.985'/%3E%3CfeFuncB type='linear' slope='3' intercept='-0.985'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+  opacity: 0.2;
+}
 /* Darken only behind the name, so the stars elsewhere keep their full contrast */
 [data-theme="dark"] .preloader__tint {
   background: radial-gradient(ellipse 65% 50% at 50% 50%, rgba(13, 17, 23, 0.6), rgba(13, 17, 23, 0) 70%);
