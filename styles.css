@@ -271,8 +271,7 @@ html.is-loading .wordmark { visibility: hidden; }
 /* ---------- Pre-loader ---------- */
 .preloader {
   position: fixed;
-  /* Bleed past the screen so the sky also fills the area behind Safari's status bar and toolbar */
-  inset: -120px 0;
+  inset: 0;
   z-index: 100;
   overflow: hidden;
   background: #8fb4c4;
@@ -285,6 +284,15 @@ html.is-loading .wordmark { visibility: hidden; }
   background: url('assets/clouds.jpg') center / cover no-repeat;
 }
 .preloader__tint { position: absolute; inset: 0; background: rgba(214, 232, 250, 0.25); }
+
+/* iOS Safari doesn't draw fixed elements behind its status bar and toolbar; it extends the
+   solid background colour found at each screen edge instead (images are ignored). These 1px
+   strips carry each photo's average edge colour, measured from the part a phone shows. */
+.preloader__edge { position: absolute; left: 0; right: 0; height: 1px; }
+.preloader__edge--top { top: 0; background: rgb(97, 131, 150); }
+.preloader__edge--bottom { bottom: 0; background: rgb(161, 173, 180); }
+[data-theme="dark"] .preloader__edge--top { background: rgb(37, 11, 33); }
+[data-theme="dark"] .preloader__edge--bottom { background: rgb(6, 4, 2); }
 
 /* Dark mode: aurora over a treeline. Anchored to the bottom so the trees always frame the
    lower edge; tall phone screens crop the sides instead. */
