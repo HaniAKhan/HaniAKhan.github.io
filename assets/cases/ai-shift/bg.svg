@@ -1,0 +1,34 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="618" height="303" viewBox="0 0 618 303" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Making sense of the AI shift &#194;&#183; Rising crest raster background" clip-path="url(#clip0_0_4)">
+<path id="Vector" d="M618 0H0V303H618V0Z" fill="url(#paint0_linear_0_4)"/>
+<g id="Vector_2" filter="url(#filter0_f_0_4)">
+<path d="M-90 308C44 210 164 198 274 232C388 268 486 228 708 82V350H-90V308Z" fill="url(#paint1_linear_0_4)"/>
+</g>
+<path id="Vector_3" d="M309 275C436.025 275 539 219.483 539 151C539 82.5167 436.025 27 309 27C181.975 27 79 82.5167 79 151C79 219.483 181.975 275 309 275Z" fill="url(#paint2_radial_0_4)"/>
+</g>
+<defs>
+<filter id="filter0_f_0_4" x="-124" y="48" width="866" height="336" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="17" result="effect1_foregroundBlur_0_4"/>
+</filter>
+<linearGradient id="paint0_linear_0_4" x1="0" y1="0" x2="239.536" y2="488.558" gradientUnits="userSpaceOnUse">
+<stop stop-color="#EFF8EC"/>
+<stop offset="0.48" stop-color="#D7EED8"/>
+<stop offset="1" stop-color="#CFE9E1"/>
+</linearGradient>
+<linearGradient id="paint1_linear_0_4" x1="-90" y1="82" x2="71.7649" y2="563.673" gradientUnits="userSpaceOnUse">
+<stop stop-color="#A9D8B4"/>
+<stop offset="0.48" stop-color="#83C8AA"/>
+<stop offset="1" stop-color="#9BCFCA"/>
+</linearGradient>
+<radialGradient id="paint2_radial_0_4" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(309 151) scale(230 124)">
+<stop stop-color="white" stop-opacity="0.9"/>
+<stop offset="0.5" stop-color="white" stop-opacity="0.34"/>
+<stop offset="1" stop-color="white" stop-opacity="0"/>
+</radialGradient>
+<clipPath id="clip0_0_4">
+<rect width="618" height="303" fill="white"/>
+</clipPath>
+</defs>
+</svg>
