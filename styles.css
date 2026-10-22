@@ -276,8 +276,24 @@ html.is-loading .wordmark { visibility: hidden; }
   will-change: transform;
 }
 .preloader__sky { position: absolute; inset: 0; will-change: transform; }
-.preloader__clouds { width: 100%; height: 100%; object-fit: cover; }
+.preloader__image {
+  position: absolute;
+  inset: 0;
+  background: url('assets/clouds.jpg') center / cover no-repeat;
+}
 .preloader__tint { position: absolute; inset: 0; background: rgba(214, 232, 250, 0.25); }
+
+/* Dark mode: night sky. The frame is twice the screen's height and pinned to the top,
+   so the screen shows the photo's top half, where the sky is darkest behind the name. */
+[data-theme="dark"] .preloader { background: #0d1117; }
+[data-theme="dark"] .preloader__image {
+  bottom: auto;
+  height: 200%;
+  background-image: url('assets/night-sky.jpg');
+  background-position: center top;
+}
+[data-theme="dark"] .preloader__tint { background: rgba(13, 17, 23, 0.3); }
+[data-theme="dark"] .intro-name { color: #f2f5f8; }
 
 .intro-name {
   position: fixed;

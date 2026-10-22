@@ -16,19 +16,25 @@
       }
       document.documentElement.dataset.theme = theme;
       document.documentElement.classList.add('js', 'is-loading');
+
+      // Fetch only the pre-loader image for this theme, as early as possible.
+      var preload = document.createElement('link');
+      preload.rel = 'preload';
+      preload.as = 'image';
+      preload.href = theme === 'dark' ? 'assets/night-sky.jpg' : 'assets/clouds.jpg';
+      document.head.appendChild(preload);
     })();
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Boldonse&family=Inter:wght@400&display=block">
-  <link rel="preload" as="image" href="assets/clouds.jpg">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- Pre-loader: clouds curtain. The name lives outside it so it can travel into the header. -->
+  <!-- Pre-loader: sky curtain (clouds in light mode, night sky in dark). The name lives outside it so it can travel into the header. -->
   <div class="preloader" aria-hidden="true">
     <div class="preloader__sky">
-      <img src="assets/clouds.jpg" alt="" class="preloader__clouds" decoding="async">
+      <div class="preloader__image"></div>
       <div class="preloader__tint"></div>
     </div>
   </div>

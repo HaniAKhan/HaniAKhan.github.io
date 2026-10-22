@@ -267,7 +267,7 @@
   /* ---------- Pre-loader ---------- */
   const preloader = document.querySelector('.preloader');
   const sky = document.querySelector('.preloader__sky');
-  const clouds = document.querySelector('.preloader__clouds');
+  const skyImage = document.querySelector('.preloader__image');
   const introName = document.querySelector('.intro-name');
   const letters = [...introName.children];
   const wordmark = document.querySelector('.wordmark');
@@ -276,9 +276,13 @@
     root.classList.remove('is-loading');
   }
 
-  const imageReady = clouds.complete
-    ? Promise.resolve()
-    : new Promise((resolve) => { clouds.onload = clouds.onerror = resolve; });
+  // The sky is a CSS background picked by theme; load the same URL to know when it's ready.
+  const skyUrl = (getComputedStyle(skyImage).backgroundImage.match(/url\(["']?(.*?)["']?\)/) || [])[1];
+  const imageReady = !skyUrl ? Promise.resolve() : new Promise((resolve) => {
+    const img = new Image();
+    img.onload = img.onerror = resolve;
+    img.src = skyUrl;
+  });
   const fontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
   const assetsReady = Promise.race([Promise.all([imageReady, fontsReady]), wait(2500)]);
 
