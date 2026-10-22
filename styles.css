@@ -290,7 +290,10 @@ html.is-loading .wordmark { visibility: hidden; }
   background-image: url('assets/night-sky.jpg');
   background-position: center top;
 }
-[data-theme="dark"] .preloader__tint { background: rgba(13, 17, 23, 0.3); }
+/* Darken only behind the name, so the stars elsewhere keep their full contrast */
+[data-theme="dark"] .preloader__tint {
+  background: radial-gradient(ellipse 60% 45% at 50% 50%, rgba(13, 17, 23, 0.45), rgba(13, 17, 23, 0) 70%);
+}
 [data-theme="dark"] .intro-name { color: #f2f5f8; }
 
 .intro-name {
