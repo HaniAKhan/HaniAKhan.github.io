@@ -60,7 +60,10 @@ h1, h2, p, figure { margin: 0; }
 a { color: inherit; }
 
 /* Theme change: animate colour properties everywhere, only while switching. */
-html.theme-transition *:not(.theme-toggle__thumb):not(.icon),
+/* Text pieces nested inside the wordmark and headline are left out: they inherit the parent's
+   animating color. Giving them their own transition makes WebKit (all iOS browsers) chase the
+   parent's in-progress value, so each nesting level visibly lags behind. */
+html.theme-transition *:not(.theme-toggle__thumb):not(.icon):not(.wordmark-text *):not(.hero__title *),
 html.theme-transition *::before,
 html.theme-transition *::after {
   transition-property: background-color, color, border-color !important;
