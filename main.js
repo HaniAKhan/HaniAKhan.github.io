@@ -251,6 +251,15 @@
       animations.push(el.animate(riseIn, { duration: 1000, delay: 320 + i * 120, easing: EASE_OUT, fill: 'both' }));
     });
 
+    // The divider draws in from the left once the hero has settled.
+    const divider = document.querySelector('.divider');
+    if (divider) {
+      animations.push(divider.animate(
+        [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
+        { duration: 1100, delay: 700, easing: EASE_OUT, fill: 'both' }
+      ));
+    }
+
     animations.push(toggle.animate(
       [{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'translateY(0)' }],
       { duration: 900, delay: 200, easing: EASE_OUT, fill: 'both' }
