@@ -283,12 +283,10 @@ html.is-loading .wordmark { visibility: hidden; }
 }
 .preloader__tint { position: absolute; inset: 0; background: rgba(214, 232, 250, 0.25); }
 
-/* Dark mode: night sky. The frame is twice the screen's height and pinned to the top,
-   so the screen shows the photo's top half, where the sky is darkest behind the name. */
+/* Dark mode: night sky. The file is the photo's top half (where the sky is darkest behind
+   the name), pinned to the top so wide screens crop from the bottom. */
 [data-theme="dark"] .preloader { background: #0d1117; }
 [data-theme="dark"] .preloader__image {
-  bottom: auto;
-  height: 200%;
   background-image: url('assets/night-sky.jpg');
   background-position: center top;
 }
