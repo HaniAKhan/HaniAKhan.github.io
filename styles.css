@@ -1,6 +1,9 @@
 /* ---------- Tokens ---------- */
 :root {
   --font-display: 'Boldonse', 'Arial Black', system-ui, sans-serif;
+  /* Fraunces, loaded as a single instance of its variable axes (opsz 144, wght 436, SOFT 100,
+     WONK 0) to keep the download small; the settings below repeat those values. */
+  --font-headline: 'Fraunces', Georgia, serif;
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
   --font-meta: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
 
@@ -162,10 +165,13 @@ html.is-loading .wordmark { visibility: hidden; }
 .hero { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
 
 .hero__title {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 48px;
-  line-height: 1.59;
+  font-family: var(--font-headline);
+  font-weight: 436;
+  font-variation-settings: "opsz" 144, "SOFT" 100, "WONK" 0;
+  font-size: 64px;
+  line-height: 1.06;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
   color: var(--text);
 }
 
@@ -211,10 +217,12 @@ html.is-loading .wordmark { visibility: hidden; }
 }
 
 .case__title {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 24px;
-  line-height: 1.2;
+  font-family: var(--font-headline);
+  font-weight: 436;
+  font-variation-settings: "opsz" 144, "SOFT" 100, "WONK" 0;
+  font-size: 32px;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
   color: var(--text);
 }
 
@@ -381,7 +389,9 @@ html.is-loading .theme-toggle { opacity: 0; }
   left: 0;
   right: 0;
   text-align: center;
-  font-family: var(--font-display);
+  font-family: var(--font-headline);
+  font-variation-settings: "opsz" 144, "SOFT" 100, "WONK" 0;
+  font-weight: 436;
   font-size: 16px;
   line-height: 1.2;
   color: var(--text);
@@ -421,12 +431,12 @@ html.is-loading .theme-toggle { opacity: 0; }
   .site-header { padding: calc(16px + var(--safe-top)) var(--gutter) 0 var(--gutter); align-items: center; }
   .wordmark { margin-top: 0; }
   .page { padding: calc(112px + var(--safe-top)) 0 120px; }
-  .hero__title { font-size: 36px; line-height: 1.5; }
+  .hero__title { font-size: 46px; }
   .hero__intro { font-size: 18px; line-height: 1.55; }
   .social { width: 44px; height: 44px; }
   .cases { margin-top: 64px; gap: 28px; }
   .case { gap: 10px; padding: 20px 0 36px; }
-  .case__title { font-size: 22px; line-height: 1.35; }
+  .case__title { font-size: 29px; }
   /* Phones get portrait artwork made for the screen */
   .case__media { aspect-ratio: 342 / 427; }
   .case__art--mobile { display: block; }

@@ -238,7 +238,7 @@
     wordEls.forEach((word, i) => {
       animations.push(word.animate(
         // Start fully below the mask's extended clip area.
-        [{ transform: 'translateY(130%)' }, { transform: 'translateY(0)' }],
+        [{ transform: 'translateY(145%)' }, { transform: 'translateY(0)' }],
         { duration: 1100, delay: i * 45, easing: EASE_OUT, fill: 'both' }
       ));
     });
