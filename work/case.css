@@ -34,6 +34,14 @@ html.case-locked .cs { visibility: hidden; }
   padding: calc(120px + var(--safe-top)) 0 40px;
   text-align: center;
 }
+/* Same as the date above each project on the home page */
+.cs-date {
+  margin-bottom: 12px;
+  font-family: var(--font-meta);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-meta);
+}
 .cs-title {
   font-family: var(--font-headline);
   font-weight: 436;
