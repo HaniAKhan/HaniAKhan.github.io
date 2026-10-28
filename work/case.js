@@ -1,10 +1,8 @@
-/* Case study page: scroll-driven phone, the camera → loading → results sequence, scaled media and reveals. */
+/* Case study page: the hero phone and its camera → loading → results sequence, scaled media and reveals. */
 (() => {
   const root = document.documentElement;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const EASE_OUT = 'cubic-bezier(0.22, 1, 0.36, 1)';
-  const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
-  const smooth = (t) => t * t * (3 - 2 * t);
   const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   /* ---------- Media canvases ----------
@@ -23,50 +21,16 @@
   const resizeObserver = 'ResizeObserver' in window ? new ResizeObserver((entries) => entries.forEach((e) => fitCanvas(e.target))) : null;
   canvases.forEach((c) => resizeObserver && resizeObserver.observe(c));
 
-  /* ---------- Hero phone ---------- */
-  const hero = document.querySelector('.cs-hero');
-  const intro = document.querySelector('.cs-hero__intro');
-  const device = document.querySelector('.device');
+  /* ---------- Hero phone ----------
+     The phone stays in the page's normal flow, so scrolling is always the visitor's. It's sized to fit
+     the window, eases in, and runs through its screens by itself once enough of it is in view. */
+  const holder = document.querySelector('.cs-hero__device');
+  const device = holder.querySelector('.device');
   const states = [...device.querySelectorAll('[data-state]')];
 
-  const GROW = 0.9;          // viewport heights of scrolling to rise and reach full size
-  const PEEK = 132;          // how much of the phone peeks above the fold at the start (design px)
-  const START_SCALE = 0.885; // 355.7 / 402, from the design
-
-  let vw, vh, fit, startY, endY;
   function measure() {
-    vw = window.innerWidth;
-    vh = window.innerHeight;
-    fit = Math.min(1, (vh - 150) / 874, (vw - 48) / 402);
-    endY = (vh - 874 * fit) / 2;
-    startY = vh - PEEK * fit;
-  }
-
-  let target = 0;
-  let current = 0;
-  let ticking = false;
-
-  function render(p) {
-    const e = smooth(p);
-    const scale = fit * (START_SCALE + (1 - START_SCALE) * e);
-    const y = startY + (endY - startY) * e;
-    device.style.transform = `translate(-50%, ${y}px) scale(${scale})`;
-    intro.style.transform = `translate(-50%, calc(-50% - ${e * vh * 0.61}px))`;
-    intro.style.opacity = String(1 - clamp((p - 0.45) / 0.4, 0, 1));
-  }
-
-  // Scroll sets a target; the phone eases toward it every frame, so wheel steps glide instead of jump.
-  function frame() {
-    current += (target - current) * (reduceMotion ? 1 : 0.14);
-    if (Math.abs(target - current) < 0.0005) current = target;
-    render(current);
-    if (current >= 0.995) startSequence();
-    if (current !== target) requestAnimationFrame(frame);
-    else ticking = false;
-  }
-  function onScroll() {
-    target = clamp(-hero.getBoundingClientRect().top / (vh * GROW), 0, 1);
-    if (!ticking) { ticking = true; requestAnimationFrame(frame); }
+    const fit = Math.min(1, (window.innerHeight - 150) / 874, (window.innerWidth - 48) / 402);
+    holder.style.setProperty('--fit', fit.toFixed(4));
   }
 
   /* ---------- Camera → loading → results ---------- */
@@ -94,7 +58,7 @@
   async function startSequence() {
     if (sequenceStarted) return;
     sequenceStarted = true;
-    await wait(900); // let the phone settle before the photo
+    await wait(700); // a beat on the camera before the photo
 
     const camera = device.querySelector('[data-state="camera"]');
     if (!reduceMotion) {
@@ -130,18 +94,31 @@
     items.forEach((el) => io.observe(el));
   }
 
+  // Start the sequence once most of the phone is on screen, wherever the visitor scrolls from
+  function observeDevice() {
+    if (!('IntersectionObserver' in window)) { startSequence(); return; }
+    const io = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      io.disconnect();
+      startSequence();
+    }, { threshold: 0.6 });
+    io.observe(device);
+  }
+
   /* ---------- Start (after the password gate, if it was shown) ---------- */
   function start() {
     measure();
-    target = current = clamp(-hero.getBoundingClientRect().top / (vh * GROW), 0, 1);
-    render(current);
+    window.addEventListener('resize', measure);
     if (!reduceMotion) {
       // Title and phone settle in when the page opens
+      const intro = document.querySelector('.cs-hero__intro');
       intro.animate([{ opacity: 0, translate: '0 16px' }, { opacity: 1, translate: '0 0' }], { duration: 1000, easing: EASE_OUT });
-      device.animate([{ opacity: 0, translate: '0 60px' }, { opacity: 1, translate: '0 0' }], { duration: 1200, delay: 150, easing: EASE_OUT, fill: 'backwards' });
+      device.animate(
+        [{ opacity: 0, translate: '0 60px', scale: '0.94' }, { opacity: 1, translate: '0 0', scale: '1' }],
+        { duration: 1200, delay: 150, easing: EASE_OUT, fill: 'backwards' }
+      );
     }
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', () => { measure(); onScroll(); render(current); });
+    observeDevice();
     observeReveals();
   }
 
