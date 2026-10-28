@@ -2,7 +2,6 @@
 :root {
   --case-bg: #ffffff;
   --canvas-grey: #f0f2f3;
-  --canvas-blue: #c8e4f9;
   --canvas-tile: #ffffff;
   --more-card: #f2f2f7;
   --app-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
@@ -11,7 +10,6 @@
 :root[data-theme="dark"] {
   --case-bg: #0d1117;
   --canvas-grey: #161b22;
-  --canvas-blue: #1a2a3a;
   --canvas-tile: #222a33;
   --more-card: #161b22;
 }
@@ -232,7 +230,6 @@ html.case-locked .cs { visibility: hidden; }
   isolation: isolate;
 }
 .canvas--grey { background: var(--canvas-grey); }
-.canvas--blue { background: var(--canvas-blue); }
 .canvas__inner { position: absolute; left: 0; top: 0; transform: scale(var(--fit, 1)); transform-origin: 0 0; }
 .canvas__screen { position: absolute; max-width: none; }
 .canvas__screen--home { left: 101.5px; top: 129px; width: 390px; height: 530px; }
