@@ -60,10 +60,38 @@
     if (!ticking) { ticking = true; requestAnimationFrame(frame); }
   }
 
+  /* ---------- Loading spinner (Lottie) ----------
+     Each spinner plays only while it's on screen; the one in the phone also waits for its screen. */
+  const spinners = window.lottie ? [...document.querySelectorAll('[data-lottie]')].map((el) => {
+    const anim = lottie.loadAnimation({ container: el, renderer: 'svg', loop: true, autoplay: false, path: el.dataset.lottie });
+    if (reduceMotion) anim.addEventListener('DOMLoaded', () => anim.goToAndStop(200, true)); // a still with the sparkles out
+    return { el, anim, state: el.closest('.device__state'), visible: false };
+  }) : [];
+  function syncSpinner(spinner) {
+    if (reduceMotion) return;
+    const shown = spinner.visible && (!spinner.state || spinner.state.classList.contains('is-active'));
+    if (shown) spinner.anim.play();
+    else spinner.anim.pause();
+  }
+  if (spinners.length && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const spinner = spinners.find((s) => s.el === entry.target);
+        spinner.visible = entry.isIntersecting;
+        syncSpinner(spinner);
+      });
+    });
+    spinners.forEach((s) => io.observe(s.el));
+  }
+
   /* ---------- Camera → loading → results ---------- */
   let sequenceStarted = false;
   function showState(name) {
     states.forEach((s) => s.classList.toggle('is-active', s.dataset.state === name));
+    spinners.forEach((spinner) => {
+      if (spinner.state && spinner.state.dataset.state === 'loading' && name === 'loading') spinner.anim.goToAndStop(0, true);
+      syncSpinner(spinner);
+    });
     if (reduceMotion) return;
     const el = device.querySelector(`[data-state="${name}"]`);
     if (name === 'loading') {

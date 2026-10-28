@@ -154,20 +154,14 @@ html.case-locked .cs { visibility: hidden; }
 .app__title { position: absolute; left: 48px; top: 60px; width: 280px; text-align: center; font: 800 16px/19px var(--app-font); color: #fff; }
 
 .loading { position: absolute; inset: 0; }
-.loading__sparkles {
-  position: absolute;
-  left: -4.4px;
-  top: 126px;
-  width: 441px;
-  height: 287px;
-  max-width: none;
-  transform: scaleX(-1);
-}
 .loading__message {
   position: absolute; left: 31px; top: 320px; width: 313px;
   display: flex; flex-direction: column; align-items: center; gap: 20px;
 }
-.loading__spinner { width: 59.5px; height: 60px; }
+/* The Lottie stage is 441x280 with the spinner centred at (220.5, 217.5); the 88px box holds the
+   spinner's place in the layout and the sparkles spill out above it */
+.loading__spinner { position: relative; width: 88px; height: 88px; }
+.loading__spinner > svg { position: absolute; left: -176.5px; top: -173.5px; width: 441px !important; height: 280px !important; }
 .loading__title { font: 900 20px/26px var(--app-display); text-align: center; }
 .loading__text { font: 400 16px/24px var(--app-font); text-align: center; }
 
@@ -311,11 +305,6 @@ html.case-locked .cs { visibility: hidden; }
 .js .reveal.is-visible .canvas { transform: none; }
 .cs-duo.reveal .canvas:nth-child(2) { transition-delay: 90ms; }
 
-/* Loading screen: sparkles breathe and the spinner pulses while it works */
-@keyframes twinkle { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
-@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.92); } }
-.loading__sparkles { animation: twinkle 2.4s ease-in-out infinite; }
-.loading__spinner { animation: pulse 1.6s ease-in-out infinite; }
 
 /* ---------- Smaller screens ---------- */
 @media (max-width: 900px) {
@@ -335,6 +324,5 @@ html.case-locked .cs { visibility: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   .js .reveal, .js .reveal .canvas { opacity: 1; transform: none; transition: none; }
-  .loading__sparkles, .loading__spinner { animation: none; }
   .device__state, .device__state.is-active { transition: none; }
 }
