@@ -213,6 +213,13 @@
     const copy = canvas.cloneNode(true);
     ['tabindex', 'role', 'aria-label'].forEach((attr) => copy.removeAttribute(attr));
     copy.classList.remove('is-expanded');
+    // A copied video picks up where the original is
+    const originals = canvas.querySelectorAll('video');
+    copy.querySelectorAll('video').forEach((video, i) => {
+      const time = originals[i].currentTime;
+      video.preload = 'auto';
+      video.addEventListener('loadedmetadata', () => { video.currentTime = time; }, { once: true });
+    });
     return copy;
   }
   function liven(copy) {
@@ -226,6 +233,11 @@
       const status = statusCycler(el, true);
       status.start();
       running.push(status);
+    });
+    copy.querySelectorAll('video').forEach((video) => {
+      video.muted = true;
+      if (!reduceMotion) video.play().catch(() => {});
+      running.push({ stop: () => video.pause() });
     });
     return () => {
       if (resizeObserver) resizeObserver.unobserve(copy);
@@ -263,6 +275,26 @@
       window.sheet.open({ content, label: template.dataset.label, onClose: release });
     });
   });
+
+  /* ---------- Videos ----------
+     Load only once they're near the screen, play muted while visible, and pause when scrolled away.
+     With reduced motion they stay on their poster, with controls to play by choice. */
+  const videos = [...document.querySelectorAll('.canvas__video')];
+  if (reduceMotion) videos.forEach((video) => { video.controls = true; });
+  else if ('IntersectionObserver' in window) {
+    const near = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.target.preload === 'none') entry.target.preload = 'auto';
+      });
+    }, { rootMargin: '600px 0px' });
+    const visible = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.play().catch(() => {});
+        else entry.target.pause();
+      });
+    }, { threshold: 0.25 });
+    videos.forEach((video) => { near.observe(video); visible.observe(video); });
+  }
 
   /* ---------- Section reveals ---------- */
   function observeReveals() {
