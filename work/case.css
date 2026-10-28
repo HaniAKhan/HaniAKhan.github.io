@@ -261,6 +261,7 @@ html.case-locked .cs { visibility: hidden; }
 .cs-figure { margin: 0; }
 .cs-caption { margin-top: 12px; font-size: 14px; line-height: 20px; color: var(--text-body); }
 .cs-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 3.6%; margin-top: 120px; }
+.cs-duo__heading { grid-column: 1 / -1; margin-bottom: 12px; }
 .cs-wide { margin-top: 140px; }
 .cs-split {
   display: grid;
@@ -337,7 +338,7 @@ html.case-locked .cs { visibility: hidden; }
 .js .reveal.is-visible { opacity: 1; transform: none; }
 .js .reveal .canvas { transform: scale(0.98); transition: transform 1400ms var(--ease-out); }
 .js .reveal.is-visible .canvas { transform: none; }
-.cs-duo.reveal .cs-figure:nth-child(2) .canvas { transition-delay: 90ms; }
+.cs-duo.reveal .cs-figure + .cs-figure .canvas { transition-delay: 90ms; }
 
 /* Every canvas expands into the lightbox on click */
 .js .canvas { cursor: zoom-in; }
