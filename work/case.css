@@ -240,8 +240,8 @@ html.case-locked .cs { visibility: hidden; }
 .canvas--grey { background: var(--canvas-grey); }
 .canvas__inner { position: absolute; left: 0; top: 0; transform: scale(var(--fit, 1)); transform-origin: 0 0; }
 .canvas__screen { position: absolute; max-width: none; }
-/* Positions from the Figma frames; the exports are 3x */
-.canvas__screen--home-a { left: 174.66px; top: 55px; width: 279.1px; height: 604px; }
+/* Both screens centred in their 593px frames; the exports are 3x */
+.canvas__screen--home-a { left: 156.95px; top: 55px; width: 279.1px; height: 604px; }
 .canvas__screen--home-b { left: 157px; top: 55px; width: 279px; height: 604px; }
 .canvas__app { position: absolute; width: 375px; }
 .canvas__app--loading { left: 428px; top: 72px; height: 812px; }
