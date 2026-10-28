@@ -87,7 +87,7 @@
   /* ---------- Loading status ----------
      The status line moves to the next message every few seconds; the phone's runs once, the
      screenshot's loops while it's on screen. */
-  const STATUS_STEP = 4000;
+  const STATUS_STEP = 2000;
   function statusCycler(el, loop) {
     const lines = [...el.querySelectorAll('.loading__line')];
     let index = 0;
