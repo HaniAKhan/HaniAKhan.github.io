@@ -114,13 +114,13 @@
     };
   }
   const deviceStatus = statusCycler(device.querySelector('[data-status]'), false);
-  const wideStatusEl = document.querySelector('.cs-wide [data-status]');
-  if (wideStatusEl && 'IntersectionObserver' in window) {
-    const wideStatus = statusCycler(wideStatusEl, true);
+  const shotStatusEl = document.querySelector('.canvas__app--loading [data-status]');
+  if (shotStatusEl && 'IntersectionObserver' in window) {
+    const shotStatus = statusCycler(shotStatusEl, true);
     new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) wideStatus.start();
-      else wideStatus.stop();
-    }).observe(wideStatusEl);
+      if (entry.isIntersecting) shotStatus.start();
+      else shotStatus.stop();
+    }).observe(shotStatusEl);
   }
 
   /* ---------- Camera → loading → results ---------- */
