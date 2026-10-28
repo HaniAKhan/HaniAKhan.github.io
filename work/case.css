@@ -166,7 +166,7 @@ html.case-locked .cs { visibility: hidden; }
 .loading__status { display: grid; width: 100%; }
 .loading__line {
   grid-area: 1 / 1;
-  font: 700 18px/24px var(--app-display);
+  font: 800 18px/24px var(--app-font);
   text-align: center;
   color: #414142;
   background: linear-gradient(90deg, #414142 0%, #414142 40%, #c4c4c6 50%, #414142 60%, #414142 100%) 0 0 / 250% 100%;
