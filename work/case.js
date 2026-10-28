@@ -177,14 +177,24 @@
   }
 
   /* ---------- Shopping list dataset ----------
-     Each tile shows a different list from the dataset, picked at random on every visit. */
+     Each tile shows a different list from the dataset, picked at random on every visit: mostly
+     handwritten, with a few digital screenshots mixed in. */
   const LIST_COUNT = 49; // assets/work/scan-your-list/lists/shopping-list-001.jpg to -049.jpg
+  const DIGITAL = [2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 15, 17, 20, 27, 28, 29, 37, 40, 44, 45];
+  const DIGITAL_TILES = 5;
   const tiles = [...document.querySelectorAll('.dataset span')];
-  const picks = Array.from({ length: LIST_COUNT }, (_, i) => i + 1);
-  for (let i = picks.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [picks[i], picks[j]] = [picks[j], picks[i]];
-  }
+  const shuffle = (list) => {
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+    return list;
+  };
+  const handwritten = Array.from({ length: LIST_COUNT }, (_, i) => i + 1).filter((n) => !DIGITAL.includes(n));
+  const picks = shuffle([
+    ...shuffle([...DIGITAL]).slice(0, DIGITAL_TILES),
+    ...shuffle(handwritten).slice(0, tiles.length - DIGITAL_TILES),
+  ]);
   tiles.forEach((tile, i) => {
     const img = document.createElement('img');
     img.src = `/assets/work/scan-your-list/lists/shopping-list-${String(picks[i]).padStart(3, '0')}.jpg`;
