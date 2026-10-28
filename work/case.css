@@ -1,6 +1,6 @@
 /* ---------- Case study pages ---------- */
 :root {
-  --case-bg: #ffffff;
+  --case-bg: var(--bg); /* same as the home page */
   --canvas-grey: #f0f2f3;
   --canvas-tile: #ffffff;
   --more-card: #f2f2f7;
@@ -8,7 +8,6 @@
   --app-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
 }
 :root[data-theme="dark"] {
-  --case-bg: #0d1117;
   --canvas-grey: #161b22;
   --canvas-tile: #222a33;
   --more-card: #161b22;
