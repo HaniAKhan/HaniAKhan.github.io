@@ -3,6 +3,8 @@
   const root = document.documentElement;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const EASE_OUT = 'cubic-bezier(0.22, 1, 0.36, 1)';
+  const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+  const smooth = (t) => t * t * (3 - 2 * t);
   const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   /* ---------- Media canvases ----------
@@ -22,15 +24,40 @@
   canvases.forEach((c) => resizeObserver && resizeObserver.observe(c));
 
   /* ---------- Hero phone ----------
-     The phone stays in the page's normal flow, so scrolling is always the visitor's. It's sized to fit
-     the window, eases in, and runs through its screens by itself once enough of it is in view. */
-  const holder = document.querySelector('.cs-hero__device');
+     The phone peeks up from the bottom of the first screen and stays in the page's normal flow, so
+     scrolling is always the visitor's. It grows slightly as it rises, and once it's fully in view it
+     runs through its screens by itself. */
+  const hero = document.querySelector('.cs-hero');
+  const holder = hero.querySelector('.cs-hero__device');
   const device = holder.querySelector('.device');
   const states = [...device.querySelectorAll('[data-state]')];
 
+  const PEEK = 132;          // how much of the phone shows above the fold on arrival (design px)
+  const START_SCALE = 0.885; // 355.7 / 402, from the design
+
+  let fit = 1;
   function measure() {
-    const fit = Math.min(1, (window.innerHeight - 150) / 874, (window.innerWidth - 48) / 402);
+    fit = Math.min(1, (window.innerHeight - 150) / 874, (window.innerWidth - 48) / 402);
     holder.style.setProperty('--fit', fit.toFixed(4));
+    hero.style.setProperty('--peek', `${Math.round(PEEK * fit)}px`);
+  }
+
+  // Growth follows how far the phone has risen into the window, eased a little each frame
+  let target = 1;
+  let current = 1;
+  let ticking = false;
+  const progress = () => clamp((window.innerHeight - holder.getBoundingClientRect().top) / (874 * fit), 0, 1);
+  const render = () => device.style.setProperty('--grow', (START_SCALE + (1 - START_SCALE) * smooth(current)).toFixed(4));
+  function frame() {
+    current += (target - current) * 0.14;
+    if (Math.abs(target - current) < 0.0005) current = target;
+    render();
+    if (current !== target) requestAnimationFrame(frame);
+    else ticking = false;
+  }
+  function onScroll() {
+    target = progress();
+    if (!ticking) { ticking = true; requestAnimationFrame(frame); }
   }
 
   /* ---------- Camera → loading → results ---------- */
@@ -94,21 +121,26 @@
     items.forEach((el) => io.observe(el));
   }
 
-  // Start the sequence once most of the phone is on screen, wherever the visitor scrolls from
+  // Start the sequence once the whole phone is on screen, wherever the visitor scrolls from
   function observeDevice() {
     if (!('IntersectionObserver' in window)) { startSequence(); return; }
     const io = new IntersectionObserver((entries) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
       io.disconnect();
       startSequence();
-    }, { threshold: 0.6 });
+    }, { threshold: 0.98 });
     io.observe(device);
   }
 
   /* ---------- Start (after the password gate, if it was shown) ---------- */
   function start() {
     measure();
-    window.addEventListener('resize', measure);
+    if (!reduceMotion) {
+      target = current = progress();
+      render();
+      window.addEventListener('scroll', onScroll, { passive: true });
+    }
+    window.addEventListener('resize', () => { measure(); if (!reduceMotion) onScroll(); });
     if (!reduceMotion) {
       // Title and phone settle in when the page opens
       const intro = document.querySelector('.cs-hero__intro');
