@@ -14,40 +14,8 @@
 
   const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  /* ---------- Theme ---------- */
+  // Theme switching lives in site.js; the toggle is animated in during the entrance.
   const toggle = document.querySelector('.theme-toggle');
-  const options = [...toggle.querySelectorAll('[data-theme-value]')];
-  let transitionTimer;
-
-  function syncToggle() {
-    options.forEach((btn) => {
-      const active = btn.dataset.themeValue === root.dataset.theme;
-      btn.setAttribute('aria-checked', String(active));
-      btn.tabIndex = active ? 0 : -1;
-    });
-  }
-
-  function setTheme(theme) {
-    if (theme === root.dataset.theme) return;
-    if (!reduceMotion) {
-      root.classList.add('theme-transition');
-      clearTimeout(transitionTimer);
-      transitionTimer = setTimeout(() => root.classList.remove('theme-transition'), 650);
-    }
-    root.dataset.theme = theme;
-    try { localStorage.setItem('theme', theme); } catch (e) {}
-    syncToggle();
-  }
-
-  options.forEach((btn) => btn.addEventListener('click', () => setTheme(btn.dataset.themeValue)));
-  toggle.addEventListener('keydown', (event) => {
-    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
-    event.preventDefault();
-    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
-    setTheme(next);
-    toggle.querySelector(`[data-theme-value="${next}"]`).focus();
-  });
-  syncToggle();
 
   /* ---------- Headline word split ---------- */
   const title = document.querySelector('[data-split]');
@@ -303,7 +271,16 @@
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   window.scrollTo(0, 0);
 
+  // The intro plays once per visit; coming back from a case study shows the page straight away.
+  const INTRO_KEY = 'intro-played';
+  const introPlayed = (() => { try { return sessionStorage.getItem(INTRO_KEY) === '1'; } catch (e) { return false; } })();
+
   async function intro() {
+    if (introPlayed) {
+      finish();
+      observeCases();
+      return;
+    }
     await assetsReady;
 
     if (reduceMotion || !introName.animate) {
@@ -354,6 +331,7 @@
     await travel.finished;
     // The intro name now sits exactly on the header wordmark: swap them.
     finish();
+    try { sessionStorage.setItem(INTRO_KEY, '1'); } catch (e) {}
   }
 
   intro().catch(finish);

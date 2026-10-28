@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Scan your list — Hani Khan</title>
+  <meta name="description" content="Scan your list: turning a photo of a handwritten shopping list into H-E-B product matches.">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    // Theme before first paint, and keep the case study hidden until it's unlocked.
+    (function () {
+      var root = document.documentElement, theme;
+      try { theme = localStorage.getItem('theme'); } catch (e) {}
+      if (theme !== 'light' && theme !== 'dark') {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      root.dataset.theme = theme;
+      root.classList.add('js');
+      var unlocked = false;
+      try { unlocked = localStorage.getItem('case-access') === '184713e42b7a88ff777846701a47ae4b68d85b191544d07156acb8212520914e'; } catch (e) {}
+      if (!unlocked) root.classList.add('case-locked');
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Boldonse&family=Fraunces:opsz,wght,SOFT,WONK@144,436,100,0&display=block">
+  <link rel="preload" as="image" href="/assets/work/scan-your-list/iphone-frame.png">
+  <link rel="preload" as="image" href="/assets/work/scan-your-list/list-photo.jpg">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/work/case.css">
+</head>
+<body data-case-page>
+  <header class="site-header">
+    <a href="/" class="wordmark wordmark-text" aria-label="Hani Khan, home"><span>H</span><span>a</span><span>n</span><span>i</span></a>
+    <div class="theme-toggle" role="radiogroup" aria-label="Color theme">
+      <span class="theme-toggle__thumb" aria-hidden="true"></span>
+      <button type="button" role="radio" class="theme-toggle__option" data-theme-value="light" aria-label="Light mode">
+        <img src="/assets/sun.svg" alt="" width="18" height="18" class="icon icon--light">
+        <img src="/assets/sun-dark.svg" alt="" width="18" height="18" class="icon icon--dark">
+      </button>
+      <button type="button" role="radio" class="theme-toggle__option" data-theme-value="dark" aria-label="Dark mode">
+        <img src="/assets/moon.svg" alt="" width="18" height="18" class="icon icon--light">
+        <img src="/assets/moon-dark.svg" alt="" width="18" height="18" class="icon icon--dark">
+      </button>
+    </div>
+  </header>
+
+  <main class="cs">
+    <!-- Hero: as you scroll, the phone rises and grows; then it takes a photo of the list -->
+    <section class="cs-hero" aria-labelledby="cs-title">
+      <div class="cs-hero__stage">
+        <div class="cs-hero__intro">
+          <h1 class="cs-title" id="cs-title">Scan your list</h1>
+          <p class="cs-lede">Starting your grocery shop is hard. The cart is empty, and adding items one by one is painful. Customers build lists outside HEB. We aimed to reduce the friction of adding items. Our CXO's research showed that quickly shopping from a handwritten list is a key customer need. We also received requests to enable shopping from existing lists. This aligns with our goal to encourage in-store app usage.</p>
+        </div>
+
+        <div class="device" role="img" aria-label="An iPhone running Scan your list: it photographs a handwritten shopping list, finds products, then shows the matches.">
+          <div class="device__screen">
+            <!-- 1. Camera: taking a photo of the handwritten list -->
+            <div class="device__state is-active" data-state="camera">
+              <img class="camera__photo" src="/assets/work/scan-your-list/list-photo.jpg" alt="">
+              <div class="camera__bar">
+                <div class="camera__status">
+                  <span class="camera__time">7:05</span>
+                  <img class="camera__icons" src="/assets/work/scan-your-list/status-icons-white.svg" alt="">
+                </div>
+                <div class="camera__nav">
+                  <span class="camera__close"><img src="/assets/work/scan-your-list/close-white.svg" alt=""></span>
+                  <span class="camera__title">Take a photo</span>
+                </div>
+                <img class="camera__curve" src="/assets/work/scan-your-list/camera-curve.svg" alt="">
+              </div>
+              <span class="camera__shutter"></span>
+              <span class="camera__flash"></span>
+            </div>
+
+            <!-- 2. Finding products -->
+            <div class="device__state device__state--app" data-state="loading">
+              <div class="app">
+                <div class="app__header">
+                  <img class="app__curve" src="/assets/work/scan-your-list/nav-curve-red.svg" alt="">
+                  <span class="app__time">9:41</span>
+                  <img class="app__cellular" src="/assets/work/scan-your-list/cellular.svg" alt="">
+                  <img class="app__wifi" src="/assets/work/scan-your-list/wifi.svg" alt="">
+                  <img class="app__battery" src="/assets/work/scan-your-list/battery.svg" alt="">
+                  <img class="app__close" src="/assets/work/scan-your-list/close-white-2.svg" alt="">
+                </div>
+                <div class="loading">
+                  <img class="loading__sparkles" src="/assets/work/scan-your-list/sparkles.svg" alt="">
+                  <div class="loading__message">
+                    <img class="loading__spinner" src="/assets/work/scan-your-list/spinner.svg" alt="">
+                    <p class="loading__title">Finding products</p>
+                    <p class="loading__text">This may take a few moments</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Your product matches -->
+            <div class="device__state device__state--app" data-state="results">
+              <div class="app">
+                <div class="app__header">
+                  <img class="app__curve" src="/assets/work/scan-your-list/nav-curve-red.svg" alt="">
+                  <span class="app__time">9:41</span>
+                  <img class="app__cellular" src="/assets/work/scan-your-list/cellular.svg" alt="">
+                  <img class="app__wifi" src="/assets/work/scan-your-list/wifi.svg" alt="">
+                  <img class="app__battery" src="/assets/work/scan-your-list/battery.svg" alt="">
+                  <img class="app__close" src="/assets/work/scan-your-list/close-white-2.svg" alt="">
+                  <span class="app__title">Your product matches</span>
+                </div>
+                <div class="results">
+                  <p class="results__intro">Review and replace items if needed, then add your selections to cart or a shopping list.</p>
+                  <div class="match">
+                    <p class="match__term">Oil</p>
+                    <div class="product">
+                      <img class="product__check" src="/assets/work/scan-your-list/checkbox.svg" alt="">
+                      <img class="product__image" src="/assets/work/scan-your-list/product-canola-oil.png" alt="">
+                      <div class="product__info">
+                        <span class="tag tag--again">Buy it again</span>
+                        <p class="product__name">Hill Country Fare Canola Oil, 24oz</p>
+                        <span class="tag tag--snap">SNAP EBT</span>
+                      </div>
+                      <div class="product__actions">
+                        <span class="pill pill--qty">1</span>
+                        <span class="pill pill--swap"><img src="/assets/work/scan-your-list/replace.svg" alt="">Replace</span>
+                        <span class="product__price">$6.89</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="match">
+                    <p class="match__term">Dressing</p>
+                    <div class="product">
+                      <img class="product__check" src="/assets/work/scan-your-list/checkbox.svg" alt="">
+                      <img class="product__image" src="/assets/work/scan-your-list/product-miso-dressing.jpg" alt="">
+                      <div class="product__info">
+                        <span class="tag tag--again">Buy it again</span>
+                        <p class="product__name">H‑E‑B Organics Japanese Miso Salad Dressing, 12oz</p>
+                        <span class="tag tag--snap">SNAP EBT</span>
+                      </div>
+                      <div class="product__actions">
+                        <span class="pill pill--qty">1</span>
+                        <span class="pill pill--swap"><img src="/assets/work/scan-your-list/replace.svg" alt="">Replace</span>
+                        <span class="product__price">$6.89</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="match">
+                    <p class="match__term">Deli meat</p>
+                    <div class="product">
+                      <img class="product__check" src="/assets/work/scan-your-list/checkbox.svg" alt="">
+                      <img class="product__image" src="/assets/work/scan-your-list/product-garlic.png" alt="">
+                      <div class="product__info">
+                        <span class="tag tag--again">Buy it again</span>
+                        <p class="product__name">Hill Country Fare Canola Oil, 24oz</p>
+                        <span class="tag tag--snap">SNAP EBT</span>
+                      </div>
+                      <div class="product__actions">
+                        <span class="pill pill--qty">1</span>
+                        <span class="pill pill--swap"><img src="/assets/work/scan-your-list/replace.svg" alt="">Replace</span>
+                        <span class="product__price">$6.89</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="app__footer">
+                  <span class="app__button app__button--primary">Add selected to cart</span>
+                  <span class="app__button">Add selected to list</span>
+                  <span class="app__home-indicator"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <img class="device__frame" src="/assets/work/scan-your-list/iphone-frame.png" alt="">
+        </div>
+      </div>
+    </section>
+
+    <!-- Where the feature lives in the app -->
+    <section class="cs-section cs-duo reveal">
+      <div class="canvas canvas--blue" data-canvas="593x659">
+        <div class="canvas__inner"><img class="canvas__screen canvas__screen--home" src="/assets/work/scan-your-list/heb-home.png" alt="The My H-E-B tab, with a new “Scan your list” shortcut"></div>
+      </div>
+      <div class="canvas canvas--blue" data-canvas="593x659">
+        <div class="canvas__inner"><img class="canvas__screen canvas__screen--home" src="/assets/work/scan-your-list/heb-home.png" alt=""></div>
+      </div>
+    </section>
+
+    <!-- Finding products -->
+    <section class="cs-section cs-wide reveal">
+      <div class="canvas canvas--grey" data-canvas="1231x738">
+        <div class="canvas__inner">
+          <div class="canvas__app canvas__app--loading">
+            <div class="app">
+              <div class="app__header">
+                <img class="app__curve" src="/assets/work/scan-your-list/nav-curve-red.svg" alt="">
+                <span class="app__time">9:41</span>
+                <img class="app__cellular" src="/assets/work/scan-your-list/cellular.svg" alt="">
+                <img class="app__wifi" src="/assets/work/scan-your-list/wifi.svg" alt="">
+                <img class="app__battery" src="/assets/work/scan-your-list/battery.svg" alt="">
+                <img class="app__close" src="/assets/work/scan-your-list/close-white-2.svg" alt="">
+                <span class="app__title">Your product matches</span>
+              </div>
+              <div class="loading">
+                <img class="loading__sparkles" src="/assets/work/scan-your-list/sparkles.svg" alt="">
+                <div class="loading__message">
+                  <img class="loading__spinner" src="/assets/work/scan-your-list/spinner.svg" alt="">
+                  <p class="loading__title">Finding products</p>
+                  <p class="loading__text">This may take a few moments</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Personalized matches -->
+    <section class="cs-section cs-split reveal">
+      <div class="canvas canvas--grey" data-canvas="617x738">
+        <div class="canvas__inner">
+          <div class="canvas__app canvas__app--results">
+            <div class="app">
+              <div class="app__header">
+                <img class="app__curve" src="/assets/work/scan-your-list/nav-curve-red.svg" alt="">
+                <span class="app__time">9:41</span>
+                <img class="app__cellular" src="/assets/work/scan-your-list/cellular.svg" alt="">
+                <img class="app__wifi" src="/assets/work/scan-your-list/wifi.svg" alt="">
+                <img class="app__battery" src="/assets/work/scan-your-list/battery.svg" alt="">
+                <img class="app__close" src="/assets/work/scan-your-list/close-white-2.svg" alt="">
+                <span class="app__title">Your product matches</span>
+              </div>
+              <div class="results">
+                <p class="results__intro">Review and replace items if needed, then add your selections to cart or a shopping list.</p>
+                <div class="match">
+                  <p class="match__term">Kale</p>
+                  <div class="product">
+                    <img class="product__check" src="/assets/work/scan-your-list/checkbox.svg" alt="">
+                    <img class="product__image" src="/assets/work/scan-your-list/product-kale.jpg" alt="">
+                    <div class="product__info">
+                      <span class="tag tag--again">Buy it again</span>
+                      <p class="product__name">Fresh Kale Greens, 1 Bundle</p>
+                      <span class="tag tag--snap">SNAP EBT</span>
+                    </div>
+                    <div class="product__actions">
+                      <span class="pill pill--qty">1</span>
+                      <span class="pill pill--swap"><img src="/assets/work/scan-your-list/substitute.svg" alt="">Browse options</span>
+                      <span class="product__price">$1.48<small>$1.27 each</small></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="match">
+                  <p class="match__term">Lemon</p>
+                  <div class="product">
+                    <img class="product__check" src="/assets/work/scan-your-list/checkbox.svg" alt="">
+                    <img class="product__image" src="/assets/work/scan-your-list/product-lemon.jpg" alt="">
+                    <div class="product__info">
+                      <span class="tag tag--again">Buy it again</span>
+                      <p class="product__name">Fresh Small Lemon</p>
+                      <span class="tag tag--snap">SNAP EBT</span>
+                    </div>
+                    <div class="product__actions">
+                      <span class="pill pill--qty">1</span>
+                      <span class="pill pill--swap"><img src="/assets/work/scan-your-list/substitute.svg" alt="">Browse options</span>
+                      <span class="product__price">$0.33<small>$1.27 each</small></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="match">
+                  <p class="match__term">Farmer's cheese</p>
+                  <div class="product">
+                    <img class="product__check" src="/assets/work/scan-your-list/checkbox.svg" alt="">
+                    <img class="product__image" src="/assets/work/scan-your-list/product-cheese.jpg" alt="">
+                    <div class="product__info">
+                      <span class="tag tag--again">Buy it again</span>
+                      <p class="product__name">Cabot Two State Farmers Cheddar Shredded Cheese Blend, 8 oz</p>
+                      <span class="tag tag--snap">SNAP EBT</span>
+                    </div>
+                    <div class="product__actions">
+                      <span class="pill pill--qty">1</span>
+                      <span class="pill pill--swap"><img src="/assets/work/scan-your-list/substitute.svg" alt="">Browse options</span>
+                      <span class="product__price">$3.29<small>$1.27 each</small></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cs-copy">
+        <h2 class="cs-heading">Personalized matches with the option to browse for more</h2>
+        <p class="cs-body">Starting your grocery shop is hard. Your cart is empty, and adding items one by one is painful. We aimed to reduce the friction of adding items. Our CXO's research showed that quickly shopping from a handwritten list is a key customer need.</p>
+      </div>
+    </section>
+
+    <!-- Dataset -->
+    <section class="cs-section cs-split cs-split--copy-first reveal">
+      <div class="cs-copy">
+        <h2 class="cs-heading">A shopping list dataset to test LLM behavior</h2>
+        <p class="cs-body">Starting your grocery shop is hard. Your cart is empty, and adding items one by one is painful. We aimed to reduce the friction of adding items. Our CXO's research showed that quickly shopping from a handwritten list is a key customer need.</p>
+      </div>
+      <div class="canvas canvas--grey" data-canvas="686x738">
+        <div class="canvas__inner">
+          <div class="dataset">
+            <span style="left:42px;top:49px"></span><span style="left:450px;top:20px"></span><span style="left:827px;top:49px"></span>
+            <span style="left:42px;top:340px"></span><span style="left:450px;top:311px"></span><span style="left:827px;top:340px"></span>
+            <span style="left:42px;top:632px"></span><span style="left:450px;top:603px"></span><span style="left:827px;top:632px"></span>
+            <span style="left:246px;top:-87px"></span><span style="left:1031px;top:-87px"></span>
+            <span style="left:246px;top:198px"></span><span style="left:1031px;top:198px"></span>
+            <span style="left:246px;top:483px"></span><span style="left:1031px;top:483px"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quote -->
+    <section class="cs-section cs-quote reveal">
+      <blockquote>
+        <p class="cs-quote__text">“This is a quote about how I performed during this project. This is a quote about how I performed during this project.”</p>
+        <footer class="cs-quote__by">
+          <span class="cs-quote__avatar" aria-hidden="true"></span>
+          <span><strong>Backend lead</strong><br>Feedback on my yearly peer reviews</span>
+        </footer>
+      </blockquote>
+    </section>
+
+    <!-- Other projects -->
+    <section class="cs-section cs-more reveal" aria-labelledby="more-title">
+      <h2 class="cs-more__title" id="more-title">View other projects</h2>
+      <div class="cs-more__row">
+        <div class="cs-more__card"></div>
+        <div class="cs-more__card"></div>
+        <div class="cs-more__card"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/site.js"></script>
+  <script src="/work/case.js"></script>
+</body>
+</html>
