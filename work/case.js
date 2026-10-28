@@ -85,7 +85,7 @@
   async function startSequence() {
     if (sequenceStarted) return;
     sequenceStarted = true;
-    await wait(700); // a beat on the camera before the photo
+    await wait(250); // a brief beat on the camera before the photo
 
     const camera = device.querySelector('[data-state="camera"]');
     if (!reduceMotion) {
