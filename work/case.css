@@ -240,9 +240,16 @@ html.case-locked .cs { visibility: hidden; }
 .canvas--grey { background: var(--canvas-grey); }
 .canvas__inner { position: absolute; left: 0; top: 0; transform: scale(var(--fit, 1)); transform-origin: 0 0; }
 .canvas__screen { position: absolute; max-width: none; }
-/* Both screens centred in their 593px frames; the exports are 3x */
-.canvas__screen--home-a { left: 156.95px; top: 55px; width: 279.1px; height: 604px; }
-.canvas__screen--home-b { left: 157px; top: 55px; width: 279px; height: 604px; }
+/* A phone screen centred in its 593px frame, showing the top 604px of a longer page (exported at 3x).
+   Hovering the panel scrolls slowly to the bottom of the page; leaving glides back to the top. */
+.canvas__screen--scroll { left: 157px; top: 55px; width: 279px; height: 604px; overflow: hidden; background: #fff; }
+.canvas__screen--scroll img { display: block; width: 100%; height: var(--content); max-width: none; transition: transform 900ms var(--ease-out); }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .canvas:hover .canvas__screen--scroll img {
+    transform: translateY(calc(604px - var(--content)));
+    transition: transform var(--scroll-time) cubic-bezier(0.45, 0, 0.55, 1) 200ms;
+  }
+}
 .canvas__app { position: absolute; width: 375px; }
 .canvas__app--loading { left: 428px; top: 72px; height: 812px; }
 .canvas__app--results { left: 121px; top: 94px; height: 900px; }
@@ -250,6 +257,8 @@ html.case-locked .cs { visibility: hidden; }
 
 /* ---------- Sections ---------- */
 .cs-section { width: min(1231px, 100% - 2 * var(--gutter)); margin: 0 auto; }
+.cs-figure { margin: 0; }
+.cs-caption { margin-top: 12px; font-size: 14px; line-height: 20px; color: var(--text-body); }
 .cs-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 3.6%; margin-top: 120px; }
 .cs-wide { margin-top: 140px; }
 .cs-split {
@@ -327,7 +336,13 @@ html.case-locked .cs { visibility: hidden; }
 .js .reveal.is-visible { opacity: 1; transform: none; }
 .js .reveal .canvas { transform: scale(0.98); transition: transform 1400ms var(--ease-out); }
 .js .reveal.is-visible .canvas { transform: none; }
-.cs-duo.reveal .canvas:nth-child(2) { transition-delay: 90ms; }
+.cs-duo.reveal .cs-figure:nth-child(2) .canvas { transition-delay: 90ms; }
+
+/* Every canvas expands into the lightbox on click */
+.js .canvas { cursor: zoom-in; }
+.canvas:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+.canvas.is-expanded .canvas__inner { visibility: hidden; }
+.lightbox__frame .canvas { width: 100%; height: 100%; border-radius: 0; transform: none; transition: none; cursor: inherit; }
 
 
 /* ---------- Smaller screens ---------- */

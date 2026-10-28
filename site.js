@@ -189,6 +189,147 @@
     });
   }
 
+  /* ---------- Image lightbox ----------
+     Any element can expand: attach(media, { caption, art, radius, onOpen, onClose }). `art` returns the copy
+     shown enlarged; `radius` is the thumbnail's corner radius; onOpen/onClose get that copy, e.g. to keep it
+     scaled or animated while it's open. */
+  const LIGHTBOX_OPEN = { duration: 640, easing: 'cubic-bezier(0.32, 0.72, 0, 1)', fill: 'forwards' };
+  const LIGHTBOX_CLOSE = { duration: 480, easing: 'cubic-bezier(0.32, 0.72, 0, 1)', fill: 'forwards' };
+
+  const lightbox = document.createElement('div');
+  lightbox.className = 'lightbox';
+  lightbox.setAttribute('role', 'dialog');
+  lightbox.setAttribute('aria-modal', 'true');
+  lightbox.hidden = true;
+  lightbox.innerHTML = `
+    <div class="lightbox__backdrop"></div>
+    <div class="lightbox__frame"></div>
+    <p class="lightbox__caption"></p>
+    <button type="button" class="lightbox__close" aria-label="Close image"></button>`;
+  document.body.append(lightbox);
+  const lbBackdrop = lightbox.querySelector('.lightbox__backdrop');
+  const lbFrame = lightbox.querySelector('.lightbox__frame');
+  const lbCaption = lightbox.querySelector('.lightbox__caption');
+  const lbClose = lightbox.querySelector('.lightbox__close');
+
+  let active = null; // { media, options, node, ratio }
+  let busy = false;
+
+  const isSmall = () => window.innerWidth <= 640;
+  const lightboxRadius = () => (isSmall() ? 0 : 10);
+
+  // Largest rect at the artwork's proportions that fits the viewport, leaving room for the close button and caption.
+  function fittedRect({ ratio }) {
+    const padX = isSmall() ? 0 : 24;
+    const padTop = 68;
+    const padBottom = 60;
+    let width = window.innerWidth - padX * 2;
+    let height = width / ratio;
+    const availH = window.innerHeight - padTop - padBottom;
+    if (height > availH) { height = availH; width = height * ratio; }
+    return { left: (window.innerWidth - width) / 2, top: padTop + (availH - height) / 2, width, height };
+  }
+
+  const toFrame = (rect, radius) => ({
+    left: `${rect.left}px`, top: `${rect.top}px`, width: `${rect.width}px`, height: `${rect.height}px`,
+    borderRadius: `${radius}px`,
+  });
+
+  function placeFrame(rect) {
+    Object.assign(lbFrame.style, toFrame(rect, lightboxRadius()));
+    lbCaption.style.top = `${rect.top + rect.height + 20}px`;
+  }
+
+  async function openLightbox(media, options) {
+    if (busy || active) return;
+    busy = true;
+
+    const thumb = media.getBoundingClientRect();
+    const node = options.art();
+    active = { media, options, node, ratio: thumb.width / thumb.height };
+    lbFrame.replaceChildren(node);
+    lbCaption.textContent = options.caption;
+    lightbox.setAttribute('aria-label', options.caption);
+
+    const rect = fittedRect(active);
+    // Let the copy pick its file for the enlarged size, not the thumbnail's.
+    node.querySelectorAll('img[srcset]').forEach((img) => { img.sizes = `${Math.round(rect.width)}px`; });
+    lockScroll(true);
+    lightbox.hidden = false;
+    placeFrame(rect);
+    media.classList.add('is-expanded');
+    if (options.onOpen) options.onOpen(node);
+
+    if (!reduceMotion) {
+      const opening = [
+        lbFrame.animate([toFrame(thumb, options.radius()), toFrame(rect, lightboxRadius())], LIGHTBOX_OPEN),
+        lbBackdrop.animate([{ opacity: 0 }, { opacity: 1 }], { ...LIGHTBOX_OPEN, duration: 420 }),
+        lbCaption.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }],
+          { ...LIGHTBOX_OPEN, delay: 260 }),
+        lbClose.animate([{ opacity: 0, transform: 'scale(0.8)' }, { opacity: 1, transform: 'none' }],
+          { ...LIGHTBOX_OPEN, delay: 200 }),
+      ];
+      await Promise.all(opening.map((a) => a.finished));
+      // End states match the inline styles and CSS, so hand control back to them (e.g. the close button's hover).
+      opening.forEach((a) => a.cancel());
+    }
+
+    lbClose.focus({ preventScroll: true });
+    busy = false;
+  }
+
+  async function closeLightbox() {
+    if (busy || !active) return;
+    busy = true;
+    const { media, options, node } = active;
+
+    if (!reduceMotion) {
+      const thumb = media.getBoundingClientRect();
+      const fadeOut = { ...LIGHTBOX_CLOSE, duration: 300 };
+      const closing = [
+        lbFrame.animate([toFrame(fittedRect(active), lightboxRadius()), toFrame(thumb, options.radius())], LIGHTBOX_CLOSE),
+        lbBackdrop.animate([{ opacity: 1 }, { opacity: 0 }], LIGHTBOX_CLOSE),
+        lbCaption.animate([{ opacity: 1 }, { opacity: 0 }], fadeOut),
+        lbClose.animate([{ opacity: 1 }, { opacity: 0 }], fadeOut),
+      ];
+      await closing[0].finished;
+      closing.forEach((a) => a.cancel());
+    }
+
+    if (options.onClose) options.onClose(node);
+    media.classList.remove('is-expanded');
+    lightbox.hidden = true;
+    lbFrame.replaceChildren();
+    lockScroll(false);
+    active = null;
+    busy = false;
+    media.focus({ preventScroll: true });
+  }
+
+  window.lightbox = {
+    attach(media, options) {
+      media.tabIndex = 0;
+      media.setAttribute('role', 'button');
+      media.setAttribute('aria-label', `Expand image: ${options.caption}`);
+      media.addEventListener('click', () => openLightbox(media, options));
+      media.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        openLightbox(media, options);
+      });
+    },
+  };
+
+  lightbox.addEventListener('click', closeLightbox);
+  document.addEventListener('keydown', (event) => {
+    if (!active) return;
+    if (event.key === 'Escape') closeLightbox();
+    if (event.key === 'Tab') { event.preventDefault(); lbClose.focus(); } // only one control to focus
+  });
+  window.addEventListener('resize', () => {
+    if (active && !busy) placeFrame(fittedRect(active));
+  });
+
   // Links into case studies ask for the password the first time.
   document.addEventListener('click', (event) => {
     const link = event.target.closest('a[data-case-link]');

@@ -176,6 +176,42 @@
     showState('results');
   }
 
+  /* ---------- Expand on click ----------
+     Each canvas opens in the shared lightbox. Its copy keeps scaling to the frame as it grows, and a
+     loading screen keeps its spinner and status messages running. */
+  canvases.forEach((canvas) => {
+    const figure = canvas.closest('figure');
+    const caption = canvas.dataset.caption || (figure && figure.querySelector('figcaption').textContent) || '';
+    let running = [];
+    window.lightbox.attach(canvas, {
+      caption,
+      radius: () => 40 * Number(canvas.style.getPropertyValue('--fit') || 1),
+      art: () => {
+        const copy = canvas.cloneNode(true);
+        ['tabindex', 'role', 'aria-label'].forEach((attr) => copy.removeAttribute(attr));
+        copy.classList.remove('is-expanded');
+        return copy;
+      },
+      onOpen: (copy) => {
+        if (resizeObserver) resizeObserver.observe(copy);
+        copy.querySelectorAll('[data-lottie]').forEach((el) => {
+          el.replaceChildren();
+          if (window.lottie) running.push(lottie.loadAnimation({ container: el, renderer: 'svg', loop: true, autoplay: !reduceMotion, path: el.dataset.lottie }));
+        });
+        copy.querySelectorAll('[data-status]').forEach((el) => {
+          const status = statusCycler(el, true);
+          status.start();
+          running.push(status);
+        });
+      },
+      onClose: (copy) => {
+        if (resizeObserver) resizeObserver.unobserve(copy);
+        running.forEach((item) => (item.destroy ? item.destroy() : item.stop()));
+        running = [];
+      },
+    });
+  });
+
   /* ---------- Section reveals ---------- */
   function observeReveals() {
     const items = document.querySelectorAll('.reveal');
