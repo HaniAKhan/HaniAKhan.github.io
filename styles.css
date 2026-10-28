@@ -21,6 +21,7 @@
   --border: #d8dde2;
   --chip-bg: #eef0f2;
   --divider: rgba(0, 0, 0, 0.1);
+  --link-underline: rgba(0, 0, 0, 0.16);
   --toggle-bg: #f3f4f6;
   --toggle-thumb: #323334;
 
@@ -39,6 +40,7 @@
   --border: #2a3540;
   --chip-bg: #1b222a;
   --divider: rgba(255, 255, 255, 0.1);
+  --link-underline: rgba(255, 255, 255, 0.2);
   --toggle-bg: #151b22;
   --toggle-thumb: #fafafa;
 }
@@ -251,8 +253,11 @@ html.is-loading .wordmark { visibility: hidden; }
   border-radius: 8px;
   outline-offset: 6px;
 }
+/* A light underline at rest; on hover a solid one draws across it from the left */
 .case__link-text {
-  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  background:
+    linear-gradient(currentColor, currentColor) 0 100% / 0 1.5px no-repeat,
+    linear-gradient(var(--link-underline), var(--link-underline)) 0 100% / 100% 1.5px no-repeat;
   transition: background-size 500ms var(--ease-out);
   padding-bottom: 2px;
 }
@@ -269,7 +274,7 @@ html.is-loading .wordmark { visibility: hidden; }
 }
 .case__link-icon svg { transition: transform 400ms var(--ease-out); }
 .case__link:hover .case__link-text,
-.case__link:focus-visible .case__link-text { background-size: 100% 1px; }
+.case__link:focus-visible .case__link-text { background-size: 100% 1.5px, 100% 1.5px; }
 .case__link:hover .case__link-icon,
 .case__link:focus-visible .case__link-icon { background: var(--text); color: var(--bg); }
 .case__link:hover .case__link-icon svg,
