@@ -253,7 +253,8 @@ html.case-locked .cs { visibility: hidden; }
 .canvas__app { position: absolute; width: 375px; }
 .canvas__app--loading { left: 428px; top: 72px; height: 812px; }
 .canvas__app--results { left: 121px; top: 94px; height: 900px; }
-.dataset span { position: absolute; width: 189px; height: 271px; border-radius: 12px; background: var(--canvas-tile); }
+.dataset span { position: absolute; width: 189px; height: 271px; overflow: hidden; border-radius: 12px; background: var(--canvas-tile); }
+.dataset img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
 /* ---------- Sections ---------- */
 .cs-section { width: min(1231px, 100% - 2 * var(--gutter)); margin: 0 auto; }

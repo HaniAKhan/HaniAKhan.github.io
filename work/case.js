@@ -176,6 +176,24 @@
     showState('results');
   }
 
+  /* ---------- Shopping list dataset ----------
+     Each tile shows a different list from the dataset, picked at random on every visit. */
+  const LIST_COUNT = 49; // assets/work/scan-your-list/lists/shopping-list-001.jpg to -049.jpg
+  const tiles = [...document.querySelectorAll('.dataset span')];
+  const picks = Array.from({ length: LIST_COUNT }, (_, i) => i + 1);
+  for (let i = picks.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [picks[i], picks[j]] = [picks[j], picks[i]];
+  }
+  tiles.forEach((tile, i) => {
+    const img = document.createElement('img');
+    img.src = `/assets/work/scan-your-list/lists/shopping-list-${String(picks[i]).padStart(3, '0')}.jpg`;
+    img.alt = '';
+    img.decoding = 'async';
+    img.loading = 'lazy';
+    tile.append(img);
+  });
+
   /* ---------- Expand on click ----------
      Each canvas opens in the shared lightbox. Its copy keeps scaling to the frame as it grows, and a
      loading screen keeps its spinner and status messages running. */
