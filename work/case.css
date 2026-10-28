@@ -339,6 +339,48 @@ html.case-locked .cs { visibility: hidden; }
 .js .reveal.is-visible .canvas { transform: none; }
 .cs-duo.reveal .cs-figure + .cs-figure .canvas { transition-delay: 90ms; }
 
+/* "See what I explored": a dark pill under the copy, opening a sheet */
+.cs-explore {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--case-bg);
+  font: 500 14px/20px var(--font-body, inherit);
+  cursor: pointer;
+  transition: transform 300ms var(--ease-out), opacity 200ms linear;
+}
+.cs-explore svg { transition: transform 400ms var(--ease-out); }
+.cs-explore:hover svg { transform: translateX(3px); }
+.cs-explore:active { transform: scale(0.97); }
+.cs-explore:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+
+/* The sheet's content: the section's screen as a hero band, a narrow text column, then the explorations */
+.explore__hero { display: flex; justify-content: center; height: min(62vh, 600px); background: var(--canvas-grey); }
+.explore__hero .canvas { width: auto; height: 100%; border-radius: 0; transform: none; cursor: default; }
+.explore__body { width: min(520px, 100% - 48px); margin: 48px auto 0; }
+.explore__title {
+  font-family: var(--font-headline);
+  font-weight: 436;
+  font-variation-settings: "opsz" 144, "SOFT" 100, "WONK" 0;
+  font-size: 32px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  text-wrap: balance;
+}
+.explore__text { margin-top: 12px; font-size: 16px; line-height: 24px; color: var(--text-body); }
+.explore__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; width: min(920px, 100% - 48px); margin: 64px auto 96px; }
+.explore__frame { aspect-ratio: 4 / 5; border-radius: 16px; background: var(--canvas-grey); }
+@media (max-width: 640px) {
+  .explore__hero { height: 52vh; }
+  .explore__grid { grid-template-columns: 1fr; gap: 16px; }
+}
+
 /* Every canvas expands into the lightbox on click */
 .js .canvas { cursor: zoom-in; }
 .canvas:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }

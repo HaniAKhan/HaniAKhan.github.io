@@ -208,6 +208,10 @@
       <div class="cs-copy">
         <h2 class="cs-heading">A new loading state</h2>
         <p class="cs-body">Working with an LLM in the background for the first time resulted in needing to handle an extra long loading time. Our normal skeleton loading state was not going to be enough. I designed and built a Lottie animation: light movement to keep you interested, a hint of magic, and language describing what we are doing behind the scenes for transparency.</p>
+        <button type="button" class="cs-explore" data-explore="explore-loading">
+          See what I explored
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
       <div class="canvas canvas--grey" data-canvas="686x738" data-caption="A new loading state">
         <div class="canvas__inner">
@@ -314,6 +318,10 @@
       <div class="cs-copy">
         <h2 class="cs-heading">Personalized matches with the option to browse for more</h2>
         <p class="cs-body">Starting your grocery shop is hard. Your cart is empty, and adding items one by one is painful. We aimed to reduce the friction of adding items. Our CXO's research showed that quickly shopping from a handwritten list is a key customer need.</p>
+        <button type="button" class="cs-explore" data-explore="explore-matches">
+          See what I explored
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
     </section>
 
@@ -357,6 +365,27 @@
         <div class="cs-more__card"></div>
       </div>
     </section>
+    <!-- "See what I explored" sheets: placeholders until the explorations are added -->
+    <template id="explore-loading" data-label="Loading state explorations">
+      <div class="explore__body">
+        <h2 class="explore__title">A new loading state</h2>
+        <p class="explore__text">[Placeholder: notes on the loading directions explored, and why this one won.]</p>
+      </div>
+      <div class="explore__grid">
+        <div class="explore__frame"></div><div class="explore__frame"></div>
+        <div class="explore__frame"></div><div class="explore__frame"></div>
+      </div>
+    </template>
+    <template id="explore-matches" data-label="Product match explorations">
+      <div class="explore__body">
+        <h2 class="explore__title">Personalized matches with the option to browse for more</h2>
+        <p class="explore__text">[Placeholder: notes on the match layouts explored, and why this one won.]</p>
+      </div>
+      <div class="explore__grid">
+        <div class="explore__frame"></div><div class="explore__frame"></div>
+        <div class="explore__frame"></div><div class="explore__frame"></div>
+      </div>
+    </template>
   </main>
 
   <script src="/assets/vendor/lottie_svg.min.js"></script>

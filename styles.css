@@ -495,6 +495,62 @@ html.is-loading .divider { transform: scaleX(0); }
 .lightbox__close:hover { transform: rotate(90deg); }
 .lightbox__close:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
 
+/* ---------- Sheet ---------- */
+.sheet { position: fixed; inset: 0; z-index: 190; }
+.sheet[hidden] { display: none; }
+.sheet__dimmer { position: absolute; inset: 0; background: color-mix(in srgb, var(--case-bg, var(--bg)) 90%, transparent); }
+.sheet__panel {
+  position: absolute;
+  top: calc(20px + var(--safe-top));
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: min(1145px, 100% - 48px);
+  margin: 0 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 24px 24px 0 0;
+  background: var(--case-bg, var(--bg));
+  box-shadow: 0 0 0 1px var(--border), 0 24px 80px -24px rgba(13, 17, 23, 0.18);
+  outline: none;
+  color-scheme: light;
+}
+:root[data-theme="dark"] .sheet__panel { color-scheme: dark; }
+.sheet__close {
+  position: sticky;
+  top: 20px;
+  z-index: 2;
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin: 20px 20px -60px auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--toggle-bg);
+  cursor: pointer;
+  transition: transform 400ms var(--ease-out);
+}
+.sheet__close::before,
+.sheet__close::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: var(--text);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.sheet__close::after { transform: translate(-50%, -50%) rotate(-45deg); }
+.sheet__close:hover { transform: rotate(90deg); }
+.sheet__close:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+@media (max-width: 640px) {
+  .sheet__panel { width: 100%; top: calc(12px + var(--safe-top)); border-radius: 16px 16px 0 0; }
+  .sheet__close { margin: 12px 12px -52px auto; top: 12px; }
+}
+
 /* ---------- Password gate ---------- */
 .visually-hidden {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;

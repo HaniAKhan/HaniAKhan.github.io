@@ -330,6 +330,86 @@
     if (active && !busy) placeFrame(fittedRect(active));
   });
 
+  /* ---------- Sheet ----------
+     A tall panel that slides up over the page and scrolls on its own; the page behind fades back.
+     open({ content, label, onClose }) shows `content` (a node) until the visitor closes it. */
+  const SHEET_OPEN = { duration: 650, easing: 'cubic-bezier(0.32, 0.72, 0, 1)', fill: 'forwards' };
+  const SHEET_CLOSE = { duration: 420, easing: 'cubic-bezier(0.32, 0.72, 0, 1)', fill: 'forwards' };
+
+  const sheetRoot = document.createElement('div');
+  sheetRoot.className = 'sheet';
+  sheetRoot.hidden = true;
+  sheetRoot.innerHTML = `
+    <div class="sheet__dimmer"></div>
+    <div class="sheet__panel" role="dialog" aria-modal="true" tabindex="-1">
+      <button type="button" class="sheet__close" aria-label="Close"></button>
+      <div class="sheet__content"></div>
+    </div>`;
+  document.body.append(sheetRoot);
+  const sheetDimmer = sheetRoot.querySelector('.sheet__dimmer');
+  const sheetPanel = sheetRoot.querySelector('.sheet__panel');
+  const sheetClose = sheetRoot.querySelector('.sheet__close');
+  const sheetContent = sheetRoot.querySelector('.sheet__content');
+  let sheetActive = null; // { trigger, onClose }
+  let sheetBusy = false;
+
+  async function openSheet({ content, label, onClose }) {
+    if (sheetBusy || sheetActive) return;
+    sheetBusy = true;
+    sheetActive = { trigger: document.activeElement, onClose };
+    sheetContent.replaceChildren(content);
+    sheetPanel.setAttribute('aria-label', label);
+    lockScroll(true);
+    sheetRoot.hidden = false;
+    sheetPanel.scrollTop = 0; // once visible, so it applies
+    sheetClose.focus({ preventScroll: true });
+    if (!reduceMotion) {
+      const opening = [
+        sheetDimmer.animate([{ opacity: 0 }, { opacity: 1 }], { ...SHEET_OPEN, duration: 400 }),
+        sheetPanel.animate([{ transform: 'translateY(calc(100vh - 20px))' }, { transform: 'none' }], SHEET_OPEN),
+      ];
+      await Promise.all(opening.map((a) => a.finished));
+      opening.forEach((a) => a.cancel());
+    }
+    sheetBusy = false;
+  }
+
+  async function closeSheet() {
+    if (sheetBusy || !sheetActive) return;
+    sheetBusy = true;
+    if (!reduceMotion) {
+      const closing = [
+        sheetDimmer.animate([{ opacity: 1 }, { opacity: 0 }], SHEET_CLOSE),
+        sheetPanel.animate([{ transform: 'none' }, { transform: 'translateY(calc(100vh - 20px))' }], SHEET_CLOSE),
+      ];
+      await Promise.all(closing.map((a) => a.finished));
+      closing.forEach((a) => a.cancel());
+    }
+    const { trigger, onClose } = sheetActive;
+    if (onClose) onClose();
+    sheetRoot.hidden = true;
+    sheetContent.replaceChildren();
+    lockScroll(false);
+    sheetActive = null;
+    sheetBusy = false;
+    if (trigger && trigger.focus) trigger.focus({ preventScroll: true });
+  }
+
+  sheetClose.addEventListener('click', closeSheet);
+  sheetDimmer.addEventListener('click', closeSheet);
+  document.addEventListener('keydown', (event) => {
+    if (!sheetActive) return;
+    if (event.key === 'Escape') closeSheet();
+    if (event.key === 'Tab') {
+      // Keep focus inside the sheet
+      const focusables = [...sheetPanel.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])')];
+      const i = focusables.indexOf(document.activeElement);
+      event.preventDefault();
+      focusables[(i + (event.shiftKey ? -1 : 1) + focusables.length) % focusables.length].focus();
+    }
+  });
+  window.sheet = { open: openSheet, close: closeSheet };
+
   // Links into case studies ask for the password the first time.
   document.addEventListener('click', (event) => {
     const link = event.target.closest('a[data-case-link]');
