@@ -36,17 +36,19 @@
   const START_SCALE = 0.885; // 355.7 / 402, from the design
 
   let fit = 1;
+  let pad = 0; // the grey panel's padding around the phone
   function measure() {
-    fit = Math.min(1, (window.innerHeight - 150) / 874, (window.innerWidth - 48) / 402);
+    pad = parseFloat(getComputedStyle(holder).getPropertyValue('--pad')) || 0;
+    fit = Math.min(1, (window.innerHeight - 150) / 874, (holder.clientWidth - 2 * pad) / 402);
     holder.style.setProperty('--fit', fit.toFixed(4));
-    hero.style.setProperty('--peek', `${Math.round(PEEK * fit)}px`);
+    hero.style.setProperty('--peek', `${Math.round(pad + PEEK * fit)}px`);
   }
 
   // Growth follows how far the phone has risen into the window, eased a little each frame
   let target = 1;
   let current = 1;
   let ticking = false;
-  const progress = () => clamp((window.innerHeight - holder.getBoundingClientRect().top) / (874 * fit), 0, 1);
+  const progress = () => clamp((window.innerHeight - holder.getBoundingClientRect().top - pad) / (874 * fit), 0, 1);
   const render = () => device.style.setProperty('--grow', (START_SCALE + (1 - START_SCALE) * smooth(current)).toFixed(4));
   function frame() {
     current += (target - current) * 0.14;
