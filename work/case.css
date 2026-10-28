@@ -162,8 +162,25 @@ html.case-locked .cs { visibility: hidden; }
    spinner's place in the layout and the sparkles spill out above it */
 .loading__spinner { position: relative; width: 88px; height: 88px; }
 .loading__spinner > svg { position: absolute; left: -176.5px; top: -173.5px; width: 441px !important; height: 280px !important; }
-.loading__title { font: 900 20px/26px var(--app-display); text-align: center; }
-.loading__text { font: 400 16px/24px var(--app-font); text-align: center; }
+/* One status line at a time, stacked in place; a light band sweeps across the active one */
+.loading__status { display: grid; width: 100%; }
+.loading__line {
+  grid-area: 1 / 1;
+  font: 700 18px/24px var(--app-display);
+  text-align: center;
+  color: #414142;
+  background: linear-gradient(90deg, #414142 0%, #414142 40%, #c4c4c6 50%, #414142 60%, #414142 100%) 0 0 / 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 500ms var(--ease-out), transform 700ms var(--ease-out);
+  animation: shimmer 2s linear infinite;
+}
+.loading__line.is-active { opacity: 1; transform: none; }
+.loading__line.is-leaving { opacity: 0; transform: translateY(-10px); transition-duration: 350ms, 500ms; }
+@keyframes shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
 
 .results { position: absolute; top: 108px; left: 0; width: 375px; padding-bottom: 160px; }
 .results__intro { padding: 16px; font-size: 16px; line-height: 24px; }
@@ -325,4 +342,6 @@ html.case-locked .cs { visibility: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .js .reveal, .js .reveal .canvas { opacity: 1; transform: none; transition: none; }
   .device__state, .device__state.is-active { transition: none; }
+  .loading__line { animation: none; transition: opacity 200ms linear; transform: none; }
+  .loading__line.is-leaving { transform: none; }
 }

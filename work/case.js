@@ -84,6 +84,45 @@
     spinners.forEach((s) => io.observe(s.el));
   }
 
+  /* ---------- Loading status ----------
+     The status line moves to the next message every few seconds; the phone's runs once, the
+     screenshot's loops while it's on screen. */
+  const STATUS_STEP = 4000;
+  function statusCycler(el, loop) {
+    const lines = [...el.querySelectorAll('.loading__line')];
+    let index = 0;
+    let timer;
+    const show = (next) => {
+      lines.forEach((line, i) => {
+        line.classList.toggle('is-leaving', i === index && next !== index);
+        line.classList.toggle('is-active', i === next);
+        line.setAttribute('aria-hidden', String(i !== next));
+      });
+      index = next;
+    };
+    return {
+      start() {
+        clearInterval(timer);
+        show(0);
+        lines.forEach((line) => line.classList.remove('is-leaving'));
+        timer = setInterval(() => {
+          if (index === lines.length - 1 && !loop) { clearInterval(timer); return; }
+          show((index + 1) % lines.length);
+        }, STATUS_STEP);
+      },
+      stop() { clearInterval(timer); },
+    };
+  }
+  const deviceStatus = statusCycler(device.querySelector('[data-status]'), false);
+  const wideStatusEl = document.querySelector('.cs-wide [data-status]');
+  if (wideStatusEl && 'IntersectionObserver' in window) {
+    const wideStatus = statusCycler(wideStatusEl, true);
+    new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) wideStatus.start();
+      else wideStatus.stop();
+    }).observe(wideStatusEl);
+  }
+
   /* ---------- Camera → loading → results ---------- */
   let sequenceStarted = false;
   function showState(name) {
@@ -92,6 +131,8 @@
       if (spinner.state && spinner.state.dataset.state === 'loading' && name === 'loading') spinner.anim.goToAndStop(0, true);
       syncSpinner(spinner);
     });
+    if (name === 'loading') deviceStatus.start();
+    else deviceStatus.stop();
     if (reduceMotion) return;
     const el = device.querySelector(`[data-state="${name}"]`);
     if (name === 'loading') {
@@ -131,7 +172,7 @@
       ).finished;
     }
     showState('loading');
-    await wait(5000);
+    await wait(STATUS_STEP * 2 + 2000); // all three status messages, with a moment on the last
     showState('results');
   }
 
