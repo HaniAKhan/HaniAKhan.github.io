@@ -287,31 +287,6 @@ html.case-locked .cs { visibility: hidden; }
 }
 .cs-body { margin-top: 12px; font-size: 16px; line-height: 24px; color: var(--text-body); }
 
-.cs-quote { max-width: 836px; margin-top: 240px; text-align: center; }
-.cs-quote blockquote { margin: 0; }
-.cs-quote__text {
-  font-family: var(--font-headline);
-  font-weight: 436;
-  font-variation-settings: "opsz" 144, "SOFT" 100, "WONK" 0;
-  font-size: clamp(28px, 2.8vw, 40px);
-  line-height: 1.1;
-  letter-spacing: -0.015em;
-  color: var(--text);
-  text-wrap: balance;
-}
-.cs-quote__by {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 44px;
-  text-align: left;
-  font-size: 16px;
-  line-height: 24px;
-  color: var(--text-body);
-}
-.cs-quote__by strong { font-weight: 700; }
-.cs-quote__avatar { width: 48px; height: 48px; flex: none; border-radius: 50%; background: #00c7be; }
-
 .cs-more { margin-top: 240px; padding-bottom: 160px; }
 .cs-more__title {
   font-family: var(--font-headline);
@@ -397,7 +372,7 @@ html.case-locked .cs { visibility: hidden; }
 @media (max-width: 900px) {
   .cs-split, .cs-split--copy-first { grid-template-columns: 1fr; gap: 40px; margin-top: 120px; }
   .cs-split:not(.cs-split--copy-first) .cs-copy { order: -1; }
-  .cs-quote, .cs-more { margin-top: 160px; }
+  .cs-more { margin-top: 160px; }
 }
 @media (max-width: 640px) {
   .cs-hero__intro { padding-top: calc(96px + var(--safe-top)); }
