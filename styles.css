@@ -20,7 +20,6 @@
   --text-meta: #6b6f73;
   --border: #d8dde2;
   --chip-bg: #eef0f2;
-  --divider: rgba(0, 0, 0, 0.1);
   --link-underline: rgba(0, 0, 0, 0.16);
   --toggle-bg: #f3f4f6;
   --toggle-thumb: #323334;
@@ -39,7 +38,6 @@
   --text-meta: #9aa7b4;
   --border: #2a3540;
   --chip-bg: #1b222a;
-  --divider: rgba(255, 255, 255, 0.1);
   --link-underline: rgba(255, 255, 255, 0.2);
   --toggle-bg: #151b22;
   --toggle-thumb: #fafafa;
@@ -201,21 +199,11 @@ html.is-loading .wordmark { visibility: hidden; }
 .social:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
 
 /* ---------- Case studies ---------- */
-/* Short rule between the hero and the work, after interfacecraft.dev; left-aligned to the column */
-.divider {
-  width: 72px;
-  height: 1.5px;
-  margin: 72px 0 0;
-  border: 0;
-  background: var(--divider);
-  transform-origin: left center;
-}
-
 .cases {
   display: flex;
   flex-direction: column;
   gap: 36px;
-  margin-top: 48px;
+  margin-top: 120px;
 }
 
 .case {
@@ -412,7 +400,6 @@ html:not(.is-loading) .intro-name { display: none; }
 /* Initial states for intro reveals, only while JS drives them */
 html.is-loading [data-reveal] { opacity: 0; }
 html.is-loading .theme-toggle { opacity: 0; }
-html.is-loading .divider { transform: scaleX(0); }
 /* Word reveal mask. Boldonse's glyphs are taller than the line height, so the clip extends past the
    line box (instead of overflow: hidden) to keep ascenders and descenders like "g" intact. */
 .split-mask { display: inline-block; vertical-align: top; clip-path: inset(-0.3em -0.15em -0.4em -0.15em); }
@@ -653,8 +640,7 @@ html.is-loading .divider { transform: scaleX(0); }
   .hero__title { font-size: 46px; }
   .hero__intro { font-size: 17px; line-height: 26px; }
   .social { width: 44px; height: 44px; }
-  .divider { margin-top: 48px; }
-  .cases { margin-top: 28px; gap: 28px; }
+  .cases { margin-top: 76px; gap: 28px; }
   .case { gap: 10px; padding: 20px 0 36px; }
   .case__title { font-size: 29px; }
   /* Phones get portrait artwork made for the screen */

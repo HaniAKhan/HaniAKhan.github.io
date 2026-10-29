@@ -10,7 +10,7 @@
   /* ---------- Media canvases ----------
      Each canvas is the Figma frame at its true size; it scales to whatever width the column gives it. */
   const canvases = [...document.querySelectorAll('[data-canvas]')];
-  for (const canvas of canvases) {
+  function sizeCanvas(canvas) {
     const [w, h] = canvas.dataset.canvas.split('x').map(Number);
     canvas.style.aspectRatio = `${w} / ${h}`;
     const inner = canvas.querySelector('.canvas__inner');
@@ -18,6 +18,7 @@
     inner.style.height = `${h}px`;
     canvas.dataset.w = w;
   }
+  canvases.forEach(sizeCanvas);
   const fitCanvas = (canvas) => canvas.style.setProperty('--fit', canvas.clientWidth / Number(canvas.dataset.w));
   canvases.forEach(fitCanvas);
   const resizeObserver = 'ResizeObserver' in window ? new ResizeObserver((entries) => entries.forEach((e) => fitCanvas(e.target))) : null;
@@ -123,6 +124,106 @@
       if (entry.isIntersecting) shotStatus.start();
       else shotStatus.stop();
     }).observe(shotStatusEl);
+  }
+
+  /* ---------- Browse options ----------
+     The matches screenshot acts out a replacement on a loop while it's on screen: a tap on the kale's
+     "Browse options" raises the sheet, the carousel slides to show more, and picking the lacinato
+     kale closes the sheet and reloads the row with it. The list exploration does the same from its
+     "Replace" button, choosing a carrot before confirming, and the inline exploration opens its
+     options under the milk instead of a sheet. With reduced motion they stay still. */
+  function swapDemo(app) {
+    const row = app.querySelector('[data-swap-row]');
+    const open = app.querySelector('[data-swap-open]');
+    const pick = app.querySelector('[data-swap-pick]');
+    const choice = app.querySelector('[data-swap-choice]'); // a replacement to choose before confirming
+    const scrolls = Boolean(app.querySelector('.swap-sheet__track, [data-swap-scroll]'));
+    const tap = app.querySelector('.swap-tap');
+    let run = 0;
+    let timers = [];
+    const wait = (ms) => new Promise((resolve) => timers.push(setTimeout(resolve, ms)));
+    // Places the finger on an element, in the app's own (unscaled) coordinates
+    const aim = (el) => {
+      const box = app.getBoundingClientRect();
+      const r = el.getBoundingClientRect();
+      const scale = box.width / app.offsetWidth || 1;
+      tap.style.left = `${(r.left + r.width / 2 - box.left) / scale}px`;
+      tap.style.top = `${(r.top + r.height / 2 - box.top) / scale}px`;
+    };
+    const press = async (el, id) => {
+      aim(el);
+      tap.classList.add('is-visible');
+      await wait(450); if (id !== run) return;
+      tap.classList.add('is-pressing');
+      el.classList.add('is-pressed');
+      await wait(180); if (id !== run) return;
+      tap.classList.remove('is-pressing', 'is-visible');
+      el.classList.remove('is-pressed');
+    };
+    const reset = () => {
+      app.classList.remove('is-sheet-open', 'is-scrolled', 'is-chosen');
+      if (choice) choice.classList.remove('is-checked');
+      row.classList.remove('is-swapped', 'is-loading');
+      tap.classList.remove('is-visible', 'is-pressing');
+      [open, pick].forEach((el) => el.classList.remove('is-pressed'));
+    };
+    // Reloads the row: a shimmering skeleton, then the original or the replacement
+    const reload = async (swapped, id) => {
+      row.classList.add('is-loading');
+      await wait(900); if (id !== run) return;
+      row.classList.toggle('is-swapped', swapped);
+      row.classList.remove('is-loading');
+    };
+    async function loop(id) {
+      while (id === run) {
+        await wait(1400); if (id !== run) return;
+        await press(open, id); if (id !== run) return;
+        app.classList.add('is-sheet-open');
+        await wait(1300); if (id !== run) return;
+        if (scrolls) {
+          app.classList.add('is-scrolled');
+          await wait(1500); if (id !== run) return;
+        }
+        if (choice) {
+          await press(choice, id); if (id !== run) return;
+          choice.classList.add('is-checked');
+          app.classList.add('is-chosen');
+          await wait(800); if (id !== run) return;
+        }
+        await press(pick, id); if (id !== run) return;
+        app.classList.remove('is-sheet-open');
+        await wait(450); if (id !== run) return;
+        await reload(true, id); if (id !== run) return;
+        app.classList.remove('is-scrolled', 'is-chosen');
+        if (choice) choice.classList.remove('is-checked');
+        await wait(3500); if (id !== run) return;
+        await reload(false, id);
+      }
+    }
+    return {
+      start() {
+        if (reduceMotion) return;
+        run++;
+        timers.forEach(clearTimeout);
+        timers = [];
+        reset();
+        loop(run);
+      },
+      stop() {
+        run++;
+        timers.forEach(clearTimeout);
+        timers = [];
+        reset();
+      },
+    };
+  }
+  const swapApp = document.querySelector('[data-swap-demo]');
+  if (swapApp && 'IntersectionObserver' in window) {
+    const demo = swapDemo(swapApp);
+    new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) demo.start();
+      else demo.stop();
+    }, { threshold: 0.4 }).observe(swapApp.closest('.canvas'));
   }
 
   /* ---------- Camera → loading → results ---------- */
@@ -234,6 +335,11 @@
       status.start();
       running.push(status);
     });
+    copy.querySelectorAll('[data-swap-demo]').forEach((app) => {
+      const demo = swapDemo(app);
+      demo.start();
+      running.push(demo);
+    });
     copy.querySelectorAll('video').forEach((video) => {
       video.muted = true;
       if (!reduceMotion) video.play().catch(() => {});
@@ -271,8 +377,23 @@
       const copy = copyCanvas(canvas);
       hero.append(copy);
       content.append(hero, template.content.cloneNode(true));
-      const release = liven(copy);
-      window.sheet.open({ content, label: template.dataset.label, onClose: release });
+      // Explorations drawn in code are canvases too, scaled to their column
+      const releases = [copy, ...content.querySelectorAll('.explore__row [data-canvas]')].map((canvas) => {
+        if (canvas !== copy) sizeCanvas(canvas);
+        return liven(canvas);
+      });
+      const release = () => releases.forEach((done) => done());
+      // Exploration recordings play muted on a loop; with reduced motion they wait for a press of play
+      const recordings = [...content.querySelectorAll('.explore__video')];
+      recordings.forEach((video) => {
+        if (reduceMotion) video.controls = true;
+        else video.play().catch(() => {});
+      });
+      window.sheet.open({
+        content,
+        label: template.dataset.label,
+        onClose: () => { recordings.forEach((video) => video.pause()); release(); },
+      });
     });
   });
 

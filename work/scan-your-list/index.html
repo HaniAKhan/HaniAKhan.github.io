@@ -179,7 +179,7 @@
     </section>
 
     <!-- Where the feature lives in the app -->
-    <section class="cs-section cs-duo reveal">
+    <section class="cs-section cs-duo reveal reveal--stagger">
       <h2 class="cs-heading cs-duo__heading">Designing for now and next</h2>
       <figure class="cs-figure">
         <div class="canvas canvas--grey" data-canvas="593x659">
@@ -206,14 +206,14 @@
     <!-- Finding products -->
     <section class="cs-section cs-split cs-split--copy-first reveal">
       <div class="cs-copy">
-        <h2 class="cs-heading">A new loading state</h2>
+        <h2 class="cs-heading">A hint of magic</h2>
         <p class="cs-body">Working with an LLM in the background for the first time resulted in needing to handle an extra long loading time. Our normal skeleton loading state was not going to be enough. I designed and built a Lottie animation: light movement to keep you interested, a hint of magic, and language describing what we are doing behind the scenes for transparency.</p>
         <button type="button" class="cs-explore" data-explore="explore-loading">
           See what I explored
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
-      <div class="canvas canvas--grey" data-canvas="686x738" data-caption="A new loading state">
+      <div class="canvas canvas--grey" data-canvas="686x738" data-caption="A hint of magic">
         <div class="canvas__inner">
           <div class="canvas__app canvas__app--loading">
             <div class="app">
@@ -247,7 +247,7 @@
       <div class="canvas canvas--grey" data-canvas="617x738" data-caption="Your product matches">
         <div class="canvas__inner">
           <div class="canvas__app canvas__app--results">
-            <div class="app">
+            <div class="app" data-swap-demo>
               <div class="app__header">
                 <img class="app__curve" src="/assets/work/scan-your-list/nav-curve-red.svg" alt="">
                 <span class="app__time">9:41</span>
@@ -261,18 +261,24 @@
                 <p class="results__intro">Review and replace items if needed, then add your selections to cart or a shopping list.</p>
                 <div class="match">
                   <p class="match__term">Kale</p>
-                  <div class="product">
+                  <div class="product" data-swap-row>
                     <img class="product__check" src="/assets/work/scan-your-list/checkbox.svg" alt="">
-                    <img class="product__image" src="/assets/work/scan-your-list/product-kale.jpg" alt="">
+                    <img class="product__image swap-a" src="/assets/work/scan-your-list/product-kale.jpg" alt="">
+                    <img class="product__image swap-b" src="/assets/work/scan-your-list/product-kale-lacinato.jpg" alt="">
                     <div class="product__info">
                       <span class="tag tag--again">Buy it again</span>
-                      <p class="product__name">Fresh Kale Greens, 1 Bundle</p>
+                      <p class="product__name"><span class="swap-a">Fresh Kale Greens, 1 Bundle</span><span class="swap-b">Fresh Organic Lacinato Kale, 1 Bundle</span></p>
                       <span class="tag tag--snap">SNAP EBT</span>
                     </div>
                     <div class="product__actions">
                       <span class="pill pill--qty">1</span>
-                      <span class="pill pill--swap"><img src="/assets/work/scan-your-list/substitute.svg" alt="">Browse options</span>
-                      <span class="product__price">$1.48<small>$1.27 each</small></span>
+                      <span class="pill pill--swap" data-swap-open><img src="/assets/work/scan-your-list/substitute.svg" alt="">Browse options</span>
+                      <span class="product__price"><span class="swap-a">$1.48</span><span class="swap-b">$2.48</span><small><span class="swap-a">$1.27 each</span><span class="swap-b">$2.48 each</span></small></span>
+                    </div>
+                    <div class="product__skeleton" aria-hidden="true">
+                      <i class="product__skeleton-image"></i>
+                      <div class="product__skeleton-info"><i style="width: 84px"></i><i style="width: 200px"></i><i style="width: 64px"></i></div>
+                      <div class="product__skeleton-actions"><i style="width: 72px"></i><i style="width: 112px"></i><i style="width: 48px; height: 24px; margin-left: auto"></i></div>
                     </div>
                   </div>
                 </div>
@@ -311,6 +317,52 @@
                   </div>
                 </div>
               </div>
+              <!-- Browse options: a tap opens the replacement sheet, a pick swaps the kale (driven by case.js) -->
+              <div class="swap-overlay" aria-hidden="true"></div>
+              <div class="swap-sheet" aria-hidden="true">
+                <div class="swap-sheet__nav">
+                  <p class="swap-sheet__title">Select replacement</p>
+                  <img class="swap-sheet__close" src="/assets/work/scan-your-list/close-small.svg" width="15.9998" height="15.9998" alt="">
+                </div>
+                <img class="swap-sheet__smile" src="/assets/work/scan-your-list/sheet-smile.svg" width="375" height="11" alt="">
+                <p class="swap-sheet__count">3 items</p>
+                <div class="swap-sheet__track">
+                    <div class="swap-card">
+                      <div class="swap-card__atl"><img src="/assets/work/scan-your-list/icon-add-to-list.svg" width="19.2793" height="23.999" alt=""></div>
+                      <img class="swap-card__image" src="/assets/work/scan-your-list/product-kale-organic.jpg" alt="">
+                      <div class="swap-card__content">
+                        <span class="tag tag--again swap-card__label">Buy it again</span>
+                        <p class="swap-card__price">$2.98 <small>each</small></p>
+                        <p class="swap-card__name">Fresh Organic Kale, 1 Bundle</p>
+                        <p class="swap-card__aisle">In Produce on the Right Wall</p>
+                      </div>
+                      <span class="swap-card__button">Replace</span>
+                    </div>
+                    <div class="swap-card">
+                      <div class="swap-card__atl"><img src="/assets/work/scan-your-list/icon-add-to-list.svg" width="19.2793" height="23.999" alt=""></div>
+                      <img class="swap-card__image" src="/assets/work/scan-your-list/product-kale-lacinato.jpg" alt="">
+                      <div class="swap-card__content">
+                        <span class="tag tag--again swap-card__label">Buy it again</span>
+                        <p class="swap-card__price">$2.48 <small>each</small></p>
+                        <p class="swap-card__name">Fresh Organic Lacinato Kale, 1 Bundle</p>
+                        <p class="swap-card__aisle">In Produce on the Right Wall</p>
+                      </div>
+                      <span class="swap-card__button" data-swap-pick>Replace</span>
+                    </div>
+                    <div class="swap-card">
+                      <div class="swap-card__atl"><img src="/assets/work/scan-your-list/icon-add-to-list.svg" width="19.2793" height="23.999" alt=""></div>
+                      <img class="swap-card__image" src="/assets/work/scan-your-list/product-kale-texas-roots.jpg" alt="">
+                      <div class="swap-card__content">
+                        <p class="swap-card__price">$3.38 <small>each</small></p>
+                        <p class="swap-card__name">H-E-B Texas Roots Fresh Kale Greens, 16 oz</p>
+                        <p class="swap-card__aisle">In Produce on the Front Wall</p>
+                      </div>
+                      <span class="swap-card__button">Replace</span>
+                    </div>
+                </div>
+                <div class="swap-sheet__home"></div>
+              </div>
+              <span class="swap-tap" aria-hidden="true"></span>
             </div>
           </div>
         </div>
@@ -345,21 +397,83 @@
       </div>
     </section>
 
+    <!-- Workflows: mockups of each stage of the team’s workflow -->
+    <section class="cs-section cs-workflows reveal reveal--stagger">
+      <h2 class="cs-heading">I explored new workflows</h2>
+      <div class="cs-workflows__grid">
+        <figure class="cs-figure">
+          <div class="canvas canvas--grey" data-canvas="400x400" data-caption="Backend engineers created a POC that let the team test out different ways to extract text from images and return actual products">
+            <div class="canvas__inner">
+              <div class="mock-terminal" aria-hidden="true">
+                <div class="mock-window__bar"><i></i><i></i><i></i><span class="mock-window__title">scan.sh</span></div>
+                <pre class="mock-terminal__body"><span class="mock-terminal__dim"># Pick a photo of a shopping list</span>
+f=$(osascript -e <span class="mock-terminal__str">'POSIX path of (choose file)'</span>)
+
+<span class="mock-terminal__dim"># Get a presigned upload form</span>
+form=$(curl -s -X POST <span class="mock-terminal__str">"$API/uploads"</span>)
+url=$(jq -r .url &lt;&lt;&lt; <span class="mock-terminal__str">"$form"</span>)
+key=$(jq -r .fields.key &lt;&lt;&lt; <span class="mock-terminal__str">"$form"</span>)
+fields=($(jq -r <span class="mock-terminal__str">'.fields | to_entries[]</span>
+  | <span class="mock-terminal__str">"-F\(.key)=\(.value)"</span><span class="mock-terminal__str">' &lt;&lt;&lt; "$form"))</span>
+
+<span class="mock-terminal__dim"># Upload the image with the form’s fields</span>
+curl -s <span class="mock-terminal__str">"$url"</span> <span class="mock-terminal__str">"${fields[@]}"</span> -F file=@<span class="mock-terminal__str">"$f"</span>
+
+<span class="mock-terminal__dim"># Ask the API to identify the products</span>
+curl -s <span class="mock-terminal__str">"$API/identify"</span> --json <span class="mock-terminal__str">"{\"key\":\"$key\"}"</span> \
+  | jq <span class="mock-terminal__str">'.products[].name'</span></pre>
+              </div>
+            </div>
+          </div>
+          <figcaption class="cs-caption">Backend engineers created a POC that let the team test out different ways to extract text from images and return actual products</figcaption>
+        </figure>
+        <figure class="cs-figure">
+          <div class="canvas canvas--grey" data-canvas="400x400" data-caption="Client side engineers created web and native POCs to let team members test out the API via an interface">
+            <div class="canvas__inner">
+              <div class="mock-slack">
+                <div class="mock-slack__bar"><i></i><i></i><i></i><span class="mock-slack__search"></span></div>
+                <div class="mock-slack__body">
+                  <div class="mock-slack__sidebar" aria-hidden="true">
+                    <span class="mock-slack__workspace"></span>
+                    <i></i><i class="is-active"></i><i></i><i></i><i></i><i></i>
+                  </div>
+                  <div class="mock-slack__main">
+                    <div class="mock-slack__channel"># scan-your-list</div>
+                    <img class="mock-slack__message" src="/assets/work/scan-your-list/slack-poc.jpg" alt="A Slack message from an iOS engineer sharing a screen recording of the native list scanner POC, saying it uses the backend’s target and search query and things seem to work. Names and faces are blurred.">
+                    <div class="mock-slack__composer" aria-hidden="true">Message #scan-your-list</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <figcaption class="cs-caption">Client side engineers created web and native POCs to let team members test out the API via an interface</figcaption>
+        </figure>
+        <figure class="cs-figure">
+          <div class="canvas canvas--grey" data-canvas="400x400" data-caption="I branched off the native engineer’s POC and built out design explorations in code which was then used for testing and feedback">
+            <div class="canvas__inner">
+              <img class="mock-shot" src="/assets/work/scan-your-list/copilot-prototype.jpg" alt="My desktop while building the prototype: GitHub Copilot working through the iOS codebase beside Xcode, with the H-E-B app running in the iPhone Simulator">
+            </div>
+          </div>
+          <figcaption class="cs-caption">I branched off the native engineer’s POC and built out design explorations in code which was then used for testing and feedback</figcaption>
+        </figure>
+      </div>
+    </section>
+
     <!-- Prototype in code -->
     <section class="cs-section cs-split reveal">
       <!-- Screen recording of the coded prototype in the iOS Simulator -->
-      <div class="canvas canvas--grey" data-canvas="617x738" data-caption="I built a prototype in code">
+      <div class="canvas canvas--grey" data-canvas="617x738" data-caption="I iterated on the canvas and in code">
         <div class="canvas__inner"></div>
         <video class="canvas__video" src="/assets/work/scan-your-list/prototype.mp4" poster="/assets/work/scan-your-list/prototype-poster.jpg" muted loop playsinline preload="none" aria-label="Screen recording of the Scan your list prototype running in the iOS Simulator"></video>
       </div>
       <div class="cs-copy">
-        <h2 class="cs-heading">I built a prototype in code</h2>
+        <h2 class="cs-heading">I iterated on the canvas and in code</h2>
         <p class="cs-body">In this project, I explored a new design workflow: I did initial explorations on a canvas, then built out the entire design exploration in our iOS codebase using GitHub Copilot. I got to branch off of a POC that my iOS engineer started, build out multiple design explorations, and use them in my own life when planning my groceries.</p>
       </div>
     </section>
 
     <!-- Other projects -->
-    <section class="cs-section cs-more reveal" aria-labelledby="more-title">
+    <section class="cs-section cs-more reveal reveal--stagger" aria-labelledby="more-title">
       <h2 class="cs-more__title" id="more-title">View other projects</h2>
       <div class="cs-more__row">
         <div class="cs-more__card"></div>
@@ -370,22 +484,346 @@
     <!-- "See what I explored" sheets: placeholders until the explorations are added -->
     <template id="explore-loading" data-label="Loading state explorations">
       <div class="explore__body">
-        <h2 class="explore__title">A new loading state</h2>
-        <p class="explore__text">[Placeholder: notes on the loading directions explored, and why this one won.]</p>
+        <h2 class="explore__title">Sweating the details</h2>
+        <p class="explore__text">I collaborated with another Staff Product Designer on our design language team to iterate on this loading state.</p>
       </div>
-      <div class="explore__grid">
-        <div class="explore__frame"></div><div class="explore__frame"></div>
-        <div class="explore__frame"></div><div class="explore__frame"></div>
+      <div class="explore__grid explore__grid--videos">
+        <figure class="explore__item">
+          <video class="explore__video" src="/assets/work/scan-your-list/loading-explore-1.mp4" muted loop playsinline aria-label="Loading animation exploration 1 of 4"></video>
+          <figcaption class="explore__caption">I explored depth here by letting stars float in front of the loader. This resulted in some visual tension when the stars touched the loader.</figcaption>
+        </figure>
+        <figure class="explore__item">
+          <video class="explore__video" src="/assets/work/scan-your-list/loading-explore-2.mp4" muted loop playsinline aria-label="Loading animation exploration 2 of 4"></video>
+          <figcaption class="explore__caption">Here, the stars floated behind the loader but still touched it, which also resulted in visual tension.</figcaption>
+        </figure>
+        <figure class="explore__item">
+          <video class="explore__video" src="/assets/work/scan-your-list/loading-explore-4.mp4" muted loop playsinline aria-label="Loading animation exploration 3 of 4"></video>
+          <figcaption class="explore__caption">This one introduced a soft padding to address the visual tension when the stars touch the loader. But the faded effect on the stars can be a bit distracting.</figcaption>
+        </figure>
+        <figure class="explore__item">
+          <video class="explore__video" src="/assets/work/scan-your-list/loading-explore-5.mp4" muted loop playsinline aria-label="Loading animation exploration 4 of 4"></video>
+          <figcaption class="explore__caption">This introduced a hard padding of 16px. It felt like the right direction, but we ended up reducing the padding to 12px because 16px felt like too much of a gap.</figcaption>
+        </figure>
       </div>
     </template>
     <template id="explore-matches" data-label="Product match explorations">
       <div class="explore__body">
-        <h2 class="explore__title">Personalized matches with the option to browse for more</h2>
+        <h2 class="explore__title">Finding the balance between speed and control</h2>
         <p class="explore__text">[Placeholder: notes on the match layouts explored, and why this one won.]</p>
       </div>
-      <div class="explore__grid">
-        <div class="explore__frame"></div><div class="explore__frame"></div>
-        <div class="explore__frame"></div><div class="explore__frame"></div>
+      <div class="explore__rows">
+        <div class="explore__row">
+          <div class="canvas canvas--grey" data-canvas="520x956" data-caption="Product matches as carousels">
+            <div class="canvas__inner">
+              <div class="canvas__app canvas__app--explore">
+                <div class="app">
+              <div class="app__header">
+                <img class="app__curve" src="/assets/work/scan-your-list/nav-curve-red.svg" alt="">
+                <span class="app__time">9:41</span>
+                <img class="app__cellular" src="/assets/work/scan-your-list/cellular.svg" alt="">
+                <img class="app__wifi" src="/assets/work/scan-your-list/wifi.svg" alt="">
+                <img class="app__battery" src="/assets/work/scan-your-list/battery.svg" alt="">
+                <img class="app__close" src="/assets/work/scan-your-list/close-white-2.svg" alt="">
+                <span class="app__title">Scan a list</span>
+                <svg class="app__more" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2" fill="#fff"/><circle cx="12" cy="12" r="2" fill="#fff"/><circle cx="19" cy="12" r="2" fill="#fff"/></svg>
+              </div>
+                  <div class="shelves">
+                    <p class="shelves__term">Broccoli</p>
+                    <div class="shelves__track shelves__track--auto">
+                    <div class="shelf-card">
+                      <img class="shelf-card__image" src="/assets/work/scan-your-list/products/broccoli-crowns.jpg" alt="">
+                      <span class="tag tag--again">Buy it again</span>
+                      <p class="shelf-card__price">$1.18 <small>each</small></p>
+                      <p class="shelf-card__name">Fresh Broccoli Crowns, Avg. 0.6 lb</p>
+                      <span class="shelf-card__button is-selected"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="m3 8.5 3.25 3.25L13 5" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></svg>Selected</span>
+                    </div>
+                    <div class="shelf-card">
+                      <img class="shelf-card__image" src="/assets/work/scan-your-list/products/broccoli-frozen-baby.jpg" alt="">
+                      <span class="tag tag--again">Buy it again</span>
+                      <p class="shelf-card__price">$1.98 <small>each</small></p>
+                      <p class="shelf-card__name">H-E-B Frozen Baby Broccoli Florets, 16 oz</p>
+                      <span class="shelf-card__button">Select</span>
+                    </div>
+                    <div class="shelf-card">
+                      <img class="shelf-card__image" src="/assets/work/scan-your-list/products/broccoli-frozen-florets.jpg" alt="">
+                      <span class="tag tag--again">Buy it again</span>
+                      <p class="shelf-card__price">$1.48 <small>each</small></p>
+                      <p class="shelf-card__name">H-E-B Frozen Broccoli Florets, 16 oz</p>
+                      <span class="shelf-card__button">Select</span>
+                    </div>
+                      <div class="shelf-card shelf-card--find">
+                        <span class="shelf-card__find"><span class="shelf-card__find-icon"><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="7.75" cy="7.75" r="5.75" fill="none" stroke="currentColor" stroke-width="2"/><path d="m12 12 4.25 4.25" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>Find item</span>
+                      </div>
+                    </div>
+                    <p class="shelves__term">Berries</p>
+                    <div class="shelves__track">
+                    <div class="shelf-card">
+                      <img class="shelf-card__image" src="/assets/work/scan-your-list/products/berries-mixed.jpg" alt="">
+                      <span class="tag tag--none"></span>
+                      <p class="shelf-card__price">$4.41 <small>each</small></p>
+                      <p class="shelf-card__name">H-E-B Fresh Mixed Berries - Small, Avg. 0.68 lb</p>
+                      <span class="shelf-card__button is-selected"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="m3 8.5 3.25 3.25L13 5" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></svg>Selected</span>
+                    </div>
+                    <div class="shelf-card">
+                      <img class="shelf-card__image" src="/assets/work/scan-your-list/products/strawberries.jpg" alt="">
+                      <span class="tag tag--none"></span>
+                      <p class="shelf-card__price">$2.64 <small>each</small></p>
+                      <p class="shelf-card__name">Fresh Strawberries, 1 lb</p>
+                      <span class="shelf-card__button">Select</span>
+                    </div>
+                    <div class="shelf-card">
+                      <img class="shelf-card__image" src="/assets/work/scan-your-list/products/blueberries.jpg" alt="">
+                      <span class="tag tag--none"></span>
+                      <p class="shelf-card__price">$4.67 <small>each</small></p>
+                      <p class="shelf-card__name">Fresh Blueberries, 11 oz</p>
+                      <span class="shelf-card__button">Select</span>
+                    </div>
+                    </div>
+                  </div>
+              <div class="app__footer">
+                <span class="app__button app__button--primary">Add all to cart</span>
+                <span class="app__button">Add all to list</span>
+                <span class="app__home-indicator"></span>
+              </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="explore__note">[Placeholder: describe the carousel exploration. Each item gets a row of matches to swipe through, ending in a Find item button to search for something else.]</p>
+        </div>
+        <div class="explore__row">
+          <div class="canvas canvas--grey" data-canvas="520x956" data-caption="Product matches as a list">
+            <div class="canvas__inner">
+              <div class="canvas__app canvas__app--explore">
+                <div class="app" data-swap-demo>
+              <div class="app__header">
+                <img class="app__curve" src="/assets/work/scan-your-list/nav-curve-red.svg" alt="">
+                <span class="app__time">9:41</span>
+                <img class="app__cellular" src="/assets/work/scan-your-list/cellular.svg" alt="">
+                <img class="app__wifi" src="/assets/work/scan-your-list/wifi.svg" alt="">
+                <img class="app__battery" src="/assets/work/scan-your-list/battery.svg" alt="">
+                <img class="app__close" src="/assets/work/scan-your-list/close-white-2.svg" alt="">
+                <span class="app__title">Scan a list</span>
+                <svg class="app__more" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2" fill="#fff"/><circle cx="12" cy="12" r="2" fill="#fff"/><circle cx="19" cy="12" r="2" fill="#fff"/></svg>
+              </div>
+                  <div class="results results--list">
+                    <div class="match">
+                      <p class="match__term match__term--large">Baby Carrots</p>
+                      <div class="product" data-swap-row>
+                        <img class="product__check" src="/assets/work/scan-your-list/checkbox.svg" alt="">
+                        <img class="product__image swap-a" src="/assets/work/scan-your-list/products/baby-carrots.jpg" alt="">
+                        <img class="product__image swap-b" src="/assets/work/scan-your-list/products/mini-carrots-organic.jpg" alt="">
+                        <div class="product__info">
+                          <span class="tag tag--again">Buy it again</span>
+                          <p class="product__name"><span class="swap-a">H-E-B Fresh Sweet Petite Baby Carrots, 12 oz</span><span class="swap-b">H-E-B Organics Fresh Cut &amp; Peeled Mini Carrots, 1 lb</span></p>
+                          <span class="tag tag--snap">SNAP EBT</span>
+                          <p class="product__aisle"><svg class="product__pin" width="12" height="16" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0a6 6 0 0 0-6 6c0 4.5 6 10 6 10s6-5.5 6-10a6 6 0 0 0-6-6Zm0 8.25a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5Z" fill="#e1251b"/></svg>In Produce on the Front Wall</p>
+                        </div>
+                        <div class="product__actions">
+                          <span class="pill pill--qty">1</span>
+                          <span class="pill pill--swap pill--replace" data-swap-open><img src="/assets/work/scan-your-list/substitute.svg" alt="">Replace</span>
+                          <span class="product__price"><span class="swap-a">$2.04 each</span><span class="swap-b">$1.96 each</span><small><span class="swap-a">$0.17 / oz</span><span class="swap-b">$0.12 / oz</span></small></span>
+                        </div>
+                        <div class="product__skeleton" aria-hidden="true">
+                          <i class="product__skeleton-image"></i>
+                          <div class="product__skeleton-info"><i style="width: 84px"></i><i style="width: 200px"></i><i style="width: 64px"></i><i style="width: 170px"></i></div>
+                          <div class="product__skeleton-actions"><i style="width: 72px"></i><i style="width: 96px"></i><i style="width: 72px; height: 24px; margin-left: auto"></i></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="match">
+                      <p class="match__term match__term--large">Bananas</p>
+                      <div class="product">
+                        <img class="product__check" src="/assets/work/scan-your-list/checkbox.svg" alt="">
+                        <img class="product__image" src="/assets/work/scan-your-list/products/bananas.jpg" alt="">
+                        <div class="product__info">
+                          <span class="tag tag--again">Buy it again</span>
+                          <p class="product__name">Fresh Bunch of Bananas, 4-7 Bananas, Avg. 2.4 lbs</p>
+                          <span class="tag tag--snap">SNAP EBT</span>
+                          <p class="product__aisle"><svg class="product__pin" width="12" height="16" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0a6 6 0 0 0-6 6c0 4.5 6 10 6 10s6-5.5 6-10a6 6 0 0 0-6-6Zm0 8.25a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5Z" fill="#e1251b"/></svg>In Produce</p>
+                        </div>
+                        <div class="product__actions">
+                          <span class="pill pill--qty">1</span>
+                          <span class="pill pill--swap pill--replace"><img src="/assets/work/scan-your-list/substitute.svg" alt="">Replace</span>
+                          <span class="product__price">$1.20 each<small>$0.50 / lb</small></span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="match">
+                      <p class="match__term match__term--large">Avocados</p>
+                      <div class="product">
+                        <img class="product__check" src="/assets/work/scan-your-list/checkbox.svg" alt="">
+                        <img class="product__image" src="/assets/work/scan-your-list/products/avocado.jpg" alt="">
+                        <div class="product__info">
+                          <span class="tag tag--cut">Price cut</span>
+                          <p class="product__name">Fresh Large Hass Avocado, Each</p>
+                          <span class="tag tag--snap">SNAP EBT</span>
+                          <p class="product__aisle"><svg class="product__pin" width="12" height="16" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0a6 6 0 0 0-6 6c0 4.5 6 10 6 10s6-5.5 6-10a6 6 0 0 0-6-6Zm0 8.25a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5Z" fill="#e1251b"/></svg>In Produce</p>
+                        </div>
+                        <div class="product__actions">
+                          <span class="pill pill--qty">1</span>
+                          <span class="pill pill--swap pill--replace"><img src="/assets/work/scan-your-list/substitute.svg" alt="">Replace</span>
+                          <span class="product__price">$1.47 each<small><s>$1.78</s></small></span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Replace: a tap opens "Choose a replacement", a carrot is chosen and confirmed (driven by case.js) -->
+                  <div class="swap-overlay" aria-hidden="true"></div>
+                  <div class="replace-sheet" aria-hidden="true">
+                    <div class="replace-sheet__nav">
+                      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 5 14 14M19 5 5 19" stroke="#414142" stroke-width="2" stroke-linecap="round"/></svg>
+                      <div class="replace-sheet__heading">
+                        <p class="replace-sheet__title">Choose a replacement</p>
+                        <p class="replace-sheet__item">Baby Carrots</p>
+                      </div>
+                      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="7" fill="none" stroke="#414142" stroke-width="2"/><path d="m15.75 15.75 5 5" stroke="#414142" stroke-width="2" stroke-linecap="round"/></svg>
+                    </div>
+                    <div class="replace-sheet__options">
+                      <div class="replace-option">
+                        <span class="replace-option__radio"></span>
+                        <img class="replace-option__image" src="/assets/work/scan-your-list/products/baby-carrots-1lb.jpg" alt="">
+                        <div class="replace-option__info">
+                          <p class="replace-option__name">H-E-B Fresh Baby Carrots, 1 lb</p>
+                          <span class="tag tag--snap">SNAP EBT</span>
+                        </div>
+                        <p class="replace-option__qty">Qty. 1</p>
+                        <p class="replace-option__price">$1.17<small>$1.17 each</small></p>
+                      </div>
+                      <div class="replace-option" data-swap-choice>
+                        <span class="replace-option__radio"></span>
+                        <img class="replace-option__image" src="/assets/work/scan-your-list/products/mini-carrots-organic.jpg" alt="">
+                        <div class="replace-option__info">
+                          <span class="tag tag--again">Buy it again</span>
+                          <p class="replace-option__name">H-E-B Organics Fresh Cut &amp; Peeled Mini Carrots, 1 lb</p>
+                          <span class="tag tag--snap">SNAP EBT</span>
+                        </div>
+                        <p class="replace-option__qty">Qty. 1</p>
+                        <p class="replace-option__price">$1.96<small>$1.96 each</small></p>
+                      </div>
+                      <div class="replace-option">
+                        <span class="replace-option__radio"></span>
+                        <img class="replace-option__image" src="/assets/work/scan-your-list/products/baby-carrots-2lb.jpg" alt="">
+                        <div class="replace-option__info">
+                          <p class="replace-option__name">H-E-B Fresh Baby Carrots - Texas-Size Pack, 2 lbs</p>
+                          <span class="tag tag--snap">SNAP EBT</span>
+                        </div>
+                        <p class="replace-option__qty">Qty. 1</p>
+                        <p class="replace-option__price">$2.24<small>$2.24 each</small></p>
+                      </div>
+                    </div>
+                    <div class="replace-sheet__footer">
+                      <span class="replace-sheet__button" data-swap-pick>Replace</span>
+                    </div>
+                  </div>
+                  <span class="swap-tap" aria-hidden="true"></span>
+              <div class="app__footer">
+                <span class="app__button app__button--primary">Add all to cart</span>
+                <span class="app__button">Add all to list</span>
+                <span class="app__home-indicator"></span>
+              </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="explore__note">[Placeholder: describe the list exploration. One match per item, with its aisle location and a Replace button to swap it.]</p>
+        </div>
+        <div class="explore__row">
+          <div class="canvas canvas--grey" data-canvas="520x956" data-caption="Product matches with options inline">
+            <div class="canvas__inner">
+              <div class="canvas__app canvas__app--explore">
+                <div class="app" data-swap-demo>
+              <div class="app__header">
+                <img class="app__curve" src="/assets/work/scan-your-list/nav-curve-red.svg" alt="">
+                <span class="app__time">9:41</span>
+                <img class="app__cellular" src="/assets/work/scan-your-list/cellular.svg" alt="">
+                <img class="app__wifi" src="/assets/work/scan-your-list/wifi.svg" alt="">
+                <img class="app__battery" src="/assets/work/scan-your-list/battery.svg" alt="">
+                <img class="app__close" src="/assets/work/scan-your-list/close-white-2.svg" alt="">
+                <span class="app__title">Scan a list</span>
+                <svg class="app__more" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2" fill="#fff"/><circle cx="12" cy="12" r="2" fill="#fff"/><circle cx="19" cy="12" r="2" fill="#fff"/></svg>
+              </div>
+                  <div class="results results--list results--inline">
+                    <div class="match">
+                      <p class="match__term match__term--large">Ground Chicken</p>
+                      <div class="product">
+                        <img class="product__check" src="/assets/work/scan-your-list/checkbox.svg" alt="">
+                        <img class="product__image" src="/assets/work/scan-your-list/products/ground-chicken.jpg" alt="">
+                        <div class="product__info">
+                          <p class="product__name">H-E-B Natural Ground Chicken Breast, 97% Lean, Avg. 1.0 lb</p>
+                        </div>
+                        <div class="product__actions">
+                          <span class="pill pill--qty">1</span>
+                          <span class="pill pill--swap pill--options">Browse options</span>
+                          <span class="product__price">$4.99 each<small>$4.99 / lb</small></span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="match">
+                      <p class="match__term match__term--large">Milk</p>
+                      <div class="product" data-swap-row>
+                        <img class="product__check" src="/assets/work/scan-your-list/checkbox.svg" alt="">
+                        <img class="product__image swap-a" src="/assets/work/scan-your-list/products/milk-cm-whole.jpg" alt="">
+                        <img class="product__image swap-b" src="/assets/work/scan-your-list/products/milk-heb-whole.jpg" alt="">
+                        <div class="product__info">
+                          <span class="tag tag--again">Buy it again</span>
+                          <p class="product__name"><span class="swap-a">Central Market Organics Whole Milk, 1 gal</span><span class="swap-b">H-E-B Whole Milk, 1 gal</span></p>
+                        </div>
+                        <div class="product__actions">
+                          <span class="pill pill--qty">1</span>
+                          <span class="pill pill--swap pill--options" data-swap-open><span class="pill__closed">Browse options</span><span class="pill__open">Hide options</span></span>
+                          <span class="product__price"><span class="swap-a">$6.98 each</span><span class="swap-b">$4.23 each</span><small><span class="swap-a">$0.05 / oz</span><span class="swap-b">$0.03 / oz</span></small></span>
+                        </div>
+                        <div class="product__skeleton" aria-hidden="true">
+                          <i class="product__skeleton-image"></i>
+                          <div class="product__skeleton-info"><i style="width: 84px"></i><i style="width: 200px"></i><i style="width: 120px"></i></div>
+                          <div class="product__skeleton-actions"><i style="width: 72px"></i><i style="width: 112px"></i><i style="width: 72px; height: 24px; margin-left: auto"></i></div>
+                        </div>
+                      </div>
+                      <!-- Browse options opens these in place, under the item (driven by case.js) -->
+                      <div class="inline-options" aria-hidden="true">
+                        <div class="inline-options__track" data-swap-scroll>
+                        <div class="inline-card">
+                          <img class="inline-card__image" src="/assets/work/scan-your-list/products/milk-cm-2.jpg" alt="">
+                          <div class="inline-card__info">
+                            <p class="inline-card__price">$6.98 <small>each</small></p>
+                            <p class="inline-card__name">Central Market Organics 2% Reduced Fat Milk, 1 gal</p>
+                          </div>
+                          <span class="inline-card__button">Replace</span>
+                        </div>
+                        <div class="inline-card">
+                          <img class="inline-card__image" src="/assets/work/scan-your-list/products/milk-heb-whole.jpg" alt="">
+                          <div class="inline-card__info">
+                            <span class="tag tag--again inline-card__label">Buy it again</span>
+                            <p class="inline-card__price">$4.23 <small>each</small></p>
+                            <p class="inline-card__name">H-E-B Whole Milk, 1 gal</p>
+                          </div>
+                          <span class="inline-card__button" data-swap-pick>Replace</span>
+                        </div>
+                        <div class="inline-card">
+                          <img class="inline-card__image" src="/assets/work/scan-your-list/products/milk-horizon-whole.jpg" alt="">
+                          <div class="inline-card__info">
+                            <p class="inline-card__price">$9.97 <small>each</small></p>
+                            <p class="inline-card__name">Horizon Organic Whole Milk, 1 gal</p>
+                          </div>
+                          <span class="inline-card__button">Replace</span>
+                        </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <span class="swap-tap" aria-hidden="true"></span>
+              <div class="app__footer">
+                <span class="app__button app__button--primary">Add all to cart</span>
+                <span class="app__button">Add all to list</span>
+                <span class="app__home-indicator"></span>
+              </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="explore__note">[Placeholder: describe the inline exploration. Browse options opens a carousel of other matches right under the item, so you never leave the list to replace it.]</p>
+        </div>
       </div>
     </template>
   </main>
