@@ -74,7 +74,7 @@
 .heb-store { position: absolute; right: 172px; top: 24px; display: flex; align-items: center; gap: 28px; font-size: 14px; line-height: 24px; }
 .heb-store__item { display: flex; align-items: center; gap: 8px; }
 .heb-store__item--name { font-weight: 800; }
-.heb-store__h { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #fff; color: #dc291e; font-weight: 800; font-size: 13px; line-height: 1; }
+.heb-store__icon { width: 24px; height: 24px; }
 .heb-curbside__icon { position: relative; width: 24px; height: 24px; }
 .heb-curbside__icon img { position: absolute; inset: 0; width: 24px; height: 24px; }
 .heb-curbside__icon img + img { inset: 2px; width: 20px; height: 20px; }
@@ -148,9 +148,8 @@
 }
 .has-results .heb-results { opacity: 1; visibility: visible; transform: none; transition: opacity 500ms linear, transform 800ms var(--ease-out); }
 /* The results column: 1216 wide and centered, from the GenAI search results design */
-.heb-results__page { width: 1216px; margin: 0 auto; padding: 40px 0 48px; transition: transform 9000ms cubic-bezier(0.45, 0, 0.55, 1); }
-/* The view drifts down through the sections */
-.is-drifting .heb-results__page { transform: translateY(-1900px); }
+/* The view moves down through the sections in steps, set by ai-search.js */
+.heb-results__page { width: 1216px; margin: 0 auto; padding: 40px 0 48px; transform: translateY(calc(var(--drift, 0) * -1px)); transition: transform 1600ms cubic-bezier(0.45, 0, 0.55, 1); }
 .heb-results.is-resetting, .heb-results.is-resetting * { transition: none !important; }
 .heb-results__query { padding: 0 36px; text-align: center; font-weight: 800; font-size: 24px; line-height: 32px; }
 .heb-results__notice {
@@ -210,6 +209,35 @@
 .heb-result__skeleton i:nth-child(4) { top: 300px; right: 16px; }
 .heb-result__skeleton i:nth-child(5) { top: 324px; width: 60%; }
 .heb-result__skeleton i:nth-child(6) { top: auto; right: 16px; bottom: 44px; height: 44px; border-radius: 22px; }
+
+/* Adding to cart: the button presses, spins for a moment, then turns into a quantity stepper,
+   and the header cart's total and count update */
+.heb-result__button { transition: transform 150ms var(--ease-out), background-color 150ms linear; }
+.heb-result__button.is-pressed { transform: scale(0.96); background: #c41f16; }
+.heb-result__button.is-loading { color: transparent; position: relative; }
+.heb-result__button.is-loading::after {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 20px; height: 20px; margin: -10px 0 0 -10px;
+  border: 2.5px solid rgba(255, 255, 255, 0.35); border-top-color: #fff; border-radius: 50%;
+  animation: heb-spin 700ms linear infinite;
+}
+@keyframes heb-spin { to { transform: rotate(360deg); } }
+.heb-result__button.is-added { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; animation: heb-pop 300ms var(--ease-out); }
+.heb-step { display: grid; place-items: center; width: 20px; height: 20px; }
+.heb-step svg { width: 18px; height: 18px; }
+.heb-step__count { font-weight: 800; font-size: 14px; line-height: 20px; }
+@keyframes heb-pop { from { transform: scale(0.94); } }
+.heb-cart__count.is-bumping { animation: heb-bump 450ms var(--ease-out); }
+@keyframes heb-bump { 40% { transform: scale(1.45); } }
+
+/* The shopper's finger */
+.heb-tap {
+  position: absolute; z-index: 3; left: 0; top: 0; width: 56px; height: 56px; margin: -28px 0 0 -28px;
+  border-radius: 50%; background: rgba(65, 65, 66, 0.28); box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.75);
+  opacity: 0; transform: scale(1.4); pointer-events: none;
+  transition: opacity 250ms linear, transform 350ms var(--ease-out);
+}
+.heb-tap.is-visible { opacity: 1; transform: none; }
+.heb-tap.is-pressing { transform: scale(0.8); transition-duration: 150ms; }
 
 @media (max-width: 640px) {
   .cs-hero__media--stage { border-radius: 20px; }

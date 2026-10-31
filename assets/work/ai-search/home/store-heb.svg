@@ -1,0 +1,9 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="icon">
+<circle id="circle" cx="12" cy="12" r="12" fill="white"/>
+<g id="H">
+<path id="Oval" d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" fill-rule="evenodd" clip-rule="evenodd" fill="#E1251B"/>
+<path id="Path" d="M13.436 13.4863L13.4929 17L17.4313 16.9926L18 7H13.3294L13.3934 11.47H10.6066L10.6635 7H6L6.58294 17H10.5142L10.564 13.4863H13.436Z" fill-rule="evenodd" clip-rule="evenodd" fill="white"/>
+</g>
+</g>
+</svg>
