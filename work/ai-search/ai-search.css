@@ -1,23 +1,23 @@
 /* ---------- AI-assisted search results ---------- */
 
-/* Hero: a light grey panel holding a browser window, built at 1231x859 and scaled to the column by
+/* Hero: a light grey panel holding a browser window, built at 1231x953 and scaled to the column by
    ai-search.js. The H-E-B home page inside is drawn at its true 1440px desktop width. */
-.cs-hero__media--stage { position: relative; aspect-ratio: 1231 / 859; }
+.cs-hero__media--stage { position: relative; aspect-ratio: 1231 / 953; }
 .stage {
   position: absolute; left: 0; top: 0;
-  width: 1231px; height: 859px;
+  width: 1231px; height: 953px;
   transform: scale(var(--fit, 1)); transform-origin: 0 0;
 }
 .browser {
   position: absolute; left: 72px; top: 72px;
-  width: 1087px; height: 715px; overflow: hidden;
+  width: 1087px; height: 809px; overflow: hidden;
   border-radius: 14px; background: #fff;
   box-shadow: 0 0 0 1px rgba(13, 17, 23, 0.06), 0 30px 60px -30px rgba(13, 17, 23, 0.25);
   transform-origin: 0 0;
   transition: transform 1000ms cubic-bezier(0.65, 0, 0.35, 1);
 }
 /* Zoomed: the search bar (258.9, 63.2 inside the window) lands in the middle of the panel */
-.browser.is-zoomed { transform: translate(-77.9px, 205.8px) scale(2.4); }
+.browser.is-zoomed { transform: translate(-77.9px, 252.8px) scale(2.4); }
 /* A light blur at the fastest part of the zoom in, like motion blur on a camera push-in */
 .browser.is-zoomed { animation: zoom-blur 1000ms cubic-bezier(0.65, 0, 0.35, 1); }
 @keyframes zoom-blur {
@@ -36,11 +36,11 @@
   border-radius: 6px; background: #fff; text-align: center;
   font: 12px/22px -apple-system, system-ui, sans-serif; color: #5f6368;
 }
-.browser__view { height: 679px; overflow: hidden; }
+.browser__view { height: 773px; overflow: hidden; }
 
 /* ---------- The H-E-B home page, 1440 wide, from the Figma design ---------- */
 .heb {
-  width: 1440px; height: 900px;
+  width: 1440px; height: 1024px;
   transform: scale(0.75486); transform-origin: 0 0;
   font-family: 'Open Sans', -apple-system, system-ui, sans-serif; color: #414142; text-align: left;
 }
@@ -56,13 +56,16 @@
   border-radius: 18px; background: #fff; color: #414142;
   transition: box-shadow 300ms linear;
 }
-.heb-search__field { position: absolute; left: 24px; right: 44px; top: 8px; display: flex; align-items: center; height: 20px; font-size: 14px; line-height: 20px; white-space: nowrap; overflow: hidden; }
+.heb-search__field { position: absolute; left: 24px; right: 68px; top: 8px; display: flex; align-items: center; height: 20px; font-size: 14px; line-height: 20px; white-space: nowrap; overflow: hidden; }
 .heb-search__placeholder { position: absolute; left: 0; }
 .heb-search__query { color: #1a1a1a; }
-.heb-search__caret { flex: none; width: 1.5px; height: 18px; margin-left: 1px; background: #1a1a1a; opacity: 0; }
+.heb-search__caret { flex: none; width: 1.5px; height: 18px; margin-left: 1px; background: #1f66b0; opacity: 0; }
+.heb-search__clear { position: absolute; left: 282px; top: 10px; width: 16px; height: 16px; opacity: 0; transition: opacity 150ms linear; }
+.has-query .heb-search__clear { opacity: 1; }
 .heb-search__icon { position: absolute; left: 310px; top: 10px; }
 /* Focused while typing: a soft ring, a blinking caret, and no placeholder */
-.is-typing .heb-search { box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.55); }
+/* Focused, as in production: a blue ring just inside the bar's white edge, a blue caret, and a clear button */
+.is-typing .heb-search { box-shadow: inset 0 0 0 1.5px #fff, inset 0 0 0 3px #1f66b0; }
 .is-typing .heb-search__caret { animation: heb-caret 1s steps(1) infinite; }
 .is-typing .heb-search__placeholder, .has-query .heb-search__placeholder { visibility: hidden; }
 @keyframes heb-caret { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
@@ -132,6 +135,81 @@
 .heb-shoppable .heb-track { margin-top: 16px; }
 .heb-shoppable .heb-scrollbar { width: 780px; margin-top: 22px; }
 .heb-shoppable .heb-forward { right: 7px; top: 162px; }
+
+/* ---------- Search results: slides up under the header once the search is sent ---------- */
+.heb { position: relative; }
+.heb-header { z-index: 2; }
+.heb-search__icon { transition: transform 150ms var(--ease-out); }
+.heb-search__icon.is-pressed { transform: scale(0.8); }
+.heb-results {
+  position: absolute; z-index: 1; left: 0; top: 116px; width: 1440px; height: 908px; overflow: hidden;
+  background: #fff; opacity: 0; visibility: hidden; transform: translateY(60px);
+  transition: opacity 500ms linear, transform 800ms var(--ease-out), visibility 0s linear 800ms;
+}
+.has-results .heb-results { opacity: 1; visibility: visible; transform: none; transition: opacity 500ms linear, transform 800ms var(--ease-out); }
+/* The results column: 1216 wide and centered, from the GenAI search results design */
+.heb-results__page { width: 1216px; margin: 0 auto; padding: 40px 0 48px; transition: transform 9000ms cubic-bezier(0.45, 0, 0.55, 1); }
+/* The view drifts down through the sections */
+.is-drifting .heb-results__page { transform: translateY(-1900px); }
+.heb-results.is-resetting, .heb-results.is-resetting * { transition: none !important; }
+.heb-results__query { padding: 0 36px; text-align: center; font-weight: 800; font-size: 24px; line-height: 32px; }
+.heb-results__notice {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin: 40px 36px 0; padding: 24px 0; border: 1px solid #f5f5f5; border-radius: 8px; background: #fff;
+  font-size: 14px; line-height: 20px; color: #000;
+}
+.heb-results__notice b { font-weight: 800; color: #007db3; }
+.heb-results__notice--feedback { margin: 40px 3px 0; }
+
+/* Each AI-generated section: the heading writes in over a skeleton row, then the products fill it */
+.heb-shelf { position: relative; margin-top: 40px; opacity: 0; transform: translateY(12px); transition: opacity 400ms linear, transform 600ms var(--ease-out); }
+.heb-shelf.is-shown { opacity: 1; transform: none; }
+.heb-shelf__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.heb-shelf__title { display: flex; align-items: center; height: 40px; font-weight: 800; font-size: 28px; line-height: 40px; }
+.heb-shelf__caret { width: 2px; height: 30px; margin-left: 2px; background: #414142; opacity: 0; }
+.heb-shelf.is-writing .heb-shelf__caret { animation: heb-caret 0.8s steps(1) infinite; }
+.heb-shelf__row { display: flex; gap: 16px; margin-top: 32px; padding-bottom: 16px; }
+.heb-shelf .heb-forward { right: -22px; top: 324px; background: #414142; box-shadow: none; opacity: 0; transition: opacity 300ms linear 400ms; }
+.heb-shelf.is-filled .heb-forward { opacity: 1; }
+.heb-shelf__scrollbar { display: block; width: 44%; height: 6px; margin-left: 3px; border-radius: 100px; background: #333; opacity: 0; transition: opacity 300ms linear 400ms; }
+.heb-shelf.is-filled .heb-shelf__scrollbar { opacity: 1; }
+
+/* Product card - Standard - Desktop */
+.heb-result {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; flex: 1 0 0; min-width: 0;
+  height: 496px; padding: 8px 16px 16px; background: #fff;
+}
+.heb-result > * { opacity: 0; transition: opacity 400ms linear calc(var(--i) * 80ms); }
+.heb-result > .heb-result__skeleton { opacity: 1; }
+.heb-shelf.is-filled .heb-result > * { opacity: 1; }
+.heb-shelf.is-filled .heb-result > .heb-result__skeleton { opacity: 0; }
+.heb-result__list { align-self: flex-end; margin: 0 2px; }
+.heb-result__image { align-self: center; flex: none; width: 180px; height: 180px; margin: 4px -12px 0; object-fit: contain; }
+.heb-result__labels { display: flex; gap: 8px; height: 24px; margin-top: 12px; }
+.heb-label { display: grid; place-items: center; padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 12px; line-height: 16px; white-space: nowrap; }
+.heb-label--coupon { background: #fcd131; color: #414142; }
+.heb-label--bia { background: #c2f0c2; color: #006a00; }
+.heb-label--sale { background: #e1251b; color: #fff; }
+.heb-result__price { margin-top: 8px; font-weight: 800; font-size: 20px; line-height: 28px; }
+.heb-result__price small { font-weight: 400; font-size: 14px; line-height: 20px; color: #717172; }
+.heb-result__name { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; margin-top: 4px; font-size: 16px; line-height: 24px; }
+.heb-result__button {
+  display: grid; place-items: center; align-self: stretch; height: 44px; margin-top: auto;
+  border-radius: 100px; background: #e1251b; color: #fff; font-weight: 800; font-size: 14px; line-height: 20px;
+}
+.heb-result__promoted { align-self: stretch; height: 24px; margin-top: 4px; text-align: right; font-size: 12px; line-height: 16px; color: #717172; }
+.heb-result__skeleton { position: absolute; inset: 0; pointer-events: none; }
+.heb-result__skeleton i {
+  position: absolute; left: 16px; display: block; height: 14px; border-radius: 7px;
+  background: linear-gradient(90deg, #eeeeef 0%, #f7f7f8 50%, #eeeeef 100%) 0 0 / 200% 100%;
+  animation: skeleton 1.2s linear infinite;
+}
+.heb-result__skeleton i:nth-child(1) { left: 50%; top: 36px; width: 180px; height: 180px; margin-left: -90px; border-radius: 12px; }
+.heb-result__skeleton i:nth-child(2) { top: 228px; width: 72px; height: 24px; border-radius: 8px; }
+.heb-result__skeleton i:nth-child(3) { top: 262px; width: 110px; height: 22px; }
+.heb-result__skeleton i:nth-child(4) { top: 300px; right: 16px; }
+.heb-result__skeleton i:nth-child(5) { top: 324px; width: 60%; }
+.heb-result__skeleton i:nth-child(6) { top: auto; right: 16px; bottom: 44px; height: 44px; border-radius: 22px; }
 
 @media (max-width: 640px) {
   .cs-hero__media--stage { border-radius: 20px; }
