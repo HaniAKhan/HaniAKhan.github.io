@@ -16,6 +16,10 @@ body[data-case-page] { background: var(--case-bg); }
 
 /* Hidden until the password gate is passed */
 html.case-locked .cs { visibility: hidden; }
+/* The hero stays out of the first paint until the page script fades it in (cs-ready), so it
+   doesn't show, vanish and come back. If the script never runs it appears after 3s anyway. */
+html.js:not(.cs-ready) .cs-hero > * { opacity: 0; animation: cs-hero-failsafe 0s 3s forwards; }
+@keyframes cs-hero-failsafe { to { opacity: 1; } }
 
 /* ---------- Hero: the title fills the first screen with the phone peeking up from the bottom.
    Scrolling brings the phone up (it grows a little on the way), and once it's fully in view it

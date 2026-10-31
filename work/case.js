@@ -442,6 +442,12 @@
   }
 
   /* ---------- Start (after the password gate, if it was shown) ---------- */
+  // The hero waits for the web fonts (at most 800ms) so its text fades in once, in the right face
+  function whenFontsLoad(done) {
+    const fonts = document.fonts ? document.fonts.ready : Promise.resolve();
+    Promise.race([fonts, new Promise((resolve) => setTimeout(resolve, 800))]).then(done);
+  }
+
   function start() {
     measure();
     if (!reduceMotion) {
@@ -450,15 +456,17 @@
       window.addEventListener('scroll', onScroll, { passive: true });
     }
     window.addEventListener('resize', () => { measure(); if (!reduceMotion) onScroll(); });
-    if (!reduceMotion) {
-      // Title and phone settle in when the page opens
+    // Title and phone settle in when the page opens, once the fonts are in
+    whenFontsLoad(() => {
+      root.classList.add('cs-ready');
+      if (reduceMotion) return;
       const intro = document.querySelector('.cs-hero__intro');
       intro.animate([{ opacity: 0, translate: '0 16px' }, { opacity: 1, translate: '0 0' }], { duration: 1000, easing: EASE_OUT });
       device.animate(
         [{ opacity: 0, translate: '0 60px', scale: '0.94' }, { opacity: 1, translate: '0 0', scale: '1' }],
         { duration: 1200, delay: 150, easing: EASE_OUT, fill: 'backwards' }
       );
-    }
+    });
     observeDevice();
     observeReveals();
   }

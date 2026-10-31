@@ -188,15 +188,23 @@
   }
 
   /* ---------- Start (after the password gate, if it was shown) ---------- */
+  // The hero waits for the web fonts (at most 800ms) so its text fades in once, in the right face
+  function whenFontsLoad(done) {
+    const fonts = document.fonts ? document.fonts.ready : Promise.resolve();
+    Promise.race([fonts, new Promise((resolve) => setTimeout(resolve, 800))]).then(done);
+  }
+
   function start() {
     fit();
-    if (!reduceMotion) {
+    whenFontsLoad(() => {
+      root.classList.add('cs-ready');
+      if (reduceMotion) return;
       intro.animate([{ opacity: 0, translate: '0 16px' }, { opacity: 1, translate: '0 0' }], { duration: 1000, easing: EASE_OUT });
       media.animate(
         [{ opacity: 0, translate: '0 60px', scale: '0.97' }, { opacity: 1, translate: '0 0', scale: '1' }],
         { duration: 1200, delay: 150, easing: EASE_OUT, fill: 'backwards' }
       );
-    }
+    });
     // The promo plays while most of the hero is on screen, and starts over each time it comes back
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(([entry]) => {
