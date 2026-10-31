@@ -16,6 +16,9 @@ body[data-case-page] { background: var(--case-bg); }
 
 /* Hidden until the password gate is passed */
 html.case-locked .cs { visibility: hidden; }
+/* No cross-page fade into or out of a case study (styles.css turns it on for the site). The hero has
+   its own fade-in, and Safari runs the two on top of each other, which flickers on arrival. */
+@view-transition { navigation: none; }
 /* The hero stays out of the first paint until the page script fades it in (cs-ready), so it
    doesn't show, vanish and come back. If the script never runs it appears after 3s anyway. */
 html.js:not(.cs-ready) .cs-hero > * { opacity: 0; animation: cs-hero-failsafe 0s 3s forwards; }
