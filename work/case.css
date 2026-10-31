@@ -56,6 +56,14 @@ html.case-locked .cs { visibility: hidden; }
   line-height: 28px;
   color: var(--text-intro);
 }
+/* A note under the lede for a case study that is only a hero so far */
+.cs-soon {
+  margin-top: 24px;
+  font-family: var(--font-meta);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-meta);
+}
 /* A light grey panel like the other images, holding the phone's space in the page;
    case.js sets --fit so the whole phone fits the window */
 .cs-hero__device {
@@ -646,6 +654,8 @@ html.case-locked .cs { visibility: hidden; }
 .explore__row { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
 .explore__row .canvas { cursor: default; }
 .explore__note { font-size: 16px; line-height: 24px; color: var(--text-body); }
+/* A row without a note centers its canvas at the width it has beside one */
+.explore__row:not(:has(.explore__note)) { grid-template-columns: min(436px, 100%); justify-content: center; }
 /* Square recordings, two across */
 .explore__grid--videos { width: min(720px, 100% - 48px); row-gap: 40px; }
 .explore__item { margin: 0; }

@@ -472,16 +472,7 @@ curl -s <span class="mock-terminal__str">"$API/identify"</span> --json <span cla
       </div>
     </section>
 
-    <!-- Other projects -->
-    <section class="cs-section cs-more reveal reveal--stagger" aria-labelledby="more-title">
-      <h2 class="cs-more__title" id="more-title">View other projects</h2>
-      <div class="cs-more__row">
-        <div class="cs-more__card"></div>
-        <div class="cs-more__card"></div>
-        <div class="cs-more__card"></div>
-      </div>
-    </section>
-    <!-- "See what I explored" sheets: placeholders until the explorations are added -->
+    <!-- "See what I explored" sheets -->
     <template id="explore-loading" data-label="Loading state explorations">
       <div class="explore__body">
         <h2 class="explore__title">Sweating the details</h2>
@@ -489,19 +480,19 @@ curl -s <span class="mock-terminal__str">"$API/identify"</span> --json <span cla
       </div>
       <div class="explore__grid explore__grid--videos">
         <figure class="explore__item">
-          <video class="explore__video" src="/assets/work/scan-your-list/loading-explore-1.mp4" muted loop playsinline aria-label="Loading animation exploration 1 of 4"></video>
+          <video class="explore__video" src="/assets/work/scan-your-list/loading-explore-1.mp4" poster="/assets/work/scan-your-list/loading-explore-1-poster.jpg" muted loop playsinline preload="auto" aria-label="Loading animation exploration 1 of 4"></video>
           <figcaption class="explore__caption">I explored depth here by letting stars float in front of the loader. This resulted in some visual tension when the stars touched the loader.</figcaption>
         </figure>
         <figure class="explore__item">
-          <video class="explore__video" src="/assets/work/scan-your-list/loading-explore-2.mp4" muted loop playsinline aria-label="Loading animation exploration 2 of 4"></video>
+          <video class="explore__video" src="/assets/work/scan-your-list/loading-explore-2.mp4" poster="/assets/work/scan-your-list/loading-explore-2-poster.jpg" muted loop playsinline preload="auto" aria-label="Loading animation exploration 2 of 4"></video>
           <figcaption class="explore__caption">Here, the stars floated behind the loader but still touched it, which also resulted in visual tension.</figcaption>
         </figure>
         <figure class="explore__item">
-          <video class="explore__video" src="/assets/work/scan-your-list/loading-explore-4.mp4" muted loop playsinline aria-label="Loading animation exploration 3 of 4"></video>
+          <video class="explore__video" src="/assets/work/scan-your-list/loading-explore-4.mp4" poster="/assets/work/scan-your-list/loading-explore-4-poster.jpg" muted loop playsinline preload="auto" aria-label="Loading animation exploration 3 of 4"></video>
           <figcaption class="explore__caption">This one introduced a soft padding to address the visual tension when the stars touch the loader. But the faded effect on the stars can be a bit distracting.</figcaption>
         </figure>
         <figure class="explore__item">
-          <video class="explore__video" src="/assets/work/scan-your-list/loading-explore-5.mp4" muted loop playsinline aria-label="Loading animation exploration 4 of 4"></video>
+          <video class="explore__video" src="/assets/work/scan-your-list/loading-explore-5.mp4" poster="/assets/work/scan-your-list/loading-explore-5-poster.jpg" muted loop playsinline preload="auto" aria-label="Loading animation exploration 4 of 4"></video>
           <figcaption class="explore__caption">This introduced a hard padding of 16px. It felt like the right direction, but we ended up reducing the padding to 12px because 16px felt like too much of a gap.</figcaption>
         </figure>
       </div>
@@ -509,7 +500,6 @@ curl -s <span class="mock-terminal__str">"$API/identify"</span> --json <span cla
     <template id="explore-matches" data-label="Product match explorations">
       <div class="explore__body">
         <h2 class="explore__title">Finding the balance between speed and control</h2>
-        <p class="explore__text">[Placeholder: notes on the match layouts explored, and why this one won.]</p>
       </div>
       <div class="explore__rows">
         <div class="explore__row">
@@ -589,7 +579,6 @@ curl -s <span class="mock-terminal__str">"$API/identify"</span> --json <span cla
               </div>
             </div>
           </div>
-          <p class="explore__note">[Placeholder: describe the carousel exploration. Each item gets a row of matches to swipe through, ending in a Find item button to search for something else.]</p>
         </div>
         <div class="explore__row">
           <div class="canvas canvas--grey" data-canvas="520x956" data-caption="Product matches as a list">
@@ -726,7 +715,6 @@ curl -s <span class="mock-terminal__str">"$API/identify"</span> --json <span cla
               </div>
             </div>
           </div>
-          <p class="explore__note">[Placeholder: describe the list exploration. One match per item, with its aisle location and a Replace button to swap it.]</p>
         </div>
         <div class="explore__row">
           <div class="canvas canvas--grey" data-canvas="520x956" data-caption="Product matches with options inline">
@@ -822,7 +810,6 @@ curl -s <span class="mock-terminal__str">"$API/identify"</span> --json <span cla
               </div>
             </div>
           </div>
-          <p class="explore__note">[Placeholder: describe the inline exploration. Browse options opens a carousel of other matches right under the item, so you never leave the list to replace it.]</p>
         </div>
       </div>
     </template>

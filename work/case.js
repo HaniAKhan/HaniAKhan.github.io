@@ -385,15 +385,14 @@
       const release = () => releases.forEach((done) => done());
       // Exploration recordings play muted on a loop; with reduced motion they wait for a press of play
       const recordings = [...content.querySelectorAll('.explore__video')];
-      recordings.forEach((video) => {
-        if (reduceMotion) video.controls = true;
-        else video.play().catch(() => {});
-      });
+      if (reduceMotion) recordings.forEach((video) => { video.controls = true; });
       window.sheet.open({
         content,
         label: template.dataset.label,
         onClose: () => { recordings.forEach((video) => video.pause()); release(); },
       });
+      // Play once the sheet is in the page: iOS Safari ignores play() on a video that isn't
+      if (!reduceMotion) recordings.forEach((video) => { video.muted = true; video.play().catch(() => {}); });
     });
   });
 
