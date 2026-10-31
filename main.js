@@ -91,6 +91,91 @@
     setTimeout(observeCases, 450);
   }
 
+  /* ---------- Email me: copies the address, assembled here so it isn't in the page for scrapers ---------- */
+  const EMAIL = ['hani.khan', 'gmail.com'];
+  const emailButton = document.querySelector('[data-email-copy]');
+  if (emailButton) {
+    const icons = emailButton.querySelector('.t-icon-swap');
+    const label = emailButton.querySelector('.t-morph');
+    const status = document.querySelector('[data-email-status]');
+    const ms = (name) => parseFloat(getComputedStyle(root).getPropertyValue(name)) || 0;
+
+    // transitions.dev text morph: the letters both labels share ("Cop") stay put; only the part that
+    // differs cross-blurs, while its width eases to the new text.
+    const morphText = (el, next) => {
+      const prev = el.dataset.text ?? el.textContent;
+      if (prev === next) return;
+      el.dataset.text = next;
+      clearTimeout(el._morphTimer);
+
+      // Shared start (a) and shared end (b).
+      let a = 0;
+      while (a < prev.length && a < next.length && prev[a] === next[a]) a++;
+      let b = 0;
+      while (b < prev.length - a && b < next.length - a &&
+             prev[prev.length - 1 - b] === next[next.length - 1 - b]) b++;
+
+      const swap = document.createElement('span');
+      swap.className = 't-morph-swap';
+      const out = document.createElement('span');
+      out.className = 't-morph-old';
+      out.setAttribute('aria-hidden', 'true');
+      out.textContent = prev.slice(a, prev.length - b);
+      const inn = document.createElement('span');
+      inn.className = 't-morph-new';
+      inn.textContent = next.slice(a, next.length - b);
+      swap.append(out, inn);
+
+      el.textContent = '';
+      el.append(next.slice(0, a), swap, next.slice(next.length - b));
+
+      swap.style.width = out.getBoundingClientRect().width + 'px';
+      void swap.offsetWidth; // force reflow so the width transitions
+      swap.classList.add('is-morphing');
+      swap.style.width = inn.getBoundingClientRect().width + 'px';
+
+      el._morphTimer = setTimeout(() => {
+        el.textContent = next;
+      }, Math.max(ms('--text-morph-dur'), ms('--text-morph-resize-dur')) + 40);
+    };
+
+    // Copied: the copy icon swaps to a check that draws itself in (transitions.dev success check) and the
+    // label morphs; after 2s both go back, and the check resets once it has faded out
+    const check = emailButton.querySelector('.t-success-check');
+    let checkTimer;
+    const setCopied = (copied) => {
+      clearTimeout(checkTimer);
+      if (copied) {
+        check.setAttribute('data-state', 'out');
+        void check.offsetWidth; // force reflow so keyframes restart
+        check.setAttribute('data-state', 'in');
+      } else {
+        checkTimer = setTimeout(() => check.setAttribute('data-state', 'out'), ms('--icon-swap-dur'));
+      }
+      icons.dataset.state = copied ? 'b' : 'a';
+      morphText(label, copied ? 'Copied' : 'Copy email address');
+    };
+
+    let resetTimer;
+    emailButton.addEventListener('click', async () => {
+      const address = EMAIL.join('@');
+      try {
+        await navigator.clipboard.writeText(address);
+      } catch (e) {
+        // No clipboard access: open an email instead
+        window.location.href = `mailto:${address}`;
+        return;
+      }
+      setCopied(true);
+      status.textContent = `Email address ${address} copied to clipboard`;
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => {
+        setCopied(false);
+        status.textContent = '';
+      }, 2000);
+    });
+  }
+
   /* ---------- Pre-loader ---------- */
   const preloader = document.querySelector('.preloader');
   const sky = document.querySelector('.preloader__sky');

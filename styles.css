@@ -195,8 +195,183 @@ html.is-loading .wordmark { visibility: hidden; }
   background: var(--chip-bg);
   transition: transform 400ms var(--ease-out);
 }
-.social:hover { transform: translateY(-2px); }
+/* Hover lifts only where there is a real pointer, so a tap on a phone doesn't leave it raised */
+@media (hover: hover) { .social:hover { transform: translateY(-2px); } }
 .social:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+
+/* LinkedIn and the email button side by side */
+.contact { display: flex; align-items: center; gap: 8px; }
+.email-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px 0 13px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--chip-bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  cursor: pointer;
+  transition: transform 400ms var(--ease-out);
+}
+@media (hover: hover) { .email-copy:hover { transform: translateY(-2px); } }
+.email-copy:active { transform: scale(0.97); }
+.email-copy:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+.email-copy__icons { flex: none; }
+.email-copy__icons svg { display: block; }
+/* Each icon slot is a grid, so the success check's inline-block wrapper doesn't add a line box and
+   the slot stays exactly 18px tall, centred on the label */
+.email-copy__icons .t-icon { display: grid; }
+/* The success check's bob and blur, scaled down for an 18px icon inside a 40px button */
+.email-copy { --check-y-amount: 6px; --check-blur-from: 3px; }
+
+/* ---------- transitions.dev: icon swap, text morph and success check (the Copy email address button) ---------- */
+:root {
+  --icon-swap-dur: 250ms;
+  --icon-swap-blur: 2px;
+  --icon-swap-start-scale: 0.25;
+  --icon-swap-ease: ease-in-out;
+  --text-morph-dur: 180ms;
+  --text-morph-resize-dur: 240ms;
+  --text-morph-blur: 2px;
+  --text-morph-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --check-opacity-dur: 500ms;
+  --check-rotate-dur: 500ms;
+  --check-rotate-from: 80deg;
+  --check-bob-dur: 500ms;
+  --check-y-amount: 40px;
+  --check-blur-dur: 500ms;
+  --check-blur-from: 10px;
+  --check-path-dur: 500ms;
+  --check-path-delay: 80ms;
+  --check-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --check-ease-opacity: cubic-bezier(0.22, 1, 0.36, 1);
+  --check-ease-rotate: cubic-bezier(0.22, 1, 0.36, 1);
+  --check-ease-bob: cubic-bezier(0.34, 1.35, 0.64, 1);
+  --check-ease-path: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.t-icon-swap {
+  position: relative;
+  display: inline-grid;
+}
+.t-icon-swap .t-icon {
+  grid-area: 1 / 1;
+  transition:
+    opacity   var(--icon-swap-dur) var(--icon-swap-ease),
+    filter    var(--icon-swap-dur) var(--icon-swap-ease),
+    transform var(--icon-swap-dur) var(--icon-swap-ease);
+  /* No will-change: it would freeze each icon's raster at its 0.25 start
+     scale, so a large icon scales up blurry and pixelated. */
+}
+.t-icon-swap[data-state="a"] .t-icon[data-icon="a"],
+.t-icon-swap[data-state="b"] .t-icon[data-icon="b"] {
+  opacity: 1;
+  filter: blur(0);
+  transform: scale(1);
+}
+.t-icon-swap[data-state="a"] .t-icon[data-icon="b"],
+.t-icon-swap[data-state="b"] .t-icon[data-icon="a"] {
+  opacity: 0;
+  filter: blur(var(--icon-swap-blur));
+  transform: scale(var(--icon-swap-start-scale));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-icon-swap .t-icon { transition: none !important; }
+}
+
+.t-morph {
+  white-space: nowrap;
+}
+/* The changing part: both versions share one grid cell, so they
+   cross-blur in place; the cell's width eases between them. */
+.t-morph-swap {
+  display: inline-grid;
+  vertical-align: bottom;
+  justify-items: start;
+  transition: width var(--text-morph-resize-dur) var(--text-morph-ease);
+}
+.t-morph-swap > span {
+  grid-area: 1 / 1;
+  white-space: pre;
+  transition:
+    opacity var(--text-morph-dur) var(--text-morph-ease),
+    filter  var(--text-morph-dur) var(--text-morph-ease);
+}
+.t-morph-new {
+  opacity: 0;
+  filter: blur(var(--text-morph-blur));
+}
+.t-morph-swap.is-morphing .t-morph-old {
+  opacity: 0;
+  filter: blur(var(--text-morph-blur));
+}
+.t-morph-swap.is-morphing .t-morph-new {
+  opacity: 1;
+  filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-morph-swap,
+  .t-morph-swap > span { transition: none !important; }
+}
+
+/* Wrapper drives the appear animation; it doesn't own any
+   sizing or color so you can drop in any icon. */
+.t-success-check {
+  display: inline-block;
+  transform-origin: center;
+  opacity: 0;
+  will-change: transform, opacity, filter;
+}
+/* overflow: visible keeps the stroke from clipping while it
+   draws; display: block kills the inline whitespace under SVGs. */
+.t-success-check svg { display: block; overflow: visible; }
+/* Stroke-draw setup: 15 is this check path's getTotalLength() (14.1), rounded up by 1. */
+.t-success-check svg path {
+  stroke-dasharray: 15;
+  stroke-dashoffset: 15;
+}
+
+.t-success-check[data-state="in"] {
+  animation:
+    t-check-fade   var(--check-opacity-dur) var(--check-ease-opacity) forwards,
+    t-check-rotate var(--check-rotate-dur)  var(--check-ease-rotate)  forwards,
+    t-check-blur   var(--check-blur-dur)    var(--check-ease-out)     forwards,
+    t-check-bob    var(--check-bob-dur)     var(--check-ease-bob)     forwards;
+}
+.t-success-check[data-state="in"] svg path {
+  animation: t-check-draw var(--check-path-dur) var(--check-ease-path) var(--check-path-delay, 0ms) forwards;
+}
+
+@keyframes t-check-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes t-check-rotate {
+  from { transform: rotate(var(--check-rotate-from)); }
+  to   { transform: rotate(0deg); }
+}
+@keyframes t-check-blur {
+  from { filter: blur(var(--check-blur-from)); }
+  to   { filter: blur(0); }
+}
+@keyframes t-check-bob {
+  from { translate: 0 var(--check-y-amount); }
+  to   { translate: 0 0; }
+}
+@keyframes t-check-draw { to { stroke-dashoffset: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .t-success-check { animation: none !important; opacity: 1; }
+  .t-success-check svg path { animation: none !important; stroke-dashoffset: 0 !important; }
+}
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
 
 /* ---------- Case studies ---------- */
 .cases {
