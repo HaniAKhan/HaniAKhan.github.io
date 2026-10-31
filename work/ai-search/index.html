@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AI-assisted search results — Hani Khan</title>
+  <meta name="description" content="AI-assisted search results: H-E-B search results grouped into AI-generated sections.">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    // Theme before first paint, and keep the case study hidden until it's unlocked.
+    (function () {
+      var root = document.documentElement, theme;
+      try { theme = localStorage.getItem('theme'); } catch (e) {}
+      if (theme !== 'light' && theme !== 'dark') {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      root.dataset.theme = theme;
+      root.classList.add('js');
+      var unlocked = false;
+      try { unlocked = localStorage.getItem('case-access') === '184713e42b7a88ff777846701a47ae4b68d85b191544d07156acb8212520914e'; } catch (e) {}
+      if (!unlocked) root.classList.add('case-locked');
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Boldonse&family=Fraunces:opsz,wght,SOFT,WONK@144,436,100,0&family=Open+Sans:wght@400;600;700;800&display=block">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/work/case.css">
+  <link rel="stylesheet" href="/work/ai-search/ai-search.css">
+</head>
+<body data-case-page>
+  <header class="site-header">
+    <a href="/" class="wordmark wordmark-text" aria-label="Hani Khan, home"><span>H</span><span>a</span><span>n</span><span>i</span></a>
+    <div class="theme-toggle" role="radiogroup" aria-label="Color theme">
+      <span class="theme-toggle__thumb" aria-hidden="true"></span>
+      <button type="button" role="radio" class="theme-toggle__option" data-theme-value="light" aria-label="Light mode">
+        <img src="/assets/sun.svg" alt="" width="18" height="18" class="icon icon--light">
+        <img src="/assets/sun-dark.svg" alt="" width="18" height="18" class="icon icon--dark">
+      </button>
+      <button type="button" role="radio" class="theme-toggle__option" data-theme-value="dark" aria-label="Dark mode">
+        <img src="/assets/moon.svg" alt="" width="18" height="18" class="icon icon--light">
+        <img src="/assets/moon-dark.svg" alt="" width="18" height="18" class="icon icon--dark">
+      </button>
+    </div>
+  </header>
+
+  <main class="cs">
+    <!-- Hero: the title fills the first screen, with the search results peeking up from the bottom -->
+    <section class="cs-hero" aria-labelledby="cs-title">
+      <div class="cs-hero__intro">
+        <p class="cs-date">May 2026</p>
+        <h1 class="cs-title" id="cs-title">AI-assisted search results</h1>
+        <p class="cs-lede">Search results that group products into AI-generated sections, so a search like “healthy snacks for a hike” comes back as shelves of energy rich nuts and dried fruit bites you can shop right away.</p>
+      </div>
+
+      <!-- Promo: the H-E-B home page, drawn in code at its 1440px desktop size. ai-search.js zooms into
+           the empty search bar and types a search, like a shopper would. -->
+      <figure class="cs-hero__media cs-hero__media--stage" data-stage="1231x859">
+        <div class="stage" role="img" aria-label="The H-E-B home page. The view zooms into the search bar and types “healthy snacks for a hike”.">
+          <div class="browser">
+            <div class="browser__bar" aria-hidden="true">
+              <i></i><i></i><i></i>
+              <span class="browser__url">heb.com</span>
+            </div>
+            <div class="browser__view" aria-hidden="true">
+              <div class="heb">
+                <header class="heb-header">
+                  <img class="heb-logo" src="/assets/work/ai-search/home/heb-logo.svg" width="116" height="36" alt="">
+                  <div class="heb-search">
+                    <span class="heb-search__field"><span class="heb-search__placeholder">Search</span><span class="heb-search__query" data-query></span><span class="heb-search__caret"></span></span>
+                    <img class="heb-search__icon" src="/assets/work/ai-search/home/search.svg" width="16" height="16" alt="">
+                  </div>
+                  <div class="heb-store">
+                    <span class="heb-store__item">
+                      <span class="heb-curbside__icon"><img src="/assets/work/ai-search/home/curbside-bg.svg" alt=""><img src="/assets/work/ai-search/home/curbside.svg" alt=""></span>
+                      Curbside at
+                    </span>
+                    <span class="heb-store__item heb-store__item--name">
+                      <span class="heb-store__h" aria-hidden="true">H</span>
+                      Lincoln Heights Market H-E-B
+                    </span>
+                  </div>
+                  <span class="heb-cart">
+                    <span class="heb-cart__total">$9.28</span>
+                    <img class="heb-cart__icon" src="/assets/work/ai-search/home/cart.svg" alt="">
+                    <span class="heb-cart__count">2</span>
+                  </span>
+                  <nav class="heb-nav">
+                    <span>Shop <img src="/assets/work/ai-search/home/caret-white.svg" width="12" height="12" alt=""></span>
+                    <span>Recipes &amp; meals <img src="/assets/work/ai-search/home/caret-white.svg" width="12" height="12" alt=""></span>
+                    <span>Savings <img src="/assets/work/ai-search/home/caret-white.svg" width="12" height="12" alt=""></span>
+                    <span>Pharmacy <img src="/assets/work/ai-search/home/caret-white.svg" width="12" height="12" alt=""></span>
+                    <span>Wellness <img src="/assets/work/ai-search/home/caret-white.svg" width="12" height="12" alt=""></span>
+                    <span>More H-E-B <img src="/assets/work/ai-search/home/caret-white.svg" width="12" height="12" alt=""></span>
+                  </nav>
+                  <nav class="heb-nav heb-nav--secondary">
+                    <span><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.25" fill="none" stroke="#fff" stroke-width="1.5"/><circle cx="12" cy="10" r="3.25" fill="#fff"/><path d="M6.2 18.2a7 7 0 0 1 11.6 0A9.2 9.2 0 0 1 12 21.25a9.2 9.2 0 0 1-5.8-3.05Z" fill="#fff"/></svg>Hi, Hani</span>
+                    <span>Lists</span><span>Help &amp; FAQs</span>
+                  </nav>
+                </header>
+                <div class="heb-hero">
+                  <img class="heb-hero__banner" src="/assets/work/ai-search/home/hero-banner.jpg" alt="">
+                  <div class="heb-mini">
+                    <div class="heb-section-head"><p class="heb-mini__title">See what’s in season</p><span class="heb-view-all">View all</span></div>
+                    <div class="heb-track">
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/honeycrisp-apple.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$1.12 <small>each</small></p>
+                          <p class="heb-card__name">Honeycrisp Apples, Avg. 0.65 lb</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/butternut-squash.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$4.89 <small>each</small></p>
+                          <p class="heb-card__name">Fresh Butternut Squash, Avg. 3.175 lbs</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/sweet-potato.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$0.77 <small>each</small></p>
+                          <p class="heb-card__name">Fresh Sweet Potatoes, Avg. 0.87 lb</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/pumpkin.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$6.00 <small>each</small></p>
+                          <p class="heb-card__name">Fresh Large Jack-o'-lantern Pumpkin, Each</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                    </div>
+                    <span class="heb-scrollbar"><i></i></span>
+                    <span class="heb-forward"><img src="/assets/work/ai-search/home/chevron-right.svg" alt=""></span>
+                  </div>
+                </div>
+                <div class="heb-tiles">
+                  <img src="/assets/work/ai-search/home/tile-meal-simple.jpg" alt="">
+                  <img src="/assets/work/ai-search/home/tile-electrolit.jpg" alt="">
+                  <img src="/assets/work/ai-search/home/tile-snacks.jpg" alt="">
+                </div>
+                <section class="heb-shoppable">
+                  <img class="heb-shoppable__image" src="/assets/work/ai-search/home/shoppable-tacos.jpg" alt="">
+                  <div class="heb-shoppable__carousel">
+                    <div class="heb-section-head"><p class="heb-shoppable__title">Flavorful breakfast tacos</p><span class="heb-view-all">View all</span></div>
+                    <div class="heb-track">
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/flour-tortillas.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$3.96 <small>each</small></p>
+                          <p class="heb-card__name">H-E-B Bakery Flour Tortillas, 20 ct</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/eggs.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$2.47 <small>each</small></p>
+                          <p class="heb-card__name">Hill Country Fare Grade A Large White Eggs, 18 ct</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/chorizo.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$4.28 <small>each</small></p>
+                          <p class="heb-card__name">Chorizo de San Manuel Pork Chorizo Sausage, 12 oz</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/mexican-cheese.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$4.69 <small>each</small></p>
+                          <p class="heb-card__name">H-E-B Mexican Style Shredded Cheese Blend, 16 oz</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/salsa.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$4.26 <small>each</small></p>
+                          <p class="heb-card__name">H-E-B Fresh Salsa - Mild, 16 oz</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                    </div>
+                    <span class="heb-scrollbar"><i></i></span>
+                  </div>
+                  <span class="heb-forward"><img src="/assets/work/ai-search/home/chevron-right.svg" alt=""></span>
+                </section>
+                <section class="heb-shoppable">
+                  <img class="heb-shoppable__image" src="/assets/work/ai-search/home/shoppable-grilling.jpg" alt="">
+                  <div class="heb-shoppable__carousel">
+                    <div class="heb-section-head"><p class="heb-shoppable__title">Get grilling tonight</p><span class="heb-view-all">View all</span></div>
+                    <div class="heb-track">
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/skirt-steak-fajitas.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$20.98 <small>each</small></p>
+                          <p class="heb-card__name">H-E-B Mi Tienda Seasoned Beef Skirt Steak for Fajitas, Avg. 2.0 lbs</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/cob-corn.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$3.98 <small>each</small></p>
+                          <p class="heb-card__name">Fresh Sweet Cob Corn, 4 ct</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/bratwurst.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$5.43 <small>each</small></p>
+                          <p class="heb-card__name">H-E-B Bratwurst Pork Sausage Links, Avg. 1.21 lbs</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/bbq-sauce.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$2.37 <small>each</small></p>
+                          <p class="heb-card__name">Sweet Baby Ray's Original Barbecue Sauce, 18 oz</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/charcoal.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$7.88 <small>each</small></p>
+                          <p class="heb-card__name">H-E-B Texas Mesquite Charcoal Briquets, 16 lb</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                    </div>
+                    <span class="heb-scrollbar"><i></i></span>
+                  </div>
+                  <span class="heb-forward"><img src="/assets/work/ai-search/home/chevron-right.svg" alt=""></span>
+                </section>
+                <section class="heb-shoppable">
+                  <img class="heb-shoppable__image" src="/assets/work/ai-search/home/shoppable-one-pan.jpg" alt="">
+                  <div class="heb-shoppable__carousel">
+                    <div class="heb-section-head"><p class="heb-shoppable__title">No-fuss one-pan meals</p><span class="heb-view-all">View all</span></div>
+                    <div class="heb-track">
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/chicken-thighs.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$8.98 <small>each</small></p>
+                          <p class="heb-card__name">H-E-B Natural Boneless Skinless Chicken Thighs, Avg. 2.0 lbs</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/smoked-sausage.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$3.19 <small>each</small></p>
+                          <p class="heb-card__name">H-E-B Texas Original Flavors - Original Smoked Sausage, 14 oz</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/baby-gold-potatoes.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$3.88 <small>each</small></p>
+                          <p class="heb-card__name">Fresh Baby Gold Potatoes, 1.5 lb bag</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/bell-peppers.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$3.68 <small>each</small></p>
+                          <p class="heb-card__name">H-E-B Fresh Sunrise Bell Peppers, 3 ct</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                      <div class="heb-card">
+                        <img class="heb-card__image" src="/assets/work/ai-search/products/garlic-herb-seasoning.jpg" alt="">
+                        <div class="heb-card__info">
+                          <img class="heb-card__list" src="/assets/work/ai-search/home/add-to-list.svg" width="19.2793" height="23.999" alt="">
+                          <p class="heb-card__price">$1.97 <small>each</small></p>
+                          <p class="heb-card__name">McCormick Grill Mates Roasted Garlic &amp; Herb Seasoning, 2.75 oz</p>
+                        </div>
+                        <span class="heb-card__button">Add to cart</span>
+                      </div>
+                    </div>
+                    <span class="heb-scrollbar"><i></i></span>
+                  </div>
+                  <span class="heb-forward"><img src="/assets/work/ai-search/home/chevron-right.svg" alt=""></span>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      </figure>
+    </section>
+  </main>
+
+  <script src="/site.js"></script>
+  <script src="/work/ai-search/ai-search.js"></script>
+</body>
+</html>

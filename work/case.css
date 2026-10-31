@@ -69,6 +69,16 @@ html.case-locked .cs { visibility: hidden; }
   background: var(--canvas-grey);
 }
 
+/* A screenshot in place of the phone, on its own artwork background */
+.cs-hero__media {
+  width: min(1231px, 100% - 2 * var(--gutter));
+  margin: 0 auto 160px;
+  overflow: hidden;
+  border-radius: 40px;
+  background: var(--canvas-grey);
+}
+.cs-hero__art, .cs-hero__art img { display: block; width: 100%; height: auto; }
+
 /* The phone: built at its true 402x874 size, then scaled and moved by case.js */
 .device {
   position: absolute;
@@ -664,6 +674,7 @@ html.case-locked .cs { visibility: hidden; }
 @media (max-width: 640px) {
   .cs-hero__intro { padding-top: calc(96px + var(--safe-top)); }
   .cs-hero__device { --pad: 32px; border-radius: 24px; }
+  .cs-hero__media { margin-bottom: 96px; border-radius: 24px; }
   .cs-title { font-size: 44px; }
   .cs-lede { font-size: 17px; line-height: 26px; }
   .cs-duo { grid-template-columns: 1fr; gap: 20px; margin-top: 80px; }
