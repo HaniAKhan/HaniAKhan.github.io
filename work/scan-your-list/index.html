@@ -369,7 +369,7 @@
       </div>
       <div class="cs-copy">
         <h2 class="cs-heading">Personalized matches with the option to browse for more</h2>
-        <p class="cs-body">Starting your grocery shop is hard. Your cart is empty, and adding items one by one is painful. We aimed to reduce the friction of adding items. Our CXO's research showed that quickly shopping from a handwritten list is a key customer need.</p>
+        <p class="cs-body">I proposed an approach that balances speed and user control by prioritizing a personalized match with the option to browse other options. In our testing, we found that people often had multiple Buy it again product matches, and we did not always pick the right one because our systems are constrained to recommend based on past behavior and can’t predict future events one has in their life.</p>
         <button type="button" class="cs-explore" data-explore="explore-matches">
           See what I explored
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -471,6 +471,20 @@ curl -s <span class="mock-terminal__str">"$API/identify"</span> --json <span cla
         <p class="cs-body">In this project, I explored a new design workflow: I did initial explorations on a canvas, then built out the entire design exploration in our iOS codebase using GitHub Copilot. I got to branch off of a POC that my iOS engineer started, build out multiple design explorations, and use them in my own life when planning my groceries.</p>
       </div>
     </section>
+
+    <!-- End of the case study: the next project, and the way back home -->
+    <nav class="cs-section cs-next reveal" aria-label="More work">
+      <p class="cs-date">Next project</p>
+      <p class="cs-next__title">
+        <a class="case__link" href="/work/ai-search/" data-case-link>
+          <span class="case__link-text">AI-assisted search results</span>
+          <span class="case__link-icon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 11 11 5M6 5h5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+        </a>
+      </p>
+      <a class="cs-next__home" href="/">Back to home</a>
+    </nav>
 
     <!-- "See what I explored" sheets -->
     <template id="explore-loading" data-label="Loading state explorations">

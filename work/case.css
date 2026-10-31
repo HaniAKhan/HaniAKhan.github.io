@@ -592,6 +592,31 @@ html.js:not(.cs-ready) .cs-hero > * { opacity: 0; animation: cs-hero-failsafe 0s
 .cs-more__row::-webkit-scrollbar { display: none; }
 .cs-more__card { flex: none; width: min(466px, 80vw); aspect-ratio: 1; background: var(--more-card); scroll-snap-align: start; }
 
+/* ---------- End of the page: the next project, and a way back home ---------- */
+.cs-next { margin-top: 240px; padding-bottom: 200px; text-align: center; }
+.cs-next .cs-date { margin-bottom: 16px; }
+.cs-next__title {
+  font-family: var(--font-headline);
+  font-weight: 436;
+  font-variation-settings: "opsz" 144, "SOFT" 100, "WONK" 0;
+  font-size: clamp(32px, 3.4vw, 48px);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.cs-next__home {
+  display: inline-block;
+  margin-top: 32px;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--text-body);
+  text-decoration: underline;
+  text-decoration-color: var(--link-underline);
+  text-underline-offset: 4px;
+  transition: color 200ms linear, text-decoration-color 200ms linear;
+}
+.cs-next__home:hover, .cs-next__home:focus-visible { color: var(--text); text-decoration-color: currentColor; }
+
 /* ---------- Scroll reveals ---------- */
 .js .reveal {
   opacity: 0;
@@ -694,6 +719,7 @@ html.js:not(.cs-ready) .cs-hero > * { opacity: 0; animation: cs-hero-failsafe 0s
   .cs-duo { grid-template-columns: 1fr; gap: 20px; margin-top: 80px; }
   .cs-workflows__grid { grid-template-columns: 1fr; gap: 20px; margin-top: 28px; }
   .cs-heading { font-size: 36px; }
+  .cs-next { margin-top: 160px; padding-bottom: 128px; }
   .cs-more__title { font-size: 32px; }
 }
 

@@ -30,6 +30,7 @@
   const cartTotal = media.querySelector('.heb-cart__total');
   const cartCount = media.querySelector('.heb-cart__count');
   const page = media.querySelector('.heb-results__page');
+  const notice = media.querySelector('.heb-results__notice--ai');
   const CART = { total: 9.28, count: 2 };
   // What the shopper adds: [section, product] in each of the first three sections
   const PICKS = [[0, 0], [1, 2], [2, 1]];
@@ -53,6 +54,7 @@
     });
     cartTotal.textContent = `$${CART.total.toFixed(2)}`;
     cartCount.textContent = CART.count;
+    notice.classList.remove('is-loaded');
     shelves.forEach((shelf) => {
       shelf.classList.remove('is-shown', 'is-writing', 'is-filled');
       shelf.querySelector('[data-heading]').textContent = '';
@@ -128,6 +130,8 @@
       heb.classList.add('has-results');
       await wait(900); if (id !== run) return;
       // The sections write in one by one over skeleton rows, then fill with products
+      // The AI notice loads as the first heading starts to write
+      notice.classList.add('is-loaded');
       for (const shelf of shelves) {
         await write(shelf, id); if (id !== run) return;
         await wait(220); if (id !== run) return;

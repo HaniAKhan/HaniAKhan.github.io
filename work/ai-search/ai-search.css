@@ -153,12 +153,28 @@
 .heb-results.is-resetting, .heb-results.is-resetting * { transition: none !important; }
 .heb-results__query { padding: 0 36px; text-align: center; font-weight: 800; font-size: 24px; line-height: 32px; }
 .heb-results__notice {
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  margin: 40px 36px 0; padding: 24px 0; border: 1px solid #f5f5f5; border-radius: 8px; background: #fff;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  margin: 40px 0 0; padding: 23px 0; border: 1px solid #f5f5f5; border-radius: 8px; background: #fff;
   font-size: 14px; line-height: 20px; color: #000;
 }
 .heb-results__notice b { font-weight: 800; color: #007db3; }
 .heb-results__notice--feedback { margin: 40px 3px 0; }
+/* The AI notice from the GenAI search results template: label and info icon, then the link, centered
+   across the full column. It shimmers until the section headings start writing in. */
+.heb-results__notice--ai { position: relative; }
+.heb-results__notice--ai > :not(.heb-notice__skeleton) { opacity: 0; transition: opacity 400ms linear; }
+.heb-results__notice--ai.is-loaded > :not(.heb-notice__skeleton) { opacity: 1; }
+.heb-notice__label { display: flex; align-items: center; gap: 4px; }
+.heb-notice__label img { flex: none; }
+.heb-notice__skeleton { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 12px; pointer-events: none; transition: opacity 400ms linear; }
+.heb-results__notice--ai.is-loaded .heb-notice__skeleton { opacity: 0; }
+.heb-notice__skeleton i {
+  display: block; height: 14px; border-radius: 7px;
+  background: linear-gradient(90deg, #eeeeef 0%, #f7f7f8 50%, #eeeeef 100%) 0 0 / 200% 100%;
+  animation: skeleton 1.2s linear infinite;
+}
+.heb-notice__skeleton i:nth-child(1) { width: 181px; }
+.heb-notice__skeleton i:nth-child(2) { width: 219px; }
 
 /* Each AI-generated section: the heading writes in over a skeleton row, then the products fill it */
 .heb-shelf { position: relative; margin-top: 40px; opacity: 0; transform: translateY(12px); transition: opacity 400ms linear, transform 600ms var(--ease-out); }
