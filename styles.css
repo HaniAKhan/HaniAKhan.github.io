@@ -387,6 +387,7 @@ html.is-loading .wordmark { visibility: hidden; }
   gap: 12px;
   padding: 24px 0 40px;
 }
+.case[hidden] { display: none; }
 
 .case__date {
   font-family: var(--font-meta);
@@ -403,6 +404,28 @@ html.is-loading .wordmark { visibility: hidden; }
   line-height: 1.1;
   letter-spacing: -0.015em;
   color: var(--text);
+}
+
+/* Beside the title of a case study with no detail page yet */
+.case__soon {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--chip-bg);
+  font-family: var(--font-meta);
+  font-size: 13px;
+  font-weight: 400;
+  font-variation-settings: normal;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--text-body);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+@media (max-width: 640px) {
+  /* Under the title, in line with its left edge */
+  .case__soon { display: block; width: fit-content; margin: 8px 0 0; }
 }
 
 /* Case study link: the title plus a small arrow button. The arrow nudges up and to the right and

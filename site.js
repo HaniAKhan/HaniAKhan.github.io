@@ -427,4 +427,15 @@
     if (isUnlocked()) reveal();
     else openGate({ dismissible: false }).then(reveal, () => {});
   }
+
+  /* ---------- Agentation (local only) ---------- */
+  if (['localhost', '127.0.0.1'].includes(location.hostname)) {
+    import('/dev/agentation.js').catch((err) => console.warn('Agentation failed to load', err));
+  }
+
+  /* ---------- Ink notes: read-only here, editable through dev/annotate/serve.py (assets/ink/ink.js) ---------- */
+  const ink = document.createElement('script');
+  ink.src = '/assets/ink/ink.js';
+  ink.defer = true;
+  document.head.append(ink);
 })();

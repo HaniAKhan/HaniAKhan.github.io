@@ -63,13 +63,18 @@ html.js:not(.cs-ready) .cs-hero > * { opacity: 0; animation: cs-hero-failsafe 0s
   line-height: 28px;
   color: var(--text-intro);
 }
-/* A note under the lede for a case study that is only a hero so far */
-.cs-soon {
-  margin-top: 24px;
+/* The role I played, right under the intro */
+.cs-role {
+  align-self: center;
+  width: fit-content;
+  margin-top: 16px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--chip-bg);
   font-family: var(--font-meta);
   font-size: 13px;
   line-height: 1.4;
-  color: var(--text-meta);
+  color: var(--text-body);
 }
 /* A light grey panel like the other images, holding the phone's space in the page;
    case.js sets --fit so the whole phone fits the window */

@@ -1,3 +1,7 @@
 # Local tooling
 .claude/
 .DS_Store
+
+# Local ink overlay and its notes (dev/annotate/serve.py)
+dev/annotate/
+dev/annotations/

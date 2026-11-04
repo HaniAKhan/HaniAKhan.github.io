@@ -1,0 +1,12 @@
+{
+  "id": "portfolio",
+  "port": null,
+  "frames": ".cs-carousel__frame",
+  "ignore": "#agentation",
+  "hideWhen": "html.case-locked",
+  "dark": "[data-theme='dark']",
+  "base": "",
+  "pages": {
+    "/work/ai-search/": "work-ai-search.json"
+  }
+}
