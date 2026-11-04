@@ -6524,7 +6524,7 @@
     ],
     "page": "/work/ai-search/",
     "url": "http://127.0.0.1:5174/work/ai-search/",
-    "note": "Hmm should all searched get this treatment? Is that even feasible? What are AI powered searches uniquely good for? This would be annoying if I was looking for something specific",
+    "note": "Hmm should all searches get this treatment? Is that even feasible? What are AI powered searches uniquely good for? This would be annoying if I was looking for something specific",
     "viewport": {
       "w": 1644,
       "h": 1320,
@@ -6532,7 +6532,7 @@
     },
     "id": "3a6340d0",
     "created": "2026-11-03T18:37:23+00:00",
-    "updated": "2026-11-03T21:48:00+00:00",
+    "updated": "2026-11-04T21:20:40+00:00",
     "status": "open",
     "source": {
       "file": "work/ai-search/index.html",
