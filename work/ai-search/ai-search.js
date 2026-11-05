@@ -32,18 +32,6 @@
     else window.addEventListener('resize', fitCanvas);
   });
 
-  /* ---------- Concept demo: the iframe takes the height of the page inside it ---------- */
-  const demoFrame = document.querySelector('.cs-demo__frame');
-  if (demoFrame) {
-    demoFrame.addEventListener('load', () => {
-      const doc = demoFrame.contentDocument;
-      if (!doc) return;
-      const size = () => { demoFrame.style.height = `${doc.documentElement.scrollHeight}px`; };
-      size();
-      if ('ResizeObserver' in window) new ResizeObserver(size).observe(doc.body);
-    });
-  }
-
   /* ---------- Carousels: smooothy, nudged forward every frame so they drift on their own ---------- */
   // They pause while hovered or touched and pick up again after; on phones and with reduced motion they only move when dragged
   const CAROUSEL_SPEED = 0.12; // slides per second
@@ -217,7 +205,7 @@
 
   document.querySelectorAll('.cs-build .cs-figure').forEach((figure) => {
     const el = figure.firstElementChild;
-    const label = figure.querySelector('figcaption')?.textContent.trim() || 'Design';
+    const label = figure.querySelector('figcaption')?.textContent.trim() || figure.querySelector('img')?.alt || 'Design';
     let open = false;
     const expand = () => {
       if (open) return;
@@ -245,23 +233,82 @@
   const cartTotal = media.querySelector('.heb-cart__total');
   const cartCount = media.querySelector('.heb-cart__count');
   const page = media.querySelector('.heb-results__page');
-  const answer = media.querySelector('.heb-results__answer');
   // The answer's words, wrapped so they can stream in one after another in place
-  const answerText = answer.querySelector('.heb-answer__text');
-  const words = answerText.textContent.trim().split(/\s+/).map((word) => {
+  const answerText = media.querySelector('.heb-answer__text');
+  answerText.replaceChildren(...answerText.textContent.trim().split(/\s+/).flatMap((word, i) => {
     const span = document.createElement('span');
     span.className = 'heb-word';
     span.textContent = word;
-    return span;
-  });
-  answerText.replaceChildren(...words.flatMap((span, i) => (i ? [' ', span] : [span])));
-  const debugButton = media.querySelector('.heb-debug-button');
-  const debug = media.querySelector('.heb-debug');
-  const promptField = media.querySelector('.heb-debug__field--prompt');
-  const promptEdit = media.querySelector('[data-edit]');
-  const save = media.querySelector('.heb-debug__save');
-  // The rule typed into the system prompt before the results load again
-  const PROMPT_EDIT = '\n- Favor snacks that pack light for the trail';
+    return i ? [' ', span] : [span];
+  }));
+  // The results in a copy of the page, emptied and loaded in by whichever animation owns it.
+  // stale(id) says that animation has moved on, so a load in progress stops.
+  function resultsIn(scope, wait, stale) {
+    const answer = scope.querySelector('.heb-results__answer');
+    const words = [...scope.querySelectorAll('.heb-word')];
+    const shelves = [...scope.querySelectorAll('.heb-shelf')];
+    // Writes a section heading a letter at a time
+    async function write(shelf, id) {
+      const heading = shelf.querySelector('[data-heading]');
+      shelf.classList.add('is-shown', 'is-writing');
+      for (const char of heading.dataset.heading) {
+        heading.textContent += char;
+        await wait(38); if (stale(id)) return;
+      }
+      shelf.classList.remove('is-writing');
+    }
+    return {
+      // Back to the loading state; the cart keeps what was added
+      clear() {
+        scope.querySelectorAll('.heb-result__button').forEach((button) => {
+          button.classList.remove('is-pressed', 'is-loading', 'is-added');
+          button.textContent = 'Add to cart';
+        });
+        answer.classList.remove('is-loaded');
+        words.forEach((word) => word.classList.remove('is-on'));
+        shelves.forEach((shelf) => {
+          shelf.classList.remove('is-shown', 'is-writing', 'is-filled');
+          shelf.querySelector('[data-heading]').textContent = '';
+        });
+      },
+      // Everything on show at once, with no writing in
+      fill() {
+        answer.classList.add('is-loaded');
+        words.forEach((word) => word.classList.add('is-on'));
+        shelves.forEach((shelf) => {
+          shelf.classList.add('is-shown', 'is-filled');
+          shelf.querySelector('[data-heading]').textContent = shelf.querySelector('[data-heading]').dataset.heading;
+        });
+      },
+      // The answer, then the sections writing in one by one over skeleton rows, then the products
+      async load(id) {
+        answer.classList.add('is-loaded');
+        await wait(300); if (stale(id)) return;
+        for (const word of words) {
+          word.classList.add('is-on');
+          await wait(55 + Math.random() * 35); if (stale(id)) return;
+        }
+        await wait(300); if (stale(id)) return;
+        for (const shelf of shelves) {
+          await write(shelf, id); if (stale(id)) return;
+          await wait(220); if (stale(id)) return;
+        }
+        await wait(500); if (stale(id)) return;
+        for (const shelf of shelves) {
+          shelf.classList.add('is-filled');
+          await wait(350); if (stale(id)) return;
+        }
+      },
+    };
+  }
+  // Places the finger on an element, in its page's own (unscaled) coordinates
+  function aimAt(tap, pageEl, el) {
+    const box = pageEl.getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    const scale = box.width / pageEl.offsetWidth || 1;
+    tap.style.left = `${(r.left + r.width / 2 - box.left) / scale}px`;
+    tap.style.top = `${(r.top + r.height / 2 - box.top) / scale}px`;
+  }
   const CART = { total: 9.28, count: 2 };
   // What the shopper adds: [section, product] in each of the first three sections
   const PICKS = [[0, 0], [1, 2], [2, 1]];
@@ -270,6 +317,7 @@
   let run = 0;
   let timers = [];
   const wait = (ms) => new Promise((resolve) => timers.push(setTimeout(resolve, ms)));
+  const heroResults = resultsIn(media, wait, (id) => id !== run);
   const reset = () => {
     browser.classList.remove('is-zoomed');
     heb.classList.remove('is-typing', 'has-query', 'has-results');
@@ -279,43 +327,17 @@
     results.classList.add('is-resetting');
     page.style.setProperty('--drift', 0);
     tap.classList.remove('is-visible', 'is-pressing');
-    clearResults();
+    heroResults.clear();
     cartTotal.textContent = `$${CART.total.toFixed(2)}`;
     cartCount.textContent = CART.count;
-    debugButton.classList.remove('is-pressed');
-    debug.classList.remove('is-open');
-    promptField.classList.remove('is-focused');
-    promptEdit.textContent = '';
-    save.classList.remove('is-pressed', 'is-saving');
     void results.offsetWidth;
     results.classList.remove('is-resetting');
   };
-  // Empties the results back to their loading state; the cart keeps what was added
-  function clearResults() {
-    media.querySelectorAll('.heb-result__button').forEach((button) => {
-      button.classList.remove('is-pressed', 'is-loading', 'is-added');
-      button.textContent = 'Add to cart';
-    });
-    answer.classList.remove('is-loaded');
-    words.forEach((word) => word.classList.remove('is-on'));
-    shelves.forEach((shelf) => {
-      shelf.classList.remove('is-shown', 'is-writing', 'is-filled');
-      shelf.querySelector('[data-heading]').textContent = '';
-    });
-  }
   // Scrolls the results so a section sits just under the header
   const scrollTo = (shelf) => page.style.setProperty('--drift', Math.max(0, shelf.offsetTop - 24));
-  // Places the finger on an element, in the page's own (unscaled) coordinates
-  const aim = (el) => {
-    const box = heb.getBoundingClientRect();
-    const r = el.getBoundingClientRect();
-    const scale = box.width / heb.offsetWidth || 1;
-    tap.style.left = `${(r.left + r.width / 2 - box.left) / scale}px`;
-    tap.style.top = `${(r.top + r.height / 2 - box.top) / scale}px`;
-  };
   // Taps Add to cart: a press, a moment of loading, then a stepper (remove, count, add) and an updated cart
   async function addToCart(button, cart, id) {
-    aim(button);
+    aimAt(tap, heb, button);
     tap.classList.add('is-visible');
     await wait(450); if (id !== run) return;
     tap.classList.add('is-pressing');
@@ -336,71 +358,6 @@
     cartCount.classList.remove('is-bumping');
     void cartCount.offsetWidth;
     cartCount.classList.add('is-bumping');
-  }
-  // The finger presses something: in, a beat, and out
-  async function press(el, id) {
-    aim(el);
-    tap.classList.add('is-visible');
-    await wait(450); if (id !== run) return;
-    tap.classList.add('is-pressing');
-    el.classList.add('is-pressed');
-    await wait(180); if (id !== run) return;
-    tap.classList.remove('is-pressing', 'is-visible');
-    el.classList.remove('is-pressed');
-  }
-  // The answer, then the sections writing in one by one over skeleton rows, then the products
-  async function loadResults(id) {
-    answer.classList.add('is-loaded');
-    await wait(300); if (id !== run) return;
-    for (const word of words) {
-      word.classList.add('is-on');
-      await wait(55 + Math.random() * 35); if (id !== run) return;
-    }
-    await wait(300); if (id !== run) return;
-    for (const shelf of shelves) {
-      await write(shelf, id); if (id !== run) return;
-      await wait(220); if (id !== run) return;
-    }
-    await wait(500); if (id !== run) return;
-    for (const shelf of shelves) {
-      shelf.classList.add('is-filled');
-      await wait(350); if (id !== run) return;
-    }
-  }
-  // Opens the debug panel, adds a rule to the system prompt, saves, and the results load again
-  async function tunePrompt(id) {
-    await press(debugButton, id); if (id !== run) return;
-    debug.classList.add('is-open');
-    await wait(900); if (id !== run) return;
-    await press(promptEdit.nextElementSibling, id); if (id !== run) return;
-    promptField.classList.add('is-focused');
-    await wait(500); if (id !== run) return;
-    for (const char of PROMPT_EDIT) {
-      promptEdit.textContent += char;
-      await wait(char === ' ' ? 120 : 45 + Math.random() * 50); if (id !== run) return;
-    }
-    await wait(800); if (id !== run) return;
-    promptField.classList.remove('is-focused');
-    await press(save, id); if (id !== run) return;
-    save.classList.add('is-saving');
-    await wait(900); if (id !== run) return;
-    debug.classList.remove('is-open');
-    save.classList.remove('is-saving');
-    // Back to the top, and the results start over with the new prompt
-    page.style.setProperty('--drift', 0);
-    clearResults();
-    await wait(1400); if (id !== run) return;
-    await loadResults(id);
-  }
-  // Writes a section heading a letter at a time
-  async function write(shelf, id) {
-    const heading = shelf.querySelector('[data-heading]');
-    shelf.classList.add('is-shown', 'is-writing');
-    for (const char of heading.dataset.heading) {
-      heading.textContent += char;
-      await wait(38); if (id !== run) return;
-    }
-    shelf.classList.remove('is-writing');
   }
   async function loop(id) {
     while (id === run) {
@@ -425,7 +382,7 @@
       await wait(250); if (id !== run) return;
       heb.classList.add('has-results');
       await wait(900); if (id !== run) return;
-      await loadResults(id); if (id !== run) return;
+      await heroResults.load(id); if (id !== run) return;
       // Browse down through the sections, adding one item from each of the first three
       await wait(900); if (id !== run) return;
       const cart = { ...CART };
@@ -438,8 +395,6 @@
         await addToCart(button, cart, id); if (id !== run) return;
         await wait(900); if (id !== run) return;
       }
-      // Then into the debug tool, to tune the prompt and see the results again
-      await tunePrompt(id); if (id !== run) return;
       await wait(3000); if (id !== run) return;
       heb.classList.remove('has-results', 'has-query');
       await wait(800); if (id !== run) return;
@@ -462,6 +417,119 @@
       reset();
     },
   };
+
+  /* ---------- Debug tool, in Building to learn: a rule goes into the prompt, and the results reload ---------- */
+  // The results stay on the hero's page, copied in here. The prompt is the real one from the window
+  // beside it, with this rule held back so it can be typed in.
+  const PROMPT_RULE = '- Try to keep carousel headlines to 4 words or less';
+  function makeDebugDemo(box) {
+    const stage = media.querySelector('.stage').cloneNode(true);
+    stage.setAttribute('aria-label', 'The search results page with the debug menu open. A rule is added to the system prompt and saved, and the results load again.');
+    stage.querySelector('.browser').classList.remove('is-zoomed');
+    stage.querySelector('.heb-results').before(box.querySelector('template').content.cloneNode(true));
+    box.append(stage);
+
+    const [width] = box.dataset.debugDemo.split('x').map(Number);
+    const fitBox = () => box.style.setProperty('--fit', box.clientWidth / width);
+    fitBox();
+    if ('ResizeObserver' in window) new ResizeObserver(fitBox).observe(box);
+    else window.addEventListener('resize', fitBox);
+
+    const pageEl = stage.querySelector('.heb');
+    const fingers = stage.querySelector('.heb-tap');
+    const button = stage.querySelector('.heb-debug-button');
+    const menu = stage.querySelector('.heb-debug');
+    const field = stage.querySelector('.heb-debug__field--prompt');
+    const save = stage.querySelector('.heb-debug__save');
+
+    // The whole prompt, with the rule's line taken out and an empty edit in its place
+    const prompt = document.querySelector('.cs-build__prompt .app-window__body').textContent;
+    const start = prompt.indexOf(PROMPT_RULE);
+    const end = prompt.indexOf('\n', start);
+    const edit = document.createElement('span');
+    edit.className = 'heb-debug__edit';
+    const caret = document.createElement('span');
+    caret.className = 'heb-debug__caret';
+    field.append(prompt.slice(0, start), edit, caret, prompt.slice(end));
+
+    let runId = 0;
+    let waits = [];
+    const hold = (ms) => new Promise((resolve) => waits.push(setTimeout(resolve, ms)));
+    const stale = (id) => id !== runId;
+    const shown = resultsIn(stage, hold, stale);
+
+    const rest = () => {
+      fingers.classList.remove('is-visible', 'is-pressing');
+      button.classList.remove('is-pressed');
+      menu.classList.remove('is-open');
+      field.classList.remove('is-focused');
+      save.classList.remove('is-pressed', 'is-saving');
+      edit.textContent = '';
+      shown.clear();
+      shown.fill();
+    };
+    // The finger presses something: in, a beat, and out
+    async function press(el, id) {
+      aimAt(fingers, pageEl, el);
+      fingers.classList.add('is-visible');
+      await hold(450); if (stale(id)) return;
+      fingers.classList.add('is-pressing');
+      el.classList.add('is-pressed');
+      await hold(180); if (stale(id)) return;
+      fingers.classList.remove('is-pressing', 'is-visible');
+      el.classList.remove('is-pressed');
+    }
+    async function play(id) {
+      while (!stale(id)) {
+        await hold(1800); if (stale(id)) return;
+        await press(button, id); if (stale(id)) return;
+        // Scrolled so the rule's line sits in the lower part of the field
+        field.scrollTop = Math.max(0, edit.offsetTop - 300);
+        menu.classList.add('is-open');
+        await hold(900); if (stale(id)) return;
+        await press(caret, id); if (stale(id)) return;
+        field.classList.add('is-focused');
+        await hold(500); if (stale(id)) return;
+        for (const char of PROMPT_RULE) {
+          edit.textContent += char;
+          await hold(char === ' ' ? 90 : 35 + Math.random() * 40); if (stale(id)) return;
+        }
+        await hold(800); if (stale(id)) return;
+        field.classList.remove('is-focused');
+        await press(save, id); if (stale(id)) return;
+        save.classList.add('is-saving');
+        await hold(900); if (stale(id)) return;
+        menu.classList.remove('is-open');
+        save.classList.remove('is-saving');
+        // The results start over with the new prompt
+        shown.clear();
+        await hold(1400); if (stale(id)) return;
+        await shown.load(id); if (stale(id)) return;
+        await hold(3000); if (stale(id)) return;
+        edit.textContent = '';
+      }
+    }
+
+    stage.querySelector('[data-query]').textContent = QUERY;
+    pageEl.classList.add('has-query', 'has-results');
+    rest();
+    return {
+      start() {
+        if (reduceMotion) return;
+        runId++;
+        waits.forEach(clearTimeout);
+        waits = [];
+        rest();
+        play(runId);
+      },
+      stop() {
+        runId++;
+        waits.forEach(clearTimeout);
+        waits = [];
+        rest();
+      },
+    };
+  }
 
   /* ---------- Section reveals ---------- */
   function observeReveals() {
@@ -490,13 +558,11 @@
       root.classList.add('cs-ready');
       if (reduceMotion) return;
       intro.animate([{ opacity: 0, translate: '0 16px' }, { opacity: 1, translate: '0 0' }], { duration: 1000, easing: EASE_OUT });
-      // In the hero, the promo rises in with the title; elsewhere it reveals with its section
-      if (media.closest('.cs-hero')) {
-        media.animate(
-          [{ opacity: 0, translate: '0 60px', scale: '0.97' }, { opacity: 1, translate: '0 0', scale: '1' }],
-          { duration: 1200, delay: 150, easing: EASE_OUT, fill: 'backwards' }
-        );
-      }
+      // The promo rises in with the title
+      media.animate(
+        [{ opacity: 0, translate: '0 60px', scale: '0.97' }, { opacity: 1, translate: '0 0', scale: '1' }],
+        { duration: 1200, delay: 150, easing: EASE_OUT, fill: 'backwards' }
+      );
     });
     // The promo plays while most of it is on screen, and starts over each time it comes back
     if ('IntersectionObserver' in window) {
@@ -504,6 +570,15 @@
         if (entry.isIntersecting) promo.start();
         else promo.stop();
       }, { threshold: 0.6 }).observe(media);
+    }
+    // The debug tool does the same, in its own section
+    const debugBox = document.querySelector('[data-debug-demo]');
+    const debugDemo = debugBox && makeDebugDemo(debugBox);
+    if (debugDemo && 'IntersectionObserver' in window) {
+      new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) debugDemo.start();
+        else debugDemo.stop();
+      }, { threshold: 0.6 }).observe(debugBox);
     }
     observeReveals();
     startCarousels();
