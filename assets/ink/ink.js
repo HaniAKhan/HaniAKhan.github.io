@@ -404,10 +404,14 @@
     const r = toPage(vr, ox, oy);
     const c = toPage(v.clip, ox, oy);
     // In a frame the note scales with it, like the image, and is cut off where the frame is.
-    const s = a.frameKey ? r.width / (a.frameW || r.width) : 1;
+    // A frame someone opened large (in the "listIn" box) always keeps its notes: in a short window
+    // they stop shrinking at the smallest readable size instead of turning into badges.
+    const opened = a.frameKey && cfg.listIn && innerWidth > PHONE && !!v.el?.closest(cfg.listIn);
+    const fit = a.frameKey ? r.width / (a.frameW || r.width) : 1;
+    const s = opened ? Math.max(fit, MIN_PX / NOTE_PX) : fit;
     // On a phone a frame can give its notes the open space around its image (the "margins" setting)
     const marginBox = a.frameKey && cfg.margins && innerWidth <= PHONE && !v.note.classList.contains('is-editing') ? v.el?.closest(cfg.margins) : null;
-    const compact = !marginBox && !v.note.classList.contains('is-editing') && (innerWidth <= PHONE || s * NOTE_PX < MIN_PX);
+    const compact = !marginBox && !opened && !v.note.classList.contains('is-editing') && (innerWidth <= PHONE || s * NOTE_PX < MIN_PX);
     const key = [r.left, r.top, r.width, r.height, a.updated, a._dx || 0, a._dy || 0, a._nx || 0, a._ny || 0, c && [c.left, c.top, c.right, c.bottom], v.fade, v.state, v.n, compact, innerWidth].join();
     if (!force && key === v.key) return;
     v.key = key;
@@ -476,7 +480,7 @@
 
   // Notes in the space around a frame's image: beside a tall image, above and below a wide one.
   // Each stays near its loop and they stack without touching. Worked out once per frame and size.
-  const GAP = 8;
+  const GAP = 8, MARGIN_MIN = 48;
   let marginCache = new Map();
   function marginLayout(a, box, img) {
     const b = box.getBoundingClientRect(), i = img.getBoundingClientRect();
@@ -501,7 +505,10 @@
     if (i.height >= i.width) {
       const sides = { left: [], right: [] };
       for (const x of group) sides[x.notePos[0] < midX ? 'left' : 'right'].push(x);
-      const wL = box2.left - GAP * 1.5, wR = b.width - box2.right - GAP * 1.5;
+      // The columns start past the widest loop, so a loop that runs off the image never crosses a note
+      const edgeL = Math.min(box2.left, ...group.map((x) => f.left - b.left + fr(x).left * f.width));
+      const edgeR = Math.max(box2.right, ...group.map((x) => f.left - b.left + fr(x).right * f.width));
+      const wL = Math.max(MARGIN_MIN, edgeL - GAP * 1.5), wR = Math.max(MARGIN_MIN, b.width - edgeR - GAP * 1.5);
       const total = (list, w) => list.reduce((n, x) => n + size(x, w) + GAP, GAP);
       // A side too full for the frame hands its last notes to the other
       for (const [from, to, wf, wt] of [['left', 'right', wL, wR], ['right', 'left', wR, wL]]) {
@@ -520,18 +527,20 @@
         for (const row of rows.reverse()) { // back up from the bottom if the stack ran off it
           row.top = Math.max(GAP, Math.min(row.top, limit - row.hgt));
           limit = row.top - GAP;
-          out.set(row.x.id, { x: side === 'left' ? GAP / 2 : box2.right + GAP, y: row.top, w });
+          out.set(row.x.id, { x: side === 'left' ? GAP / 2 : b.width - GAP / 2 - w, y: row.top, w });
         }
       }
     } else {
       const bands = { top: [], bottom: [] };
       for (const x of group) bands[x.notePos[1] < midY ? 'top' : 'bottom'].push(x);
+      const edgeT = Math.min(box2.top, ...group.map((x) => loopTop(x)));
+      const edgeB = Math.max(box2.bottom, ...group.map((x) => f.top - b.top + fr(x).bottom * f.height));
       for (const [band, list] of [['top', bands.top], ['bottom', bands.bottom]]) {
         list.sort((p, q) => loopLeft(p) - loopLeft(q));
         const w = (b.width - GAP * (list.length + 1)) / (list.length || 1);
         list.forEach((x, n) => {
           const hgt = size(x, w);
-          const y = band === 'top' ? Math.max(GAP / 2, box2.top - hgt - GAP) : box2.bottom + GAP;
+          const y = band === 'top' ? Math.max(GAP / 2, edgeT - hgt - GAP) : edgeB + GAP;
           out.set(x.id, { x: GAP + n * (w + GAP), y, w });
         });
       }
@@ -549,7 +558,11 @@
     const w = v.note.offsetWidth, nh = v.note.offsetHeight;
     v.note.style.transform = `translate(${nx}px, ${ny}px)`;
     v.note.style.clipPath = c ? `inset(${c.top - ny}px ${nx + w - c.right}px ${ny + nh - c.bottom}px ${c.left - nx}px)` : '';
-    v.leader.setAttribute('d', leaderPath(pts, nx, ny, w, nh));
+    // A note above or below its loop gets its line at the note's near edge, so it never crosses the words
+    const l = bounds(pts), line = v.note.querySelector('.ink-text').getBoundingClientRect();
+    const stacked = ny + nh <= l.top || ny >= l.bottom;
+    const end = stacked && [Math.min(Math.max(l.left + l.width / 2, nx + 4), nx + Math.max(line.width, 8) - 4), ny + nh <= l.top ? ny + nh + 3 : ny - 3];
+    v.leader.setAttribute('d', leaderPath(pts, nx, ny, w, nh, end));
   }
 
   // Where a note won't fit or can't be read, its loop gets a numbered badge that opens it large.
@@ -590,11 +603,11 @@
   addEventListener('click', (e) => { if (!e.target.closest?.('.ink-badge')) closeSheet(); });
 
   // A thin line from the loop's nearest edge to the near side of the note, bowed slightly.
-  function leaderPath(pts, nx, ny, w, nh) {
+  function leaderPath(pts, nx, ny, w, nh, to) {
     const b = bounds(pts);
     const cy = ny + Math.min(nh / 2, 14);
     const right = nx + w / 2 > b.left + b.width / 2;
-    const end = [right ? nx - 6 : nx + w + 6, cy];
+    const end = to || [right ? nx - 6 : nx + w + 6, cy];
     let best = pts[0], bd = Infinity;
     for (const p of pts) {
       const d = (p[0] - end[0]) ** 2 + (p[1] - end[1]) ** 2;

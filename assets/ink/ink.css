@@ -269,4 +269,4 @@
 @media (min-width: 641px) { .ink-list { display: none; } }
 
 /* In the open space around a frame's image on a phone (the "margins" setting) */
-.ink-note.is-margin { max-width: none; padding: 0; font-size: 14px; line-height: 1.08; overflow-wrap: break-word; transform-origin: 0 0; }
+.ink-note.is-margin { max-width: none; padding: 0; font-size: 14px; line-height: 1.08; overflow-wrap: break-word; hyphens: auto; -webkit-hyphens: auto; transform-origin: 0 0; }

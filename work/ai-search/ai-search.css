@@ -548,16 +548,16 @@ li.cs-todo { display: list-item; margin-top: 8px; }
   .cs-stat__value--text { font-size: 30px; }
   .cs-demo__frame { border-radius: 24px; }
   .cs-carousel { margin-top: 32px; }
-  /* The screen fills about half the phone's width, leaving open space beside it for the notes. Its
-     frame keeps the desktop shape, so the loops stay on the image, and the window crops it. */
-  .cs-shaping .cs-carousel { margin-inline: calc(var(--gutter) * -1); }
-  .cs-shaping .cs-carousel__track { padding-left: 12px; }
-  .cs-carousel { -webkit-mask-image: none; mask-image: none; }
-  .cs-carousel__slide { --w: min(54vw, 240px); --fw: calc(var(--w) / 0.3707); width: calc(100vw - 12px); padding-right: 12px; }
-  .cs-carousel__window { position: relative; overflow: hidden; height: calc(var(--w) / 0.4598 + 40px); border-radius: 16px; background: var(--canvas-grey); }
+  /* Each container runs edge to edge, and the screen fills under 40% of it, so the notes have open
+     space beside it. Its frame keeps the desktop shape, so the loops stay on the image, and the window
+     crops it. 37vw is the floor: below it the frame is narrower than the phone and cuts the notes off.
+     The gap between slides sits just off screen until you swipe. */
+  .cs-carousel { margin-inline: calc(var(--gutter) * -1); -webkit-mask-image: none; mask-image: none; }
+  .cs-carousel__slide { --w: min(38vw, 240px); --fw: calc(var(--w) / 0.3707); width: calc(100% + 8px); padding-right: 8px; }
+  .cs-carousel__window { position: relative; overflow: hidden; height: calc(var(--w) / 0.4598 + 40px); background: var(--canvas-grey); }
   .cs-carousel__frame { position: absolute; left: 50%; top: calc(20px - var(--fw) * 0.0656); width: var(--fw); margin-left: calc(var(--fw) / -2); border-radius: 0; background: none; }
-  .cs-problems .cs-carousel__slide { --w: min(80vw, 340px); --fw: calc(var(--w) / 0.74); width: calc(var(--w) + 36px); }
-  .cs-problems .cs-carousel__window { height: calc(var(--fw) * 0.9375); background: var(--canvas-tile); }
+  .cs-problems .cs-carousel__slide { --w: min(80vw, 340px); --fw: calc(var(--w) / 0.74); }
+  .cs-problems .cs-carousel__window { height: calc(var(--fw) * 0.9375); background: none; }
   .cs-problems .cs-carousel__frame { top: 0; }
   /* Opened: the screen fills the width and scrolls under its notes, which stay in view at the bottom */
   .cs-lightbox { overflow: hidden auto; overscroll-behavior: contain; }

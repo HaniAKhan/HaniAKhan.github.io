@@ -53,7 +53,8 @@
     if (!tracks.length) return;
     import('/assets/vendor/smooothy-0.0.35.esm.js').then(({ default: Slider }) => {
       tracks.forEach((track) => {
-        const slider = new Slider(track, { infinite: true, snap: false });
+        // A phone shows one whole slide at a time, so a swipe settles squarely on the next one
+        const slider = new Slider(track, { infinite: true, snap: phone.matches });
         let held = false;
         let resume = 0;
         const hold = () => { clearTimeout(resume); held = true; };
