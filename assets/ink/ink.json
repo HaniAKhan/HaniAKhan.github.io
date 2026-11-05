@@ -9,5 +9,6 @@
   "pages": {
     "/work/ai-search/": "work-ai-search.json"
   },
-  "listIn": ".cs-carousel__slide, .cs-lightbox"
+  "listIn": ".cs-lightbox",
+  "margins": ".cs-carousel__window"
 }

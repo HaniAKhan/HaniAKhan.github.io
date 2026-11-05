@@ -405,7 +405,9 @@
     const c = toPage(v.clip, ox, oy);
     // In a frame the note scales with it, like the image, and is cut off where the frame is.
     const s = a.frameKey ? r.width / (a.frameW || r.width) : 1;
-    const compact = !v.note.classList.contains('is-editing') && (innerWidth <= PHONE || s * NOTE_PX < MIN_PX);
+    // On a phone a frame can give its notes the open space around its image (the "margins" setting)
+    const marginBox = a.frameKey && cfg.margins && innerWidth <= PHONE && !v.note.classList.contains('is-editing') ? v.el?.closest(cfg.margins) : null;
+    const compact = !marginBox && !v.note.classList.contains('is-editing') && (innerWidth <= PHONE || s * NOTE_PX < MIN_PX);
     const key = [r.left, r.top, r.width, r.height, a.updated, a._dx || 0, a._dy || 0, a._nx || 0, a._ny || 0, c && [c.left, c.top, c.right, c.bottom], v.fade, v.state, v.n, compact, innerWidth].join();
     if (!force && key === v.key) return;
     v.key = key;
@@ -440,6 +442,12 @@
         v.g.removeAttribute('clip-path');
       }
     }
+    v.note.classList.toggle('is-margin', !!marginBox);
+    if (!marginBox) v.note.style.width = '';
+    if (marginBox) {
+      placeInMargin(a, v, pts, marginBox, c);
+      return;
+    }
     if (compact) {
       placeBadge(a, v, pts, r, c);
       v.leader.setAttribute('d', '');
@@ -464,6 +472,84 @@
       ? `inset(${(c.top - ny) / s}px ${(nx + w * s - c.right) / s}px ${(ny + nh * s - c.bottom) / s}px ${(c.left - nx) / s}px)`
       : '';
     v.leader.setAttribute('d', leaderPath(pts, nx, ny, w * s, nh * s));
+  }
+
+  // Notes in the space around a frame's image: beside a tall image, above and below a wide one.
+  // Each stays near its loop and they stack without touching. Worked out once per frame and size.
+  const GAP = 8;
+  let marginCache = new Map();
+  function marginLayout(a, box, img) {
+    const b = box.getBoundingClientRect(), i = img.getBoundingClientRect();
+    const group = items.filter((x) => x.page === page && x.frameKey === a.frameKey);
+    const cacheKey = [a.frameKey, Math.round(b.width), Math.round(b.height), Math.round(i.width), document.fonts?.status, group.map((x) => x.id + x.updated).join()].join();
+    if (marginCache.has(cacheKey)) return marginCache.get(cacheKey);
+    const out = new Map();
+    const fr = (x) => bounds(x.loop.map((p) => [p[0], p[1]])); // in frame fractions
+    const box2 = { left: i.left - b.left, top: i.top - b.top, right: i.right - b.left, bottom: i.bottom - b.top };
+    const size = (x, w) => {
+      const n = viewFor(x).note;
+      n.classList.add('is-margin');
+      n.style.display = '';
+      n.style.width = `${w}px`;
+      n.querySelector('.ink-text').textContent = x.note;
+      return n.offsetHeight;
+    };
+    const frameEl = img.closest(FRAME), f = frameEl.getBoundingClientRect();
+    const midX = (i.left + i.width / 2 - f.left) / f.width, midY = (i.top + i.height / 2 - f.top) / f.height;
+    const loopTop = (x) => f.top - b.top + fr(x).top * f.height;
+    const loopLeft = (x) => f.left - b.left + fr(x).left * f.width;
+    if (i.height >= i.width) {
+      const sides = { left: [], right: [] };
+      for (const x of group) sides[x.notePos[0] < midX ? 'left' : 'right'].push(x);
+      const wL = box2.left - GAP * 1.5, wR = b.width - box2.right - GAP * 1.5;
+      const total = (list, w) => list.reduce((n, x) => n + size(x, w) + GAP, GAP);
+      // A side too full for the frame hands its last notes to the other
+      for (const [from, to, wf, wt] of [['left', 'right', wL, wR], ['right', 'left', wR, wL]]) {
+        sides[from].sort((p, q) => loopTop(p) - loopTop(q));
+        while (sides[from].length > 1 && total(sides[from], wf) > b.height && total(sides[to], wt) + size(sides[from].at(-1), wt) + GAP <= b.height) sides[to].push(sides[from].pop());
+      }
+      for (const [side, list, w] of [['left', sides.left, wL], ['right', sides.right, wR]]) {
+        list.sort((p, q) => loopTop(p) - loopTop(q));
+        let y = GAP;
+        const rows = list.map((x) => {
+          const hgt = size(x, w), top = Math.max(y, loopTop(x));
+          y = top + hgt + GAP;
+          return { x, top, hgt };
+        });
+        let limit = b.height - GAP;
+        for (const row of rows.reverse()) { // back up from the bottom if the stack ran off it
+          row.top = Math.max(GAP, Math.min(row.top, limit - row.hgt));
+          limit = row.top - GAP;
+          out.set(row.x.id, { x: side === 'left' ? GAP / 2 : box2.right + GAP, y: row.top, w });
+        }
+      }
+    } else {
+      const bands = { top: [], bottom: [] };
+      for (const x of group) bands[x.notePos[1] < midY ? 'top' : 'bottom'].push(x);
+      for (const [band, list] of [['top', bands.top], ['bottom', bands.bottom]]) {
+        list.sort((p, q) => loopLeft(p) - loopLeft(q));
+        const w = (b.width - GAP * (list.length + 1)) / (list.length || 1);
+        list.forEach((x, n) => {
+          const hgt = size(x, w);
+          const y = band === 'top' ? Math.max(GAP / 2, box2.top - hgt - GAP) : box2.bottom + GAP;
+          out.set(x.id, { x: GAP + n * (w + GAP), y, w });
+        });
+      }
+    }
+    marginCache.set(cacheKey, out);
+    return out;
+  }
+  function placeInMargin(a, v, pts, box, c) {
+    const img = v.el.querySelector('img, video');
+    const spot = img && marginLayout(a, box, img).get(a.id);
+    if (!spot) return;
+    const b = box.getBoundingClientRect();
+    const nx = b.left + scrollX + spot.x, ny = b.top + scrollY + spot.y;
+    v.note.style.width = `${spot.w}px`;
+    const w = v.note.offsetWidth, nh = v.note.offsetHeight;
+    v.note.style.transform = `translate(${nx}px, ${ny}px)`;
+    v.note.style.clipPath = c ? `inset(${c.top - ny}px ${nx + w - c.right}px ${ny + nh - c.bottom}px ${c.left - nx}px)` : '';
+    v.leader.setAttribute('d', leaderPath(pts, nx, ny, w, nh));
   }
 
   // Where a note won't fit or can't be read, its loop gets a numbered badge that opens it large.
