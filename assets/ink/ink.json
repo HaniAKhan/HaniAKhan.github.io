@@ -8,5 +8,6 @@
   "base": "",
   "pages": {
     "/work/ai-search/": "work-ai-search.json"
-  }
+  },
+  "listIn": ".cs-carousel__slide, .cs-lightbox"
 }

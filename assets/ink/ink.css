@@ -4,13 +4,15 @@
 /* One red, set per theme so thin handwriting passes AAA (7:1) on white and pale grey pages.
    ink.js sets data-dark while the page's dark mode is on (the "dark" setting in ink.json). */
 #ink-root,
-#ink-dock {
+#ink-dock,
+.ink-list {
   --ink: #9c1230;
   --ink-font: 'Caveat', 'Bradley Hand', 'Segoe Print', cursive;
   --ink-on: #fff;
 }
 #ink-root[data-dark],
-#ink-dock[data-dark] {
+#ink-dock[data-dark],
+.ink-list[data-dark] {
   --ink: #f28ca3;
   --ink-on: #0d1117;
 }
@@ -238,3 +240,30 @@
   font: 700 13px/26px system-ui, sans-serif;
   text-align: center;
 }
+
+/* A frame's notes written out under it on a phone (the "listIn" setting), numbered like its badges */
+.ink-badge.is-listed { pointer-events: none; }
+.ink-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ink);
+  font: 500 21px/1.1 var(--ink-font);
+}
+.ink-list li { display: flex; gap: 8px; align-items: flex-start; }
+.ink-list__num {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--ink-on);
+  font: 700 11px/20px system-ui, sans-serif;
+  text-align: center;
+}
+[data-ink-off] .ink-list { display: none; }
+@media (min-width: 641px) { .ink-list { display: none; } }

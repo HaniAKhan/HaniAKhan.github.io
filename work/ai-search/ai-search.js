@@ -45,8 +45,9 @@
   }
 
   /* ---------- Carousels: smooothy, nudged forward every frame so they drift on their own ---------- */
-  // They pause while hovered or touched and pick up again after; with reduced motion they only move when dragged
+  // They pause while hovered or touched and pick up again after; on phones and with reduced motion they only move when dragged
   const CAROUSEL_SPEED = 0.12; // slides per second
+  const phone = window.matchMedia('(max-width: 640px)'); // notes sit under the slides there, so they hold still to be read
   function startCarousels() {
     const tracks = document.querySelectorAll('[data-carousel]');
     if (!tracks.length) return;
@@ -85,7 +86,7 @@
         });
         const tick = () => {
           // deltaTime jumps after the carousel was off screen, so it's capped
-          if (!reduceMotion && !held && !open && slider.isVisible && !slider.isDragging) {
+          if (!reduceMotion && !phone.matches && !held && !open && slider.isVisible && !slider.isDragging) {
             slider.target -= CAROUSEL_SPEED * Math.min(slider.deltaTime, 0.05);
           }
           slider.update();
@@ -115,6 +116,12 @@
     return { w, h, left: (innerWidth - w) / 2, top: (innerHeight - h) / 2 };
   }
 
+  function stackedBox(from, shot) {
+    const w = innerWidth * 0.92 * (from.width / shot.width);
+    const h = w * (from.height / from.width);
+    return { w, h, left: (innerWidth - w) / 2, top: 16 - (shot.top - from.top) * (w / from.width) };
+  }
+
   // The frame grows out of its slide into the middle of the screen, and shrinks back to wherever
   // its slide is when closed. It's a copy: the slide keeps its place, and the original hides meanwhile.
   function expandFrame(frame) {
@@ -128,7 +135,13 @@
       big.tabIndex = -1;
       shade.append(big);
 
-      const to = fitBox(from.width / from.height, 1100);
+      // On a phone the screen itself fills the width, cropping the frame, and its notes sit below it
+      const shot = frame.querySelector('img').getBoundingClientRect();
+      const to = phone.matches ? stackedBox(from, shot) : fitBox(from.width / from.height, 1100);
+      if (phone.matches) {
+        const listTop = to.top + (shot.bottom - from.top) * (to.w / from.width) + 16;
+        shade.style.setProperty('--list-top', `${listTop}px`); // room to scroll the screen clear of the notes
+      }
       const w = to.w;
       Object.assign(big.style, { left: `${to.left}px`, top: `${to.top}px`, width: `${w}px`, height: `${to.h}px` });
       const flip = (r) => `translate(${r.left - to.left}px, ${r.top - to.top}px) scale(${r.width / w})`;
@@ -143,6 +156,7 @@
       const close = () => {
         if (closing) return;
         closing = true;
+        shade.scrollTop = 0;
         removeEventListener('keydown', onKey);
         const back = big.animate([{ transform: 'none' }, { transform: flip(frame.getBoundingClientRect()) }], { duration: time, easing: EASE_OUT, fill: 'forwards' });
         shade.animate([{}, { backgroundColor: 'transparent' }], { duration: time, easing: EASE_OUT, fill: 'forwards' });

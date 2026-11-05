@@ -25,7 +25,7 @@
   const SVG = 'http://www.w3.org/2000/svg';
   let cfg = {};
   let API = ''; // the notes server, once it has answered
-  let OWN = '#ink-root, #ink-dock';
+  let OWN = '#ink-root, #ink-dock, .ink-list';
   // A copy of a frame (a lightbox) shows the same notes, so frames are matched by their image's src.
   let FRAME = '[data-ink-frame]';
   const htmlMatches = (sel) => { try { return !!sel && document.documentElement.matches(sel); } catch { return false; } };
@@ -416,6 +416,11 @@
     v.badge.classList.toggle('is-lost', lost);
     v.note.classList.toggle('is-compact', compact);
     v.badge.classList.toggle('is-compact', compact);
+    // Its note is written out under the frame, so the badge is only a marker
+    const listed = compact && !!a.frameKey && !!cfg.listIn && innerWidth <= PHONE && !!v.el?.closest(cfg.listIn);
+    v.badge.classList.toggle('is-listed', listed);
+    v.badge.toggleAttribute('aria-hidden', listed);
+    v.badge.tabIndex = listed ? -1 : 0;
     v.note.title = v.badge.title = lost ? 'What this note pointed at is gone, so visitors don\'t see it. Drag the loop onto the right thing, or delete the note.' : '';
     const pts = a.loop.map((p) => denorm(p, r)).map(([x, y]) => [x + (a._dx || 0), y + (a._dy || 0)]);
     v.loop.setAttribute('d', pathOf(pts));
@@ -467,7 +472,9 @@
   const BADGE = 24;
   function placeBadge(a, v, pts, r, c) {
     const b = bounds(pts);
-    const area = a.frameKey ? r : { left: scrollX, top: -1e6, right: scrollX + innerWidth, bottom: 1e9 };
+    // A listed badge stays on the image itself, since a phone's crop can hide the rest of the frame
+    const img = v.badge.classList.contains('is-listed') && toPage(rectOf(v.el?.querySelector('img, video')), scrollX, scrollY);
+    const area = img || (a.frameKey ? r : { left: scrollX, top: -1e6, right: scrollX + innerWidth, bottom: 1e9 });
     const x = Math.max(area.left + 2, Math.min(b.right - BADGE / 2, area.right - BADGE - 2));
     const y = Math.max(area.top + 2, Math.min(b.top - BADGE / 2, area.bottom - BADGE - 2));
     v.badge.style.transform = `translate(${x}px, ${y}px)`;
@@ -522,19 +529,79 @@
       if (!here.some((a) => a.id === id)) dropView(id, v);
     }
     const lost = [];
-    here.forEach((a, i) => {
+    const nums = numbering(here);
+    here.forEach((a) => {
       let v = viewFor(a);
       if (!!a.frameKey !== !!v.clipRect) { // moved into or out of a frame: rebuild with or without a clip
         dropView(a.id, v);
         v = viewFor(a);
       }
-      v.n = i + 1;
+      v.n = nums.get(a.id);
       const rect = anchorRect(a, v);
       if (v.state === 'gone') lost.push(a.id);
       if (v.state === 'hidden' || (v.state === 'gone' && !editable)) { if (sheetFor === a.id) closeSheet(); return hideView(v); }
       place(a, v, rect, force);
     });
+    syncLists(here, nums);
     if (editable) showHealth(here.length, lost);
+  }
+
+  // Notes count up within their frame, top to bottom, so a frame's badges and list read 1, 2, 3
+  function numbering(here) {
+    const nums = new Map(), seen = new Map();
+    const top = (a) => Math.min(...a.loop.map((p) => p[1]));
+    const sorted = [...here].sort((a, b) => (a.frameKey && a.frameKey === b.frameKey ? top(a) - top(b) : 0));
+    for (const a of sorted) {
+      const k = a.frameKey || '';
+      seen.set(k, (seen.get(k) || 0) + 1);
+      nums.set(a.id, seen.get(k));
+    }
+    return nums;
+  }
+
+  // On a phone there's no room for a frame's notes beside it, so they're written out under it, in
+  // the box the "listIn" setting names, with numbers that match the badges on the loops.
+  let listsAt = 0;
+  function syncLists(here, nums) {
+    if (!cfg.listIn || innerWidth > PHONE) return;
+    const t = performance.now();
+    if (t - listsAt < 150) return; // a lightbox's copy of a frame shows up within a moment
+    listsAt = t;
+    document.documentElement.toggleAttribute('data-ink-off', mode === 'off');
+    const groups = new Map();
+    for (const a of here) {
+      if (!a.frameKey) continue;
+      if (!groups.has(a.frameKey)) groups.set(a.frameKey, []);
+      groups.get(a.frameKey).push(a);
+    }
+    for (const f of document.querySelectorAll(FRAME)) {
+      const box = f.closest(cfg.listIn);
+      const list = groups.get(frameKey(f));
+      if (!box || !list) continue;
+      const rows = list.map((a) => [nums.get(a.id), a.note]).sort((a, b) => a[0] - b[0]);
+      const sig = JSON.stringify(rows);
+      let el = box.querySelector(':scope > .ink-list');
+      if (!el) {
+        el = document.createElement('ol');
+        el.className = 'ink-list';
+        el.setAttribute('aria-label', 'Notes on this design');
+        box.append(el);
+      }
+      el.toggleAttribute('data-dark', root.hasAttribute('data-dark'));
+      if (el.dataset.sig === sig) continue;
+      el.dataset.sig = sig;
+      el.replaceChildren(...rows.map(([n, note]) => {
+        const li = document.createElement('li');
+        const num = document.createElement('span');
+        num.className = 'ink-list__num';
+        num.setAttribute('aria-hidden', 'true');
+        num.textContent = n;
+        const text = document.createElement('span');
+        text.textContent = note;
+        li.append(num, text);
+        return li;
+      }));
+    }
   }
 
   // The dock counts the notes and flags the lost ones; the server hears, so the checklist says too.
