@@ -33,24 +33,28 @@
   });
 
   /* ---------- Carousels: smooothy, nudged forward every frame so they drift on their own ---------- */
-  // They pause while hovered or touched and pick up again after; on phones and with reduced motion they only move when dragged
+  // They pause while hovered or touched and pick up again after. With reduced motion they only move when dragged.
   const CAROUSEL_SPEED = 0.12; // slides per second
-  const phone = window.matchMedia('(max-width: 640px)'); // notes sit under the slides there, so they hold still to be read
+  const phone = window.matchMedia('(max-width: 640px)');
   function startCarousels() {
     const tracks = document.querySelectorAll('[data-carousel]');
     if (!tracks.length) return;
     import('/assets/vendor/smooothy-0.0.35.esm.js').then(({ default: Slider }) => {
       tracks.forEach((track) => {
-        // A phone shows one whole slide at a time, so a swipe settles squarely on the next one
-        const slider = new Slider(track, { infinite: true, snap: phone.matches });
+        // Snapping would fight the drift, so only a phone with reduced motion on, which shows one whole
+        // slide at a time and holds still, settles a swipe squarely on the next one
+        const slider = new Slider(track, { infinite: true, snap: phone.matches && reduceMotion });
         let held = false;
         let resume = 0;
         const hold = () => { clearTimeout(resume); held = true; };
         const release = (delay) => { clearTimeout(resume); resume = setTimeout(() => { held = false; }, delay); };
-        track.addEventListener('mouseenter', hold);
-        track.addEventListener('mouseleave', () => release(0));
+        // Only a real mouse: a tap also reports a mouse arriving, and nothing would ever report it leaving
+        track.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hold(); });
+        track.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') release(0); });
         track.addEventListener('touchstart', hold, { passive: true });
         track.addEventListener('touchend', () => release(2000));
+        // The browser takes the touch back when it turns into scrolling the page
+        track.addEventListener('touchcancel', () => release(2000));
         // A tap (not a drag) on a frame opens it large; the carousel waits until it's put back
         let open = false;
         let down = null;
@@ -75,7 +79,7 @@
         });
         const tick = () => {
           // deltaTime jumps after the carousel was off screen, so it's capped
-          if (!reduceMotion && !phone.matches && !held && !open && slider.isVisible && !slider.isDragging) {
+          if (!reduceMotion && !held && !open && slider.isVisible && !slider.isDragging) {
             slider.target -= CAROUSEL_SPEED * Math.min(slider.deltaTime, 0.05);
           }
           slider.update();
