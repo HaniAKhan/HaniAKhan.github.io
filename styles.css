@@ -199,9 +199,9 @@ html.is-loading .wordmark { visibility: hidden; }
 @media (hover: hover) { .social:hover { transform: translateY(-2px); } }
 .social:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
 
-/* LinkedIn and the email button side by side */
-.contact { display: flex; align-items: center; gap: 8px; }
-.email-copy {
+/* LinkedIn, the email button and the resume button side by side; they wrap on a narrow phone */
+.contact { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.email-copy, .resume-button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -215,12 +215,14 @@ html.is-loading .wordmark { visibility: hidden; }
   font-size: 14px;
   font-weight: 500;
   line-height: 20px;
+  text-decoration: none;
   cursor: pointer;
   transition: transform 400ms var(--ease-out);
 }
-@media (hover: hover) { .email-copy:hover { transform: translateY(-2px); } }
-.email-copy:active { transform: scale(0.97); }
-.email-copy:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+@media (hover: hover) { .email-copy:hover, .resume-button:hover { transform: translateY(-2px); } }
+.email-copy:active, .resume-button:active { transform: scale(0.97); }
+.email-copy:focus-visible, .resume-button:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+.resume-button svg { display: block; flex: none; }
 .email-copy__icons { flex: none; }
 .email-copy__icons svg { display: block; }
 /* Each icon slot is a grid, so the success check's inline-block wrapper doesn't add a line box and
@@ -736,6 +738,42 @@ html.is-loading .theme-toggle { opacity: 0; }
   .sheet__close { margin: 12px 12px -52px auto; top: 12px; }
 }
 
+/* ---------- Resume preview, in the sheet ---------- */
+.resume { width: min(820px, 100%); margin: 0 auto; padding: 28px 24px 64px; }
+.resume__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; padding-right: 56px; }
+.resume__button {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--toggle-bg);
+  color: var(--text);
+  font-family: var(--font-meta);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 200ms var(--ease-out), transform 150ms var(--ease-out);
+}
+.resume__button:hover { background: var(--chip-bg); }
+.resume__button:active { transform: scale(0.97); }
+.resume__button:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+.resume__button--primary, .resume__button--primary:hover { border-color: var(--text); background: var(--text); color: var(--bg); }
+/* The page itself stays white in dark mode, like paper */
+.resume__page {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--border), 0 24px 60px -30px rgba(13, 17, 23, 0.3);
+}
+@media (max-width: 640px) {
+  .resume { padding: 16px 16px 40px; }
+  .resume__actions { margin-bottom: 16px; }
+}
+
 /* ---------- Password gate ---------- */
 .visually-hidden {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -838,6 +876,8 @@ html.is-loading .theme-toggle { opacity: 0; }
   .hero__title { font-size: 46px; }
   .hero__intro { font-size: 17px; line-height: 26px; }
   .social { width: 44px; height: 44px; }
+  /* A little tighter, so LinkedIn, email and resume share one row on most phones */
+  .email-copy, .resume-button { gap: 6px; padding: 0 12px 0 10px; }
   .cases { margin-top: 76px; gap: 28px; }
   .case { gap: 10px; padding: 20px 0 36px; }
   .case__title { font-size: 29px; }

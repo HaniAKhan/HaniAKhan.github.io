@@ -4,6 +4,54 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const EASE_OUT = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
+  /* ---------- Visits: GoatCounter (hanikhan.goatcounter.com), on the live site only ---------- */
+  // No cookies. It counts each page view, plus a few events: getting past the case study password,
+  // copying the email address, opening LinkedIn, and opening a case study.
+  const COUNTING = location.hostname === 'haniakhan.github.io';
+  const NEXT_PAGE = 'gc-next';
+  const waiting = [];
+  let counterReady = false;
+  const count = (name) => {
+    if (!COUNTING) return;
+    if (counterReady && window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: name, title: name, event: true });
+    else waiting.push(name);
+  };
+  // Events that happen as the page is left are counted when the next page loads, so they aren't lost
+  // with it; each counts only if that page is the one it was headed for.
+  const countOnArrival = (name, path) => {
+    if (!COUNTING) return;
+    try {
+      const list = JSON.parse(sessionStorage.getItem(NEXT_PAGE) || '[]');
+      list.push({ name, path });
+      sessionStorage.setItem(NEXT_PAGE, JSON.stringify(list));
+    } catch (e) { count(name); }
+  };
+  if (COUNTING) {
+    try {
+      const list = JSON.parse(sessionStorage.getItem(NEXT_PAGE) || '[]');
+      sessionStorage.removeItem(NEXT_PAGE);
+      list.filter((e) => e.path === location.pathname).forEach((e) => count(e.name));
+    } catch (e) {}
+    // A shared link's ?ref= still reaches GoatCounter as where the visit came from, but stays out of
+    // the page's path, so /?ref=resume and / count as the same page
+    window.goatcounter = Object.assign(window.goatcounter || {}, { path: () => location.pathname });
+    const counter = document.createElement('script');
+    counter.async = true;
+    counter.src = 'https://gc.zgo.at/count.js';
+    counter.dataset.goatcounter = 'https://hanikhan.goatcounter.com/count';
+    counter.addEventListener('load', () => {
+      counterReady = true;
+      waiting.splice(0).forEach(count);
+    });
+    document.head.append(counter);
+  }
+  const caseName = (path) => path.split('/').filter(Boolean).pop() || 'home';
+  document.addEventListener('click', (event) => {
+    if (event.target.closest('[data-email-copy]')) count('copy-email');
+    else if (event.target.closest('a[href*="linkedin.com"]')) count('open-linkedin');
+    else if (event.target.closest('[data-resume-download]')) count('download-resume');
+  });
+
   /* ---------- Theme ---------- */
   const toggle = document.querySelector('.theme-toggle');
   if (toggle) {
@@ -410,12 +458,38 @@
   });
   window.sheet = { open: openSheet, close: closeSheet };
 
+  /* ---------- Resume: a preview in the sheet, with the PDF to download or open ---------- */
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[data-resume]');
+    if (!link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    count('open-resume');
+    const view = document.createElement('div');
+    view.className = 'resume';
+    view.innerHTML = `
+      <div class="resume__actions">
+        <a class="resume__button resume__button--primary" href="${link.href}" download="Hani Khan Resume.pdf" data-resume-download>Download PDF</a>
+        <a class="resume__button" href="${link.href}" target="_blank" rel="noopener">Open in new tab</a>
+      </div>
+      <img class="resume__page" src="/assets/resume/hani-khan-resume.webp" width="1556" height="2200" alt="A preview of Hani Khan’s resume. Download the PDF or open it in a new tab to read it in full.">`;
+    openSheet({ content: view, label: 'Resume' });
+  });
+
   // Links into case studies ask for the password the first time.
   document.addEventListener('click', (event) => {
     const link = event.target.closest('a[data-case-link]');
-    if (!link || isUnlocked() || event.metaKey || event.ctrlKey || event.shiftKey) return;
+    if (!link) return;
+    const opened = 'open-case-' + caseName(link.pathname);
+    if (isUnlocked() || event.metaKey || event.ctrlKey || event.shiftKey) {
+      countOnArrival(opened, link.pathname);
+      return;
+    }
     event.preventDefault();
-    openGate().then(() => { window.location.href = link.href; }, () => {});
+    openGate().then(() => {
+      countOnArrival('unlock-case', link.pathname);
+      countOnArrival(opened, link.pathname);
+      window.location.href = link.href;
+    }, () => {});
   });
 
   // A case study page opened directly asks first, and only then reveals itself.
@@ -425,7 +499,7 @@
       document.dispatchEvent(new CustomEvent('case:unlocked'));
     };
     if (isUnlocked()) reveal();
-    else openGate({ dismissible: false }).then(reveal, () => {});
+    else openGate({ dismissible: false }).then(() => { count('unlock-case'); reveal(); }, () => {});
   }
 
   /* ---------- Agentation (local only) ---------- */
