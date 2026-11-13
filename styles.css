@@ -69,10 +69,11 @@ h1, h2, p, figure { margin: 0; }
 a { color: inherit; }
 
 /* Theme change: animate colour properties everywhere, only while switching. */
-/* Text pieces nested inside the wordmark and headline are left out: they inherit the parent's
-   animating color. Giving them their own transition makes WebKit (all iOS browsers) chase the
-   parent's in-progress value, so each nesting level visibly lags behind. */
-html.theme-transition *:not(.theme-toggle__thumb):not(.icon):not(.wordmark-text *):not(.hero__title *),
+/* Text pieces nested inside the wordmark, headline and case study titles are left out: they inherit
+   the parent's animating color. Giving them their own transition makes them chase the parent's
+   in-progress value, so each nesting level lags behind. On a case study title the link stayed on the
+   old color the whole time, and the title snapped back to it as the switch ended before fading in again. */
+html.theme-transition *:not(.theme-toggle__thumb):not(.icon):not(.wordmark-text *):not(.hero__title *):not(.case__link):not(.case__link-text),
 html.theme-transition *::before,
 html.theme-transition *::after {
   transition-property: background-color, color, border-color !important;
