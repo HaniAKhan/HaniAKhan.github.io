@@ -86,17 +86,43 @@
       </div>
     </section>
 
-    <section class="cases" aria-label="Selected work">
+    <!-- Tools I am making: a strip that scrolls sideways, each tool tipping a little on hover -->
+    <section class="tools" aria-labelledby="tools-title">
+      <h2 class="section-title" id="tools-title">Tools I am making</h2>
+      <div class="tools__track" role="list" tabindex="0" aria-label="Tools I am making. Scroll sideways for more.">
+        <figure class="tool" role="listitem">
+          <!-- Opens the promo in the sheet (site.js); without script it opens the promo page -->
+          <a class="tool__open" href="assets/tools/slidekick-promo.html" data-promo data-promo-name="Slidekick" aria-label="Slidekick, play the promo">
+            <img class="tool__shot tool__shot--right" src="assets/tools/slidekick@1200.webp" srcset="assets/tools/slidekick@1200.webp 1200w, assets/tools/slidekick.webp 2000w" sizes="(max-width: 640px) 60vw, 320px" width="2000" height="1043" loading="lazy" decoding="async" alt="Slidekick open in a browser window: its side panel, with edit mode and a list of slides, beside a slide that reads “Good decks. Go places.”">
+            <span class="tool__label">Slidekick</span>
+          </a>
+          <!-- Shown under the promo in its lightbox (site.js) -->
+          <p class="tool__about" hidden>As soon as I started making presentations with HTML, I found myself wanting a few basic tools to help me build these really quickly and actually use them for presenting ideas. I took inspiration from a tool called DialKit, built it for a presentation, and then turned it into a skill that I shared internally.</p>
+        </figure>
+        <figure class="tool" role="listitem">
+          <!-- Opens the promo in a lightbox (site.js). This promo is a 1100 x 994 stage with its own window frame, and below
+               that width it switches to a phone layout, so it's shown at its full size, scaled down, without the dark backing. -->
+          <a class="tool__open" href="assets/tools/cx-prototypes-promo.html" data-promo data-promo-name="Prototype playground" data-promo-size="1100x994" data-promo-frameless aria-label="Prototype playground, play the promo">
+            <img class="tool__shot" src="assets/tools/prototype-playground@1200.webp" srcset="assets/tools/prototype-playground@1200.webp 1200w, assets/tools/prototype-playground.webp 2000w" sizes="(max-width: 640px) 60vw, 320px" width="2000" height="1336" loading="lazy" decoding="async" alt="Prototype playground, open in a browser window: a page for the Discover and My H-E-B prototype, with the H-E-B app's home screen in a phone frame.">
+            <span class="tool__label">Prototype playground</span>
+          </a>
+          <p class="tool__about" hidden>After I showed team members how to prototype with our iOS codebase and GitHub Copilot, I realized that this approach was intimidating for many designers because of the amount of technical overhead involved in navigating errors and troubleshooting in an IDE. We also didn’t have a clear way to deploy our prototypes that our engineering partners were ready to accept. So I built a POC that proposed a web mirror of our native components where deployments could happen separately from our engineering codebases, which have to go through security scans to be PCI compliant. This would enable fast iteration in an environment that is easier for all designers to adopt. I am now working with other Staff Engineers to explore how to build this in a way that can scale.</p>
+        </figure>
+      </div>
+    </section>
+
+    <section class="cases" aria-labelledby="work-title">
+      <h2 class="section-title" id="work-title">Selected work</h2>
       <article class="case">
         <p class="case__date">May 2026</p>
-        <h2 class="case__title">
+        <h3 class="case__title">
           <a class="case__link" href="work/ai-search/" data-case-link>
             <span class="case__link-text">AI-assisted search results</span>
             <span class="case__link-icon" aria-hidden="true">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 11 11 5M6 5h5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
           </a>
-        </h2>
+        </h3>
         <figure class="case__media">
           <picture class="case__art">
             <source media="(max-width: 640px)" srcset="assets/cases/ai-search-m@2x.webp">
@@ -108,14 +134,14 @@
 
       <article class="case">
         <p class="case__date">October 2026</p>
-        <h2 class="case__title">
+        <h3 class="case__title">
           <a class="case__link" href="work/scan-your-list/" data-case-link>
             <span class="case__link-text">Scan your list</span>
             <span class="case__link-icon" aria-hidden="true">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 11 11 5M6 5h5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
           </a>
-        </h2>
+        </h3>
         <figure class="case__media">
           <picture class="case__art">
             <source media="(max-width: 640px)" srcset="assets/cases/scan-your-list-m@2x.webp">
@@ -127,7 +153,7 @@
 
       <article class="case" hidden>
         <p class="case__date">March 2026</p>
-        <h2 class="case__title">A vision for My H-E-B <span class="case__soon">Coming soon</span></h2>
+        <h3 class="case__title">A vision for My H-E-B <span class="case__soon">Coming soon</span></h3>
         <figure class="case__media">
           <picture class="case__art">
             <source media="(max-width: 640px)" srcset="assets/cases/my-heb-vision-m@2x.png">
@@ -139,7 +165,7 @@
 
       <article class="case" hidden>
         <p class="case__date">June 2025</p>
-        <h2 class="case__title">Making sense of the AI shift <span class="case__soon">Coming soon</span></h2>
+        <h3 class="case__title">Making sense of the AI shift <span class="case__soon">Coming soon</span></h3>
         <figure class="case__media">
           <picture class="case__art case__art--mobile">
             <img src="assets/cases/ai-shift-m@2x.webp" alt="Four presentation slides from the AI x Design talk" loading="lazy" decoding="async">
@@ -158,7 +184,7 @@
 
       <article class="case">
         <p class="case__date">Feb 2024</p>
-        <h2 class="case__title">Meal planning assistant <span class="case__soon">Coming soon</span></h2>
+        <h3 class="case__title">Meal planning assistant <span class="case__soon">Coming soon</span></h3>
         <figure class="case__media">
           <picture class="case__art">
             <source media="(max-width: 640px)" srcset="assets/cases/meal-planning-m@2x.webp">

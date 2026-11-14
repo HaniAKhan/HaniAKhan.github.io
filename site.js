@@ -458,6 +458,139 @@
   });
   window.sheet = { open: openSheet, close: closeSheet };
 
+  /* ---------- Tools I am making: counted once a visitor scrolls it mostly into view ---------- */
+  const toolsSection = document.querySelector('.tools');
+  if (toolsSection && 'IntersectionObserver' in window) {
+    const seen = new IntersectionObserver((entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      count('view-tools');
+      seen.disconnect();
+    }, { threshold: 0.5 });
+    seen.observe(toolsSection);
+  }
+
+  /* ---------- Tool promos: the thumbnail grows into a lightbox and the promo plays inside ----------
+     Like the case study lightboxes: the card's screenshot scales and untilts out of its place into the
+     middle of the screen over a wash of the page colour, then the promo takes its place. Tapping the
+     wash or Esc plays it back into the card, and removing the promo stops it. */
+  const PROMO_TIME = 480;
+  const PROMO_WATCHED = 10000; // ms open before it counts as watched
+  // A promo that scales itself fills the box at the default shape. One built at a fixed size (data-promo-size="WxH")
+  // is shown at that size and scaled down, so it never falls back to a narrower layout.
+  const PROMO_RATIO = 1720 / 760;
+  const ABOUT_GAP = 20;
+  // The largest box of the promo's shape that fits the middle of the screen with its paragraph under it
+  function promoBox(about, ratio = PROMO_RATIO) {
+    const room = innerHeight * 0.88;
+    let w = Math.min(innerWidth * 0.92, 1100);
+    // The paragraph keeps a readable line length: the page's text column, or the screen's width if narrower.
+    // It sits in the middle under the promo, with its text left-aligned.
+    const textWidth = Math.min(742, innerWidth * 0.92);
+    let below = 0;
+    if (about) { about.style.width = `${textWidth}px`; below = about.offsetHeight + ABOUT_GAP; }
+    let h = w / ratio;
+    if (h + below > room) { h = room - below; w = h * ratio; }
+    const top = (innerHeight - h - below) / 2;
+    return { w, h, left: (innerWidth - w) / 2, top, textTop: top + h + ABOUT_GAP, textLeft: (innerWidth - textWidth) / 2 };
+  }
+  // The thumbnail's place, size and tilt, measured untilted, as a transform from the lightbox box
+  function fromThumb(shot, box) {
+    const r = shot.getBoundingClientRect();
+    const m = new DOMMatrixReadOnly(getComputedStyle(shot.closest('.tool')).transform);
+    const angle = Math.atan2(m.b, m.a) * 180 / Math.PI;
+    const dx = r.left + r.width / 2 - (box.left + box.w / 2);
+    const dy = r.top + r.height / 2 - (box.top + box.h / 2);
+    return `translate(${dx}px, ${dy}px) rotate(${angle}deg) scale(${shot.offsetWidth / box.w})`;
+  }
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[data-promo]');
+    if (!link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    if (document.querySelector('.promo-lightbox')) return;
+    const name = link.dataset.promoName || 'Tool';
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    count('open-tool-' + slug);
+    // Kept open long enough to watch a good part of it, rather than closed straight away
+    const watched = setTimeout(() => count('watch-tool-' + slug), PROMO_WATCHED);
+    const shot = link.querySelector('img');
+
+    const shade = document.createElement('div');
+    shade.className = 'promo-lightbox';
+    shade.setAttribute('role', 'dialog');
+    shade.setAttribute('aria-modal', 'true');
+    shade.setAttribute('aria-label', `${name} promo`);
+    shade.tabIndex = -1;
+    const box = document.createElement('div');
+    box.className = 'promo-lightbox__box';
+    // A promo that draws its own window frame goes without the dark backing
+    if (link.hasAttribute('data-promo-frameless')) box.classList.add('promo-lightbox__box--frameless');
+    // The screenshot flies in first, with the same crop as the card; the promo loads behind it
+    const still = document.createElement('img');
+    still.className = 'promo-lightbox__still';
+    still.src = shot.currentSrc || shot.src;
+    still.alt = '';
+    still.style.objectPosition = getComputedStyle(shot).objectPosition;
+    const frame = document.createElement('iframe');
+    frame.className = 'promo-lightbox__frame';
+    frame.title = `${name} promo`;
+    frame.src = link.href;
+    box.append(frame, still);
+    shade.append(box);
+    // The tool's paragraph, under the promo
+    const source = link.closest('.tool')?.querySelector('.tool__about');
+    const about = source ? Object.assign(document.createElement('p'), { className: 'promo-lightbox__about', textContent: source.textContent }) : null;
+    if (about) shade.append(about);
+    document.body.append(shade);
+
+    const [sw, sh] = (link.dataset.promoSize || '').split('x').map(Number);
+    const fixed = sw && sh;
+    const place = promoBox(about, fixed ? sw / sh : PROMO_RATIO);
+    if (fixed) Object.assign(frame.style, { width: `${sw}px`, height: `${sh}px`, transform: `scale(${place.w / sw})`, transformOrigin: '0 0' });
+    Object.assign(box.style, { left: `${place.left}px`, top: `${place.top}px`, width: `${place.w}px`, height: `${place.h}px` });
+    if (about) {
+      Object.assign(about.style, { left: `${place.textLeft}px`, top: `${place.textTop}px` });
+      about.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: reduceMotion ? 0 : 500, delay: reduceMotion ? 0 : PROMO_TIME * 0.6, easing: EASE_OUT, fill: 'backwards' });
+    }
+    const time = reduceMotion ? 0 : PROMO_TIME;
+    lockScroll(true);
+    link.style.visibility = 'hidden';
+    box.animate([{ transform: fromThumb(shot, place) }, { transform: 'none' }], { duration: time, easing: EASE_OUT });
+    shade.animate([{ backgroundColor: 'transparent' }, {}], { duration: time, easing: EASE_OUT });
+    shade.focus({ preventScroll: true });
+    // Once it has landed and the promo has loaded, the screenshot fades away to reveal it
+    const landed = new Promise((resolve) => setTimeout(resolve, time));
+    const loaded = new Promise((resolve) => frame.addEventListener('load', resolve, { once: true }));
+    Promise.all([landed, loaded]).then(() => {
+      if (!shade.isConnected) return;
+      still.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduceMotion ? 0 : 250, fill: 'forwards' });
+      // Esc works while the promo has focus too
+      try { frame.contentWindow.addEventListener('keydown', onKey); } catch (e) {}
+    });
+
+    let closing = false;
+    function close() {
+      if (closing) return;
+      closing = true;
+      clearTimeout(watched);
+      removeEventListener('keydown', onKey);
+      still.getAnimations().forEach((a) => a.cancel());
+      still.style.opacity = '1';
+      frame.remove();
+      if (about) about.animate([{ opacity: 1 }, { opacity: 0 }], { duration: time / 2, fill: 'forwards' });
+      box.animate([{ transform: 'none' }, { transform: fromThumb(shot, place) }], { duration: time, easing: EASE_OUT, fill: 'forwards' });
+      shade.animate([{}, { backgroundColor: 'transparent' }], { duration: time, easing: EASE_OUT, fill: 'forwards' })
+        .finished.then(() => {
+          link.style.visibility = '';
+          shade.remove();
+          lockScroll(false);
+          link.focus({ preventScroll: true });
+        });
+    }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    addEventListener('keydown', onKey);
+    shade.addEventListener('click', (e) => { if (!box.contains(e.target) && !(about && about.contains(e.target))) close(); });
+  });
+
   /* ---------- Resume: a preview in the sheet, with the PDF to download or open ---------- */
   document.addEventListener('click', (event) => {
     const link = event.target.closest('a[data-resume]');

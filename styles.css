@@ -65,7 +65,7 @@ html.is-loading body, html.is-locked body { padding-right: var(--scrollbar-width
 html.is-loading .site-header, html.is-locked .site-header { right: var(--scrollbar-width, 0px); }
 
 img { display: block; max-width: 100%; }
-h1, h2, p, figure { margin: 0; }
+h1, h2, h3, p, figure { margin: 0; }
 a { color: inherit; }
 
 /* Theme change: animate colour properties everywhere, only while switching. */
@@ -377,11 +377,99 @@ html.is-loading .wordmark { visibility: hidden; }
 }
 
 /* ---------- Case studies ---------- */
+/* A quiet label over each home section, on a hairline */
+.section-title {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-meta);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+/* Tools I am making: a strip that runs past the column to the window's edges and scrolls sideways.
+   The page clips anything wider than the window, so the strip never makes the page itself scroll. */
+body { overflow-x: clip; }
+.tools { margin-top: 96px; }
+.tools__track {
+  /* The space from the window's edge to the page column, so the first tool lines up with the text */
+  --edge: max(var(--gutter), (100vw - var(--column)) / 2);
+  display: flex;
+  gap: 32px;
+  margin-inline: calc(var(--edge) * -1);
+  padding: 28px var(--edge) 36px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--edge);
+  scrollbar-width: none;
+  outline: none;
+}
+.tools__track::-webkit-scrollbar { display: none; }
+.tools__track:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; }
+.tool {
+  flex: none;
+  /* Half the column; on a phone a little larger than half, so the screen inside stays legible */
+  width: min(320px, 60vw);
+  scroll-snap-align: start;
+  transition: transform 600ms var(--ease-out);
+}
+/* Every other tool tips the other way */
+/* Straight at rest; on hover a tool lifts and tips a little, every other one the other way */
+@media (hover: hover) {
+  .tool:hover { transform: rotate(-2.5deg) translateY(-6px); }
+  .tool:nth-child(even):hover { transform: rotate(2deg) translateY(-6px); }
+}
+/* Every tool sits in the same 16:9 frame; a screenshot of another shape is pinned to the top left and
+   cropped at the right and bottom */
+.tool__shot {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: left top;
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px var(--border), 0 20px 40px -22px rgba(13, 17, 23, 0.35);
+}
+/* Pinned to the top right instead, where the screenshot's edge holds something to read (Slidekick's "Good decks.") */
+.tool__shot--right { object-position: right top; }
+.tool__open { position: relative; display: block; border-radius: 10px; cursor: pointer; text-decoration: none; }
+/* A tool with nothing to open yet: the same frame and label, no link */
+.tool__still { position: relative; display: block; border-radius: 10px; }
+/* The tool's name, on a frosted pill in the screenshot's bottom-left corner */
+.tool__label {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 0 1px var(--border), 0 4px 12px -4px rgba(13, 17, 23, 0.25);
+  color: var(--text);
+  font-family: var(--font-meta);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.tool__open:focus-visible { outline: 2px solid var(--text); outline-offset: 4px; }
+.tool__placeholder {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 2000 / 1125;
+  border: 1.5px dashed var(--border);
+  border-radius: 10px;
+}
+.tool__placeholder .case__soon { margin: 0; }
+@media (prefers-reduced-motion: reduce) { .tool { transition: none; } }
+
 .cases {
   display: flex;
   flex-direction: column;
   gap: 36px;
-  margin-top: 120px;
+  margin-top: 96px;
 }
 
 .case {
@@ -775,6 +863,53 @@ html.is-loading .theme-toggle { opacity: 0; }
   .resume__actions { margin-bottom: 16px; }
 }
 
+/* ---------- Tool promo lightbox (site.js) ---------- */
+/* Like the case study lightboxes: a wash of the page colour, and the tool's 16:9 promo in the middle */
+.promo-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  cursor: zoom-out;
+  outline: none;
+}
+.promo-lightbox__box {
+  position: absolute;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #141414;
+  box-shadow: 0 0 0 1px var(--border), 0 30px 80px -30px rgba(13, 17, 23, 0.45);
+  cursor: auto;
+}
+.promo-lightbox__frame, .promo-lightbox__still {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.promo-lightbox__still { object-fit: cover; pointer-events: none; }
+/* For a promo with its own window frame: no backing, so the frame and its shadow sit on the wash.
+   The screenshot fades out as the promo appears, so it can keep its rounded corners. */
+.promo-lightbox__box--frameless { overflow: visible; border-radius: 0; background: none; box-shadow: none; }
+.promo-lightbox__box--frameless .promo-lightbox__still { border-radius: 12px; }
+/* Its colour scheme has to match the promo's own (the default), or the browser paints the frame an opaque white */
+.promo-lightbox__box--frameless .promo-lightbox__frame { color-scheme: normal; background: transparent; }
+/* The tool's paragraph, in the same style as the intro at the top of the page */
+.promo-lightbox__about {
+  position: absolute;
+  margin: 0;
+  font-size: 18px;
+  line-height: 28px;
+  color: var(--text-intro);
+  cursor: auto;
+}
+@media (max-width: 640px) {
+  .promo-lightbox__box { border-radius: 8px; }
+  .promo-lightbox__about { font-size: 17px; line-height: 26px; }
+}
+
 /* ---------- Password gate ---------- */
 .visually-hidden {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -879,6 +1014,7 @@ html.is-loading .theme-toggle { opacity: 0; }
   .social { width: 44px; height: 44px; }
   /* A little tighter, so LinkedIn, email and resume share one row on most phones */
   .email-copy, .resume-button { gap: 6px; padding: 0 12px 0 10px; }
+  .tools { margin-top: 72px; }
   .cases { margin-top: 76px; gap: 28px; }
   .case { gap: 10px; padding: 20px 0 36px; }
   .case__title { font-size: 29px; }

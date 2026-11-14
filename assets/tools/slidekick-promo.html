@@ -1,0 +1,1833 @@
+<!doctype html>
+<html lang="en" class="promo-standalone"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A standalone animated tour of Slidekick.">
+<title>Slidekick feature promo | H-E-B</title>
+<style>
+/* ===========================================
+   FIXED 16:9 STAGE: MANDATORY BASE STYLES
+   Include this ENTIRE file in every presentation.
+   Slides are authored at 1920×1080 and scaled as a whole.
+   =========================================== */
+
+/* 1. Lock the browser viewport */
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+
+/* 2. Full-window deck viewport */
+.deck-viewport {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+
+/* 3. Fixed 16:9 design canvas.
+   JavaScript sets transform: translate(...) scale(...). */
+.deck-stage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    transform-origin: 0 0;
+    background: var(--slide-bg, #fff);
+}
+
+/* 4. Slides stack inside the fixed stage.
+   Content must be laid out at 1920×1080, not reflowed per device. */
+.slide {
+    position: absolute;
+    inset: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: block;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    background: var(--slide-bg, #fff);
+}
+
+.slide.active,
+.slide.visible {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+
+/* 5. Keep media inside authored slide bounds */
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* 6. Presentation chrome stays outside the slide design system */
+.deck-controls {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+/* 7. Print one fixed-size slide per page */
+@media print {
+    html,
+    body {
+        width: 1920px;
+        height: auto;
+        overflow: visible;
+        background: #fff;
+    }
+
+    .deck-viewport {
+        position: static;
+        overflow: visible;
+        background: #fff;
+    }
+
+    .deck-stage {
+        position: static;
+        width: auto;
+        height: auto;
+        transform: none !important;
+        background: none;
+    }
+
+    .slide {
+        position: relative;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        width: 1920px;
+        height: 1080px;
+        break-after: page;
+        page-break-after: always;
+    }
+
+    .slide:last-child {
+        break-after: auto;
+        page-break-after: auto;
+    }
+
+    .deck-controls {
+        display: none !important;
+    }
+}
+
+/* 8. Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+    }
+}
+
+/* === H-E-B THEME === */
+/* Brand colors follow the CXDL guide. Typography and monochrome logo
+   treatments follow the user's presentation-specific direction. */
+:root {
+    --stage-bg: #141414;
+    --slide-bg: #fff;
+    --primary: #e1251b;
+    --foreground: #323334;
+    --muted: #646668;
+    --surface: #f6f6f6;
+    --line: #dddede;
+    --logo: #000;
+    --on-primary: #fff;
+    --ui-background: #fff;
+    --ui-foreground: #323334;
+    --ui-line: #dddede;
+    --inspector-accent: #8a38f5;
+    --tools-background: #202020;
+    --tools-surface: #2c2c2c;
+    --tools-hover: #363636;
+    --tools-selected: #454545;
+    --tools-foreground: #f5f5f5;
+    --tools-muted: #c2c2c2;
+    --tools-border: #383838;
+    --tools-shadow: 0 12px 32px rgba(0, 0, 0, .22);
+    --font-display: var(--font-body);
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --ease-out: cubic-bezier(.16, 1, .3, 1);
+    --reveal-duration: 550ms;
+}
+.dark {
+    --slide-bg: #323334;
+    --foreground: #fff;
+    --muted: #dddede;
+    --surface: #414244;
+    --line: #737577;
+    --logo: #fff;
+}
+
+/* === FIXED GRID AND TYPE HIERARCHY === */
+* { box-sizing: border-box; }
+body { font-family: var(--font-body); color: var(--foreground); }
+button { font: inherit; }
+.slide { padding: 84px 120px 110px; color: var(--foreground); }
+.slide-header { display: flex; justify-content: space-between; align-items: center; height: 64px; }
+.brand-logo { width: 154px; height: 54px; color: var(--logo); flex: none; overflow: visible; }
+.section-label { font-size: 25px; font-weight: 600; color: var(--muted); }
+.slide-footer { position: absolute; left: 120px; right: 120px; bottom: 64px; display: flex; justify-content: space-between; align-items: center; font-size: 22px; color: var(--muted); }
+.title-footer { justify-content: flex-end; }
+h1, h2, h3, p { margin: 0; }
+h1 { font: 900 124px/1.07 var(--font-display); letter-spacing: -5px; }
+h2 { font: 900 98px/1.12 var(--font-display); letter-spacing: -3.5px; }
+h3 { font: 900 38px/1.25 var(--font-display); letter-spacing: -.5px; }
+.line { display: block; }
+.accent { color: var(--foreground); }
+.lead { font-size: 36px; line-height: 1.5; }
+.kicker { font-size: 27px; font-weight: 700; }
+.content { margin-top: 86px; }
+.title-layout { max-width: 1100px; margin-top: 125px; }
+.title-layout .lead { margin-top: 48px; }
+.number { width: 68px; height: 68px; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--line); font-size: 30px; color: var(--muted); flex: none; }
+.focus { color: var(--foreground); }
+.focus .number { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+
+/* === SPECTRUM OVERVIEW === */
+.overview-title { font-size: 104px; }
+.overhead-spectrum { margin-top: 38px; padding: 24px 32px; background: var(--surface); border-radius: 16px; }
+.axis-horizontal { display: flex; align-items: center; gap: 30px; font-size: 28px; font-weight: 600; color: var(--foreground); }
+.axis-rule { height: 2px; background: var(--muted); flex: 1; position: relative; }
+.axis-rule::after { content: ""; position: absolute; right: 0; top: -6px; width: 12px; height: 12px; border-right: 2px solid var(--muted); border-top: 2px solid var(--muted); transform: rotate(45deg); }
+.methods { display: grid; grid-template-columns: repeat(4, 1fr); gap: 38px; margin-top: 58px; }
+.method { padding: 26px 0 0; border-top: 3px solid var(--line); }
+.method.focus { border-color: var(--primary); color: var(--foreground); }
+.method.focus .method-number { color: var(--foreground); }
+.method-number { display: block; font-size: 72px; line-height: 1; font-weight: 800; color: var(--muted); margin-bottom: 30px; }
+.method h3 { min-height: 104px; }
+.method p { font-size: 29px; line-height: 1.45; margin-top: 20px; color: var(--muted); }
+
+/* === FIGMA COMPARISON === */
+.comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; margin-top: 64px; }
+.comparison-panel { padding: 38px 46px; background: var(--surface); min-height: 330px; }
+.panel-heading { display: flex; align-items: center; gap: 24px; margin-bottom: 30px; }
+.comparison-panel p { font-size: 35px; line-height: 1.5; }
+.comparison-panel .number { border-color: var(--line); background: var(--slide-bg); }
+.personal-note { font-size: 24px; color: var(--muted); margin-top: 28px; }
+
+/* === REAL-DATA STATEMENT === */
+.real-data { display: grid; grid-template-columns: 1140px 440px; gap: 70px; margin-top: 96px; }
+.real-data h2 { font-size: 105px; }
+.data-lines { margin-top: 56px; font-size: 47px; line-height: 1.7; font-weight: 600; }
+.data-lines span { display: block; }
+.large-four { font-size: 540px; font-weight: 800; line-height: .9; letter-spacing: -25px; color: var(--foreground); text-align: center; margin-top: 22px; }
+.dark .real-caption { color: var(--muted); font-size: 29px; margin-top: 35px; text-align: center; }
+
+/* === SCAN YOUR LIST EXPERIENCE === */
+.experience { display: grid; grid-template-columns: 910px 690px; gap: 70px; margin-top: 80px; }
+.experience-summary { font-size: 57px; line-height: 1.35; font-weight: 700; margin-top: 52px; }
+.tradeoff { padding-top: 18px; }
+.tradeoff-row { border-top: 2px solid var(--line); padding: 34px 0 42px; }
+.tradeoff-row .kicker { color: var(--foreground); margin-bottom: 16px; }
+.tradeoff-row p { font-size: 35px; line-height: 1.45; }
+.tradeoff .kicker:first-child { margin-bottom: 35px; }
+
+/* === AI-AGENT OPPORTUNITY AND CLOSING === */
+.copilot { display: grid; grid-template-columns: 1120px 490px; gap: 70px; margin-top: 96px; }
+.copilot .lead { margin-top: 45px; max-width: 1010px; }
+.large-three { font-size: 510px; line-height: .96; font-weight: 800; color: var(--foreground); letter-spacing: -18px; text-align: center; }
+.copilot-label { font-size: 30px; text-align: center; font-weight: 600; margin-top: 30px; }
+.opportunity { margin-top: 90px; }
+.opportunity h2 { font-size: 105px; line-height: 1.16; margin-top: 38px; }
+.opportunity .lead { margin-top: 58px; font-weight: 600; }
+.closing { display: grid; grid-template-columns: 1140px 470px; gap: 70px; margin-top: 100px; }
+.closing h2 { font-size: 119px; line-height: 1.14; }
+.closing .lead { margin-top: 48px; max-width: 1020px; }
+.closing .large-three { font-size: 560px; margin-top: 2px; }
+
+/* === ORCHESTRATED REVEALS === */
+.reveal { opacity: 0; transform: translateY(24px); }
+.slide.visible .reveal { opacity: 1; transform: none; transition: opacity var(--reveal-duration) var(--ease-out), transform var(--reveal-duration) var(--ease-out); }
+.slide.visible .delay-1 { transition-delay: 90ms; }
+.slide.visible .delay-2 { transition-delay: 180ms; }
+.slide.visible .delay-3 { transition-delay: 270ms; }
+.slide.visible .delay-4 { transition-delay: 360ms; }
+@media (prefers-reduced-motion: reduce) {
+    .reveal { transform: none; }
+    .slide.visible .reveal { transition: none; }
+}
+
+/* === NAVIGATION AND INLINE EDITOR === */
+.deck-controls { display: flex; align-items: center; padding: 4px; gap: 4px; background: var(--ui-background); color: var(--ui-foreground); border: 1px solid var(--ui-line); border-radius: 12px; }
+.deck-controls button { border: 0; color: var(--ui-foreground); background: var(--ui-background); min-height: 44px; min-width: 44px; cursor: pointer; border-radius: 8px; }
+.deck-controls button:hover { background: var(--surface); }
+.deck-controls button:disabled { opacity: .35; cursor: default; }
+.deck-controls svg { width: 20px; height: 20px; vertical-align: middle; }
+.page-count { min-width: 54px; text-align: center; font-size: 14px; font-weight: 600; }
+.editor-tools { --tools-duration: 400ms; --tools-fade-delay: 60ms; display: flex; flex-direction: column; position: fixed; top: 16px; left: 16px; z-index: 1101; width: 288px; height: 54px; max-width: calc(100vw - 32px); padding: 14px; overflow: hidden; color: var(--tools-foreground); background: var(--tools-background); border: 1px solid var(--tools-border); border-radius: 18px; box-shadow: var(--tools-shadow); font: 13px/1.4 var(--font-body); }
+.tools-reveal { display: grid; grid-template-rows: 1fr; opacity: 1; visibility: visible; transition: grid-template-rows var(--tools-duration) var(--ease-out), opacity 140ms ease var(--tools-fade-delay), visibility 0s; }
+.tools-reveal > div { min-height: 0; overflow: hidden; }
+.tools-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 15px; font-weight: 600; white-space: nowrap; }
+.tools-header svg { width: 18px; height: 18px; color: var(--tools-muted); }
+.mode-row { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 4px 12px; background: var(--tools-surface); border-radius: 10px; transition: padding var(--tools-duration) var(--ease-out), background 150ms; }
+.mode-row > span { max-width: 80px; overflow: hidden; color: var(--tools-muted); white-space: nowrap; transition: max-width var(--tools-duration) var(--ease-out), opacity 100ms; }
+.mode-control { display: flex; gap: 2px; transition: gap var(--tools-duration) var(--ease-out); }
+.editor-tools button { min-height: 40px; border: 0; border-radius: 8px; padding: 0 13px; color: var(--tools-muted); background: transparent; font: inherit; white-space: nowrap; cursor: pointer; transition: background 150ms, color 150ms; }
+#presentMode { max-width: 94px; min-width: 0; overflow: hidden; transition: max-width var(--tools-duration) var(--ease-out), padding var(--tools-duration) var(--ease-out), opacity 100ms, visibility 0s, background 150ms, color 150ms; }
+.editor-tools button:hover { color: var(--tools-foreground); background: var(--tools-hover); }
+.editor-tools button:active { background: var(--tools-selected); }
+.editor-tools button[aria-pressed="true"] { color: var(--tools-foreground); background: var(--tools-selected); }
+.editor-tools button:focus-visible { outline: 2px solid var(--inspector-accent); outline-offset: 2px; }
+.editor-tools .save-button { display: flex; align-items: center; justify-content: center; gap: 9px; width: 100%; min-height: 44px; margin-top: 10px; color: var(--tools-foreground); background: var(--tools-surface); }
+.save-button svg { width: 16px; height: 16px; }
+.tools-backdrop { position: fixed; inset: 0 auto 0 0; width: 312px; z-index: 1090; background: var(--stage-bg); opacity: 0; pointer-events: none; transition: opacity var(--workspace-duration) var(--ease-smooth-out); }
+.inspecting .tools-backdrop { opacity: 1; }
+.editor-tools:not(.presenting) { top: 12px; left: 12px; height: calc(100dvh - 24px); max-width: none; overflow-y: auto; border-radius: 20px; box-shadow: none; }
+.editor-tools > * { flex-shrink: 0; }
+#toolsEditing { flex: 1 0 auto; }
+#toolsDownload { position: sticky; bottom: 0; z-index: 2; margin-top: auto; padding: 8px 0 14px; background: var(--tools-background); box-shadow: 0 16px 0 var(--tools-background); }
+.editor-tools.presenting #toolsDownload { padding: 0; }
+.tool-section { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--tools-border); }
+.tool-section h2 { font: 600 13px/1.4 var(--font-body); letter-spacing: 0; }
+.selection-hint { margin: 6px 0 12px; color: var(--tools-muted); font-size: 12px; }
+.type-controls { display: grid; gap: 7px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.type-controls label { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; padding: 0 12px; border-radius: 9px; background: var(--tools-surface); color: var(--tools-muted); font-size: 13px; min-width: 0; }
+.type-controls input, .type-controls select { width: 125px; min-width: 0; height: 36px; border: 0; border-radius: 5px; background: transparent; color: var(--tools-foreground); padding: 0 2px; font: 13px var(--font-body); text-align: right; color-scheme: dark; }
+.type-controls input { width: 100px; font-variant-numeric: tabular-nums; }
+.type-controls :focus-visible { outline: 2px solid var(--inspector-accent); outline-offset: 2px; }
+.type-controls:disabled { opacity: .45; }
+.editor-tools button:disabled, .organizer button:disabled { opacity: .4; cursor: default; }
+.editor-tools .undo-button { width: 100%; min-height: 40px; margin-top: 10px; text-align: left; background: var(--tools-surface); }
+.organizer { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--tools-border); color: var(--tools-foreground); font: 12px/1.4 var(--font-body); }
+.organizer[hidden] { display: none; }
+.organizer-top { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
+.organizer-actions { display: flex; gap: 4px; }
+.gallery-hint { margin-bottom: 10px; color: var(--tools-muted); font-size: 11px; }
+.selection-count { color: var(--tools-muted); font-weight: 400; }
+.organizer button { border: 0; color: var(--tools-foreground); background: var(--tools-surface); border-radius: 6px; min-height: 32px; padding: 0 10px; font: inherit; cursor: pointer; }
+.organizer button:hover:not(:disabled) { background: var(--tools-selected); }
+.organizer button:focus-visible { outline: 2px solid var(--inspector-accent); outline-offset: 2px; }
+.slide-strip { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 3px; }
+.slide-item { position: relative; flex: none; max-width: 100%; }
+.organizer .slide-thumb { flex: none; padding: 0; overflow: hidden; border: 2px solid transparent; text-align: left; }
+.organizer .slide-thumb[aria-pressed="true"] { border-color: var(--inspector-accent); }
+.slide-thumb[aria-current="true"] .thumb-caption { font-weight: 600; }
+.thumb-actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 2px; padding: 3px; background: var(--tools-background); border-radius: 8px; }
+.thumb-actions, .thumb-select, .thumb-grip { opacity: 0; pointer-events: none; transition: opacity 150ms; }
+.slide-item:hover .thumb-actions, .slide-item:focus-within .thumb-actions,
+.slide-item:hover .thumb-select, .slide-item:focus-within .thumb-select, .thumb-select:checked,
+.slide-item:hover .thumb-grip, .slide-item:focus-within .thumb-grip { opacity: 1; pointer-events: auto; }
+.organizer .thumb-actions button { display: grid; place-items: center; min-height: 28px; width: 28px; padding: 0; background: transparent; }
+.thumb-actions svg, .thumb-grip svg { width: 16px; height: 16px; pointer-events: none; }
+.thumb-select { position: absolute; top: 12px; left: 12px; width: 18px; height: 18px; margin: 0; accent-color: var(--inspector-accent); cursor: pointer; }
+.thumb-select:focus-visible { outline: 2px solid var(--inspector-accent); outline-offset: 3px; }
+.organizer .thumb-grip { position: absolute; bottom: 4px; right: 4px; width: 28px; min-height: 28px; padding: 0; display: grid; place-items: center; color: var(--tools-muted); background: var(--tools-background); cursor: grab; touch-action: none; }
+.slide-item.dragging { opacity: .35; }
+.slide-item.drop-before::before, .slide-item.drop-after::after { content: ""; position: absolute; left: 0; right: 0; height: 3px; border-radius: 2px; background: var(--inspector-accent); }
+.slide-item.drop-before::before { top: -6px; }
+.slide-item.drop-after::after { bottom: -6px; }
+.slide-drag-preview { position: fixed; z-index: 1300; pointer-events: none; padding: 8px 12px; border: 1px solid var(--inspector-accent); border-radius: 8px; color: var(--tools-foreground); background: var(--tools-background); box-shadow: var(--tools-shadow); font: 600 12px/1.4 var(--font-body); }
+body.dragging-slides { cursor: grabbing; user-select: none; }
+@media (hover: none) {
+    .thumb-actions, .thumb-select, .thumb-grip { opacity: 1; pointer-events: auto; }
+    .organizer .thumb-actions button, .organizer .thumb-grip { min-height: 36px; width: 36px; }
+}
+.thumb-preview { display: block; position: relative; isolation: isolate; width: 244px; height: 137.25px; overflow: hidden; pointer-events: none; background: white; }
+.thumb-preview .slide { width: 1920px; height: 1080px; transform: scale(.1270833333); transform-origin: top left; visibility: visible !important; opacity: 1 !important; }
+.thumb-preview .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+.thumb-caption { display: block; padding: 6px 34px 6px 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 244px; }
+@media (max-width: 700px) {
+    .tools-backdrop { bottom: auto; width: 100%; height: calc(min(190px, 30dvh) + 24px); }
+    .editor-tools:not(.presenting) { right: 12px; width: calc(100vw - 24px); height: min(190px, 30dvh); }
+}
+.editor-tools.presenting { --tools-duration: 350ms; --tools-fade-delay: 0ms; width: 76px; padding: 4px; border-radius: 12px; }
+.editor-tools.presenting .tools-reveal { grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows var(--tools-duration) var(--ease-out), opacity 80ms, visibility 0s 80ms; }
+.editor-tools.presenting .mode-row { justify-content: center; padding: 0; background: transparent; }
+.editor-tools.presenting .mode-row > span { max-width: 0; opacity: 0; }
+.editor-tools.presenting .mode-control { gap: 0; }
+.editor-tools.presenting #presentMode { max-width: 0; padding: 0; opacity: 0; visibility: hidden; }
+.editor-tools.presenting #editMode { min-height: 44px; color: var(--tools-foreground); }
+/* === SELECTION AND WORKSPACE MOTION === */
+:root { --ease-smooth-out: cubic-bezier(.22, 1, .36, 1); }
+body { --workspace-duration: 350ms; }
+body.inspecting { --workspace-duration: 400ms; }
+.motion-ready .deck-stage { transition: transform var(--workspace-duration) var(--ease-smooth-out); }
+.motion-ready .deck-controls { transition: left var(--workspace-duration) var(--ease-smooth-out); }
+.motion-ready .editor-tools { transition: width var(--tools-duration) var(--ease-smooth-out), height var(--tools-duration) var(--ease-smooth-out), top var(--tools-duration) var(--ease-smooth-out), left var(--tools-duration) var(--ease-smooth-out), padding var(--tools-duration) var(--ease-smooth-out), border-radius var(--tools-duration) var(--ease-smooth-out); }
+.tools-reveal, .mode-row, .mode-row > span, .mode-control, #presentMode { transition-timing-function: var(--ease-smooth-out); }
+.typography-reveal { display: grid; grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows 350ms var(--ease-smooth-out), opacity 150ms, visibility 0s 350ms; }
+.typography-reveal > div { min-height: 0; overflow: hidden; }
+.has-text-selection .typography-reveal { grid-template-rows: 1fr; opacity: 1; visibility: visible; transition: grid-template-rows 400ms var(--ease-smooth-out), opacity 250ms var(--ease-smooth-out), visibility 0s; }
+@media (prefers-reduced-motion: reduce) {
+    .deck-stage, .deck-controls, .tools-backdrop, .editor-tools, .editor-tools *, .editor-tools.presenting .tools-reveal { transition: none !important; }
+}
+.inspecting [data-edit] { cursor: text; }
+.inspecting [data-edit]:empty::before { content: "\200b"; }
+.inspecting [data-edit]:empty { min-width: 24px; min-height: 1em; }
+.inspecting span[data-edit]:empty:not(.line) { display: inline-block; }
+.inspecting [data-edit]:focus { outline: none; }
+.inspecting [data-edit]:focus-visible { outline: 1px solid var(--inspector-accent); outline-offset: 3px; }
+[data-edit] { white-space: pre-wrap; }
+[data-edit][contenteditable] { outline: none; }
+.text-inspector { position: fixed; z-index: 1050; border: 1px solid var(--inspector-accent); pointer-events: none; }
+.text-inspector[hidden] { display: none; }
+.text-inspector.selected { border-width: 2px; }
+.inspector-handle { position: absolute; width: 6px; height: 6px; background: var(--ui-background); border: 1px solid var(--inspector-accent); }
+.inspector-handle:nth-child(1) { left: -3px; top: -3px; }
+.inspector-handle:nth-child(2) { right: -3px; top: -3px; }
+.inspector-handle:nth-child(3) { left: -3px; bottom: -3px; }
+.inspector-handle:nth-child(4) { right: -3px; bottom: -3px; }
+.inspector-label { position: fixed; padding: 4px 7px; background: var(--ui-background); color: var(--ui-foreground); border: 1px solid var(--inspector-accent); font: 12px/1.3 var(--font-body); white-space: nowrap; }
+.status { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); z-index: 1200; max-width: calc(100vw - 40px); background: var(--ui-background); color: var(--ui-foreground); padding: 12px 18px; border: 1px solid var(--ui-line); border-radius: 8px; font-size: 14px; opacity: 0; pointer-events: none; }
+.status.show { opacity: 1; }
+button:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+/* === PRINT FINISHING === */
+@media print {
+    @page { size: 1920px 1080px; margin: 0; }
+    body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .slide { padding: 84px 120px 110px; }
+    .reveal { opacity: 1 !important; transform: none !important; }
+    .editor-tools, .tools-backdrop, .organizer, .status, .text-inspector, .slide-drag-preview { display: none !important; }
+    [data-edit] { outline: none !important; }
+}
+
+/* === CLEAN REVEAL: THE SLIDEKICK PRODUCT STORY === */
+:root {
+  --slide-bg:#faf9f6;
+  --foreground:#191919;
+  --muted:#62615d;
+  --stage-bg:#141414;
+}
+.showcase-slide { padding:0; }
+.showcase-brand { position:absolute; top:66px; left:160px; width:140px; height:49px; color:#191919; }
+.showcase-label { position:absolute; top:76px; right:100px; font-size:24px; font-weight:650; letter-spacing:-.3px; }
+.showcase-rule { position:absolute; left:100px; right:100px; top:172px; height:1px; background:#d9d8d3; }
+.showcase-copy { position:absolute; left:100px; top:280px; width:650px; }
+.showcase-copy h1, .showcase-copy h2 { font:850 145px/.99 var(--font-body); letter-spacing:-7px; }
+.showcase-description { margin-top:42px; color:var(--muted); font:400 32px/1.5 var(--font-body); letter-spacing:-.5px; }
+.product-window { position:absolute; left:780px; top:210px; width:1100px; height:750px; overflow:hidden; background:#141414; border-radius:22px; box-shadow:0 36px 80px #0003; }
+.product-frame { position:absolute; inset:0; width:1320px; height:900px; border:0; transform:scale(.8333333333); transform-origin:0 0; pointer-events:none; }
+.product-note { position:absolute; z-index:3; left:680px; top:766px; width:300px; padding:24px 28px; border-radius:14px; border:1px solid #ddd; background:white; color:#242424; box-shadow:0 16px 40px #0002; font-size:20px; line-height:1.5; }
+.product-note strong { display:block; font-size:26px; letter-spacing:-.7px; line-height:1.25; margin-bottom:12px; }
+.scene-hello .product-note strong { color:#792ce1; }
+.showcase-footer { left:100px; right:100px; bottom:64px; color:var(--muted); font-size:22px; }
+.showcase-footer > span:first-child { font-weight:600; color:#242424; }
+.showcase-footer > span:last-child { font-variant-numeric:tabular-nums; }
+.scene-type .showcase-copy { left:1230px; top:270px; width:600px; }
+.scene-type .showcase-copy h2 { font-size:125px; letter-spacing:-6px; }
+.scene-type .product-window { left:100px; top:225px; width:1050px; height:710px; }
+.scene-type .product-frame { width:1320px; height:892.5714px; transform:scale(.7954545455); }
+.scene-type .product-note { left:850px; top:790px; width:330px; }
+.scene-organize .showcase-copy { top:260px; }
+.scene-organize .showcase-copy h2 { font-size:116px; letter-spacing:-5.5px; }
+.scene-organize .showcase-description { font-size:30px; }
+.scene-organize .product-window { left:800px; top:230px; width:1080px; height:720px; }
+.scene-organize .product-frame { width:1320px; height:880px; transform:scale(.8181818182); }
+.scene-organize .product-note { left:690px; top:773px; }
+.scene-present .showcase-copy { left:100px; top:215px; width:1720px; }
+.scene-present .showcase-copy h2 { font-size:110px; letter-spacing:-5px; }
+.scene-present .showcase-description { position:absolute; right:0; top:1px; width:440px; margin:0; font-size:27px; }
+.scene-present .product-window { left:270px; top:390px; width:1380px; height:560px; }
+.scene-present .product-frame { width:1478.5714px; height:600px; transform:scale(.9333333333); }
+.scene-takeaway .showcase-copy { top:280px; width:700px; }
+.scene-takeaway .showcase-copy h2 { font-size:124px; letter-spacing:-6px; }
+.scene-takeaway .product-window { left:860px; top:220px; width:1020px; height:730px; }
+.scene-takeaway .product-frame { width:1257.5342px; height:900px; transform:scale(.8111111111); }
+.scene-takeaway .product-note { left:100px; top:790px; width:520px; padding:24px 28px; }
+.scene-takeaway .product-note strong { color:#191919; }
+.scene-takeaway .product-note::after { content:""; position:absolute; left:100%; top:75%; width:240px; height:1px; background:#aaa79f; }
+.scene-promo { --promo-ink:#fff; --promo-surface:#202020; --promo-ground:#141414; --promo-outline:#74736f; }
+.scene-promo h2.showcase-label { font:650 30px/1.3 var(--font-body); letter-spacing:-.6px; }
+.scene-promo .promo-viewport { position:absolute; top:210px; left:100px; width:1720px; height:760px; overflow:hidden; border-radius:20px; background:var(--promo-ground); }
+.scene-promo .promo-camera { position:absolute; left:0; top:0; width:1440px; height:636.279px; transform-origin:0 0; transform:scale(1.194444444); }
+.scene-promo .promo-frame { width:1440px; height:636.279px; transform:none; }
+.scene-promo .promo-cursor { position:absolute; top:0; left:0; width:32px; height:32px; z-index:20; pointer-events:none; opacity:0; }
+.scene-promo .promo-cursor svg { position:absolute; left:-13px; top:-9.1px; max-width:none; transform:scale(1.3); transform-origin:0 0; filter:drop-shadow(0 1px 2px #0005); }
+.scene-promo .promo-cursor.pressed svg { transform:scale(1.1); }
+.scene-promo .promo-file { position:absolute; right:40px; bottom:40px; padding:24px 30px; border-radius:14px; color:var(--promo-ink); background:var(--promo-surface); box-shadow:0 12px 40px #0005; opacity:0; transform:translateY(16px); pointer-events:none; }
+.scene-promo .promo-file strong { display:block; font-size:26px; letter-spacing:-.4px; }
+.scene-promo .promo-file span { display:block; margin-top:6px; font-size:22px; color:var(--tools-muted); }
+.scene-promo .promo-playback { display:flex; gap:8px; margin-left:auto; margin-right:40px; }
+.scene-promo .promo-playback button { border:1px solid var(--promo-outline); border-radius:30px; padding:8px 20px; color:var(--foreground); background:transparent; font:500 19px/1.2 var(--font-body); cursor:pointer; }
+.scene-promo .promo-playback button:hover { background:var(--surface); }
+.scene-promo .promo-playback button:focus-visible { outline:3px solid var(--inspector-accent); outline-offset:4px; }
+.scene-promo .promo-footer { bottom:55px; align-items:center; }
+/* The step captions are left out on the portfolio; the script still writes them, so they stay in place, hidden */
+.scene-promo .promo-step { display:none; }
+.thumb-preview .promo-cursor, .thumb-preview .promo-file, .thumb-preview .promo-playback { visibility:hidden; }
+.editor-tools.presenting { top:12px; left:12px; }
+.promo-standalone .deck-controls, .promo-standalone #editorTools, .promo-standalone .tools-backdrop { display:none !important; }
+.showcase-slide .reveal { opacity:0; transform:translateY(16px); transition:opacity 650ms var(--ease-smooth-out), transform 650ms var(--ease-smooth-out); }
+.showcase-slide.visible .reveal { opacity:1; transform:none; }
+.thumb-preview .showcase-slide .reveal { opacity:1; transform:none; }
+@media(prefers-reduced-motion:reduce) {
+  .showcase-slide .reveal { transition:none; transform:none; }
+}
+@media print {
+  .showcase-slide .reveal { opacity:1 !important; transform:none !important; }
+}
+
+/* === PORTFOLIO: THE ANIMATION ALONE ===
+   The slide around the animation is left out, and the stage takes the animation's own 1720 x 760 size,
+   so the page fits it edge to edge. */
+.promo-standalone .deck-stage, .promo-standalone .scene-promo { width:1720px; height:760px; padding:0; }
+.promo-standalone .scene-promo .promo-viewport { top:0; left:0; border-radius:0; }
+.promo-standalone .scene-promo .showcase-brand,
+.promo-standalone .scene-promo .showcase-label,
+.promo-standalone .scene-promo .showcase-rule,
+.promo-standalone .scene-promo .promo-footer { display:none; }
+</style>
+</head>
+<body>
+<!-- === AUTHENTIC LOGO ASSET ===
+     Vector geometry from the user-supplied H-E-B racetrack SVG.
+     The registered mark and original proportions are preserved.
+     Counter shapes follow the slide background for monochrome reversal. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs><symbol id="heb-logo" viewBox="0 0 536.27 186.24">
+<path d="M93.12,186.24C41.69,186.24,0,144.55,0,93.12S41.69,0,93.12,0h350.03c51.43,0,93.12,41.69,93.12,93.12s-41.69,93.12-93.12,93.12H93.12z" fill="currentColor"></path>
+<path d="M93.12,174.19c-44.76,0-81.05-36.29-81.05-81.05s36.29-81.05,81.05-81.05h350.03c44.76,0,81.05,36.29,81.05,81.05s-36.29,81.05-81.05,81.05H93.12z" fill="var(--slide-bg)"></path>
+<path d="M444.94,24.11L91.3,24.13c-37.07,0-67.2,30.95-67.16,69.07c0,37.93,30.16,68.88,67.16,68.88l353.63-0.07c37.1-0.03,67.15-30.89,67.2-68.85C512.09,54.96,482.04,24.11,444.94,24.11z" fill="currentColor"></path>
+<polygon points="224.21,132.23 312.31,132.23 313.07,119.25 256.89,119.25 256.89,104.41 301.7,104.41 301.7,89.33 256.89,89.33 256.89,73.25 315.81,73.24 316.96,53.95 219.56,53.95" fill="var(--slide-bg)"></polygon>
+<polygon points="132.46,53.95 132.46,89.33 108.6,89.33 108.6,53.95 71.27,53.95 75.92,132.23 108.6,132.23 108.6,104.41 132.46,104.41 132.46,132.23 165.14,132.23 169.79,53.95" fill="var(--slide-bg)"></polygon>
+<path d="M448.52,97.02c9.9-2.83,16.49-8.59,16.49-20.67c0.03-13.82-11.06-22.4-25.29-22.4h-73.28l4.65,78.29h64.06c27.98,0,26.39-18.8,26.39-18.8C461.54,105.48,456.21,98.83,448.52,97.02z M417.5,119.24h-13.71v-14.83l13.22,0c7.23,0,11.09,2.31,11.09,7.48C428.11,116.83,424.61,119.24,417.5,119.24z M418.56,89.33h-14.77V73.25l14.25,0c7.85,0,12.03,2.5,12.03,8.11C430.07,86.71,426.28,89.33,418.56,89.33z" fill="var(--slide-bg)"></path>
+<polygon points="182.76,89.33 183.66,104.41 205.69,104.41 206.59,89.33" fill="var(--slide-bg)"></polygon>
+<polygon points="329.64,89.33 330.54,104.41 352.57,104.41 353.47,89.33" fill="var(--slide-bg)"></polygon>
+<path d="M528.34,170.77c0-2.46-1.46-3.54-4.4-3.54h-4.74v12.44h1.88v-5.39h2.17l3.28,5.39h2.11l-3.54-5.48C526.94,173.97,528.34,173,528.34,170.77z M521.09,172.69v-3.86h2.57c1.31,0,2.71,0.29,2.71,1.83c0,1.92-1.43,2.03-3.03,2.03H521.09z" fill="currentColor"></path>
+<path d="M523.37,162.67c-5.93,0-10.96,4.57-10.96,10.76c0,6.24,5.02,10.81,10.96,10.81c5.88,0,10.9-4.57,10.9-10.81C534.27,167.23,529.25,162.67,523.37,162.67z M523.37,182.45c-4.93,0-8.79-3.83-8.79-9.02c0-5.11,3.85-8.96,8.79-8.96c4.88,0,8.73,3.85,8.73,8.96C532.1,178.62,528.25,182.45,523.37,182.45z" fill="currentColor"></path>
+</symbol></defs>
+</svg>
+
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage" aria-label="Slidekick feature promo" style="transform: translate(0px, 113.84375px) scale(0.715104);"><section class="slide showcase-slide scene-promo active visible" aria-label="See Slidekick in action." aria-hidden="false" data-slide-id="slide-5" data-template-id="slide-5">
+  <svg class="showcase-brand" role="img" aria-label="H-E-B"><use href="#heb-logo"></use></svg>
+  <h2 class="showcase-label" data-edit="sk-promo-title" data-base-edit="sk-promo-title">See Slidekick in action.</h2>
+  <div class="showcase-rule" aria-hidden="true"></div>
+  <div class="promo-demo" aria-label="An animated walkthrough from the four prototyping approaches to typography, slide duplication, and HTML download">
+    <div class="promo-viewport" role="img" aria-label="An animated walkthrough from the four prototyping approaches to typography, slide duplication, and HTML download">
+      <div class="promo-camera" style="transform: translate(120px, -1026.19345px) scale(2.15);">
+        <iframe class="product-frame promo-frame" data-scene="promo" title="An animated walkthrough from the four prototyping approaches to typography, slide duplication, and HTML download" tabindex="-1" aria-hidden="true" inert=""></iframe>
+        <div class="promo-cursor" aria-hidden="true" style="opacity: 1; transform: translate(246.355816px, 749.266295px);"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><g transform="translate(10 7)"><path d="m6.148 18.473 1.863-1.003 1.615-.839-2.568-4.816h4.332l-11.379-11.408v16.015l3.316-3.221z" fill="#fff"></path><path d="m6.431 17 1.765-.941-2.775-5.202h3.604l-8.025-8.043v11.188l2.53-2.442z" fill="#000"></path></g></svg></div>
+      </div>
+      <div class="promo-file" aria-hidden="true" style="opacity: 0; transform: translateY(16px);"><strong>heb-ai-prototyping.html</strong><span>Your deck. Ready to go.</span></div>
+    </div>
+    <footer class="slide-footer showcase-footer promo-footer"><span class="promo-step" aria-live="off">One HTML file. The whole deck.</span><div class="promo-playback"><button type="button" class="promo-pause" aria-label="Pause demo">Pause</button><button type="button" class="promo-replay">Replay</button></div></footer>
+  </div>
+</section></main>
+</div>
+
+<!-- === NON-SLIDE CONTROLS === -->
+<nav class="deck-controls" aria-label="Slide navigation" style="left: 686.5px;">
+<button id="previousSlide" aria-label="Previous slide" title="Previous slide (Left arrow)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m14 6-6 6 6 6"></path></svg></button>
+<span class="page-count" id="pageCount" aria-live="polite">5 / 6</span>
+<button id="nextSlide" aria-label="Next slide" title="Next slide (Right arrow or Space)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m10 6 6 6-6 6"></path></svg></button>
+</nav>
+<div class="tools-backdrop" aria-hidden="true"></div>
+<aside class="editor-tools presenting" id="editorTools" aria-label="Slidekick presentation tools">
+<div class="tools-reveal" id="toolsHeading" inert="" aria-hidden="true"><div><div class="tools-header"><span>Slidekick</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path><path d="M9 3v6M15 9v6M9 15v6"></path></svg></div></div></div>
+<div class="mode-row"><span id="modeLabel" inert="" aria-hidden="true">Mode</span><div class="mode-control" role="group" aria-label="Presentation mode"><button id="editMode" title="Inspect and edit text (E)" aria-pressed="false" aria-expanded="false" aria-controls="toolsHeading modeLabel presentMode toolsDownload">Edit</button><button id="presentMode" title="Present without the text inspector (E)" aria-pressed="true" inert="" aria-hidden="true">Present</button></div></div>
+<div class="tools-reveal" id="toolsEditing" inert="" aria-hidden="true"><div>
+<button class="undo-button" id="undoButton" disabled="" title="Undo the last change (Command or Control + Z)">↶ Undo</button>
+<div class="typography-reveal" id="typographyReveal" inert="" aria-hidden="true"><div>
+<section class="tool-section" aria-labelledby="typographyTitle">
+<h2 id="typographyTitle">Typography</h2>
+<p class="selection-hint" id="selectionHint">Select a text block on the slide.</p>
+<fieldset class="type-controls" id="typeControls" disabled="" aria-label="Selected text typography">
+<label>Size (px)<input id="typeSize" type="number" min="8" max="240" step="1"></label>
+<label>Weight<select id="typeWeight"><option value="400">Regular</option><option value="500">Medium</option><option value="600">Semibold</option><option value="700">Bold</option><option value="800">Extra bold</option><option value="900">Heavy</option></select></label>
+<label>Line height<input id="typeLineHeight" type="number" min="0.8" max="3" step="0.05"></label>
+<label>Alignment<select id="typeAlign"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></label>
+</fieldset>
+</section>
+</div></div>
+<section class="organizer" id="slideOrganizer" aria-label="Slide organizer" hidden="">
+<div class="organizer-top"><strong>Slides <span class="selection-count" id="slideSelectionCount">· 1 selected</span></strong><div class="organizer-actions">
+<button id="duplicateSlide">Duplicate</button><button id="deleteSlide" title="Delete 1 selected slide">Delete</button>
+</div></div>
+<p class="gallery-hint" id="slideGalleryHint">Drag to reorder. Shift-click for a range.<br>⌘/Ctrl-click or use checkboxes to select more.</p>
+<div class="slide-strip" id="slideStrip" role="group" aria-label="Choose slides" aria-describedby="slideGalleryHint"></div>
+</section>
+</div></div>
+<div class="tools-reveal" id="toolsDownload" inert="" aria-hidden="true"><div><button class="save-button" id="saveButton" title="Download your edited HTML file (Ctrl+S or Command+S)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 16v5h16v-5"></path></svg><span>Download HTML</span></button></div></div>
+</aside>
+<p class="status" id="status" role="status" aria-live="polite" style="left: 686.5px;"></p>
+<div class="text-inspector" id="textInspector" hidden="" aria-hidden="true"><span class="inspector-handle"></span><span class="inspector-handle"></span><span class="inspector-handle"></span><span class="inspector-handle"></span><span class="inspector-label" id="inspectorLabel"></span></div>
+<p class="sr-only">Hover over a headline or paragraph to inspect its entire text block, then click to edit. Use Typography in the panel to adjust the selected block. Press Enter within a block to add a line break. Click outside to save in this browser. Tab to text and press Enter to edit with the keyboard. Escape finishes editing. Press E to toggle the inspector. In presentation mode, tap Edit to expand the tools again. The Slides row selects, reorders, duplicates, and deletes slides. Undo reverses changes made during this session; Control or Command and Z also works outside form controls. Use the arrow keys or Space to navigate when not editing. Swipe horizontally on touch screens. Press Control or Command and S to download your edited presentation.</p>
+
+<script>
+/* === STATUS AND ERROR REPORTING === */
+const statusElement = document.getElementById("status");
+let statusTimeout;
+function notify(message, isError = false) {
+    clearTimeout(statusTimeout);
+    statusElement.textContent = message;
+    statusElement.classList.add("show");
+    if (isError) console.error(message);
+    statusTimeout = setTimeout(() => statusElement.classList.remove("show"), isError ? 9000 : 4500);
+}
+
+/* === PRESENTATION CONTROLLER === */
+class SlidePresentation {
+    constructor() {
+        this.slides = [...document.querySelectorAll(".slide")];
+        this.stage = document.getElementById("deckStage");
+        this.currentSlide = 0;
+        this.wheelTotal = 0;
+        this.lastWheel = 0;
+        this.lastWheelNavigation = 0;
+        this.touchStart = null;
+        this.transitionFrame = null;
+        this.previous = document.getElementById("previousSlide");
+        this.next = document.getElementById("nextSlide");
+        this.previous.addEventListener("click", () => this.showSlide(this.currentSlide - 1));
+        this.next.addEventListener("click", () => this.showSlide(this.currentSlide + 1));
+        addEventListener("resize", () => this.fit());
+        addEventListener("hashchange", () => this.showSlide(this.indexFromHash()));
+        this.setupInput();
+        this.fit();
+        this.showSlide(this.indexFromHash());
+    }
+    fit() {
+        const editing = document.body.classList.contains("inspecting");
+        const sideDock = editing && innerWidth > 700;
+        const left = sideDock ? 328 : 0;
+        const top = editing && !sideDock ? Math.min(190, innerHeight * .3) + 40 : 0;
+        const width = Math.max(1, innerWidth - left);
+        const height = Math.max(1, innerHeight - top);
+        const stageWidth = this.stage.offsetWidth || 1920, stageHeight = this.stage.offsetHeight || 1080;
+        const factor = Math.min(width / stageWidth, height / stageHeight);
+        this.stage.style.transform = `translate(${left + (width - stageWidth * factor) / 2}px, ${top + (height - stageHeight * factor) / 2}px) scale(${factor})`;
+        document.querySelector(".deck-controls").style.left = `${left + width / 2}px`;
+        statusElement.style.left = `${left + width / 2}px`;
+    }
+    indexFromHash() {
+        const match = location.hash.match(/^#slide-(\d+)$/);
+        return match ? Number(match[1]) - 1 : 0;
+    }
+    showSlide(index) {
+        this.currentSlide = Math.max(0, Math.min(index, this.slides.length - 1));
+        if (document.activeElement?.closest(".slide")) document.activeElement.blur();
+        cancelAnimationFrame(this.transitionFrame);
+        this.slides.forEach((slide, i) => {
+            const selected = i === this.currentSlide;
+            slide.classList.toggle("active", selected);
+            slide.classList.remove("visible");
+            slide.setAttribute("aria-hidden", String(!selected));
+            slide.inert = !selected;
+        });
+        this.transitionFrame = requestAnimationFrame(() => {
+            this.stage.offsetWidth;
+            this.slides[this.currentSlide].classList.add("visible");
+        });
+        this.previous.disabled = this.currentSlide === 0;
+        this.next.disabled = this.currentSlide === this.slides.length - 1;
+        document.getElementById("pageCount").textContent = `${this.currentSlide + 1} / ${this.slides.length}`;
+        if (location.hash !== `#slide-${this.currentSlide + 1}`) location.hash = `slide-${this.currentSlide + 1}`;
+        document.dispatchEvent(new Event("slidechange"));
+    }
+    isInteractive(target) {
+        return target instanceof Element && Boolean(target.closest("button, a, input, select, textarea, [contenteditable], .editor-tools, .organizer"));
+    }
+    setupInput() {
+        document.addEventListener("keydown", event => {
+            if (event.ctrlKey || event.metaKey || event.altKey) return;
+            const target = event.target instanceof Element ? event.target : null;
+            if (target?.closest("a, input, select, textarea, [contenteditable], .organizer, .editor-tools")) return;
+            if (target?.closest("[data-edit]") && event.key === " ") return;
+            if (event.key === " " && target?.closest("button")) return;
+            const nextKeys = ["ArrowRight", "ArrowDown", " ", "PageDown"];
+            const previousKeys = ["ArrowLeft", "ArrowUp", "PageUp"];
+            if (nextKeys.includes(event.key)) {
+                event.preventDefault();
+                this.showSlide(this.currentSlide + 1);
+            } else if (previousKeys.includes(event.key)) {
+                event.preventDefault();
+                this.showSlide(this.currentSlide - 1);
+            } else if (event.key === "Home" || event.key === "End") {
+                event.preventDefault();
+                this.showSlide(event.key === "Home" ? 0 : this.slides.length - 1);
+            }
+        });
+        document.addEventListener("wheel", event => {
+            if (document.body.classList.contains("editing") || this.isInteractive(event.target) || event.ctrlKey) return;
+            event.preventDefault();
+            const now = performance.now();
+            if (now - this.lastWheel > 180) this.wheelTotal = 0;
+            this.lastWheel = now;
+            if (now - this.lastWheelNavigation < 650) return;
+            const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+            this.wheelTotal += delta * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? innerHeight : 1);
+            if (Math.abs(this.wheelTotal) < 60) return;
+            this.showSlide(this.currentSlide + Math.sign(this.wheelTotal));
+            this.wheelTotal = 0;
+            this.lastWheelNavigation = now;
+        }, { passive: false });
+        this.stage.addEventListener("touchstart", event => {
+            if (event.touches.length !== 1 || this.isInteractive(event.target)) { this.touchStart = null; return; }
+            const touch = event.touches[0];
+            this.touchStart = { x: touch.clientX, y: touch.clientY };
+        }, { passive: true });
+        this.stage.addEventListener("touchend", event => {
+            if (!this.touchStart || document.body.classList.contains("editing")) return;
+            const touch = event.changedTouches[0];
+            const dx = touch.clientX - this.touchStart.x;
+            const dy = touch.clientY - this.touchStart.y;
+            this.touchStart = null;
+            if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) this.showSlide(this.currentSlide + (dx < 0 ? 1 : -1));
+        }, { passive: true });
+        this.stage.addEventListener("touchcancel", () => { this.touchStart = null; }, { passive: true });
+    }
+}
+
+/* === PLAIN-TEXT EDITING AND LOCAL RESTORE === */
+class InlineEditor {
+    constructor() {
+        this.isActive = false;
+        this.activeField = null;
+        this.inspectedField = null;
+        this.dirty = false;
+        this.inspectorFrame = null;
+        this.fields = [...presentation.stage.querySelectorAll("[data-edit]")];
+        this.storageKey = `heb-ai-prototyping-v1:${location.pathname}`;
+        this.tools = document.getElementById("editorTools");
+        this.expandedControls = [...this.tools.querySelectorAll(".tools-reveal, #modeLabel, #presentMode")];
+        this.editButton = document.getElementById("editMode");
+        this.presentButton = document.getElementById("presentMode");
+        this.saveButton = document.getElementById("saveButton");
+        this.inspector = document.getElementById("textInspector");
+        this.inspectorLabel = document.getElementById("inspectorLabel");
+        const savedContent = this.restore();
+        this.groupTextBlocks(savedContent);
+        this.editButton.addEventListener("click", () => this.setMode(true));
+        this.presentButton.addEventListener("click", () => this.setMode(false));
+        this.saveButton.addEventListener("click", () => this.saveFile());
+        presentation.stage.addEventListener("input", event => {
+            if (event.target.matches("[data-edit]")) {
+                this.dirty = true;
+                this.persist();
+            }
+        });
+        presentation.stage.addEventListener("focusout", event => {
+            if (this.activeField === event.target) this.finishEditing();
+        });
+        presentation.stage.addEventListener("focusin", event => {
+            if (this.isActive && event.target.matches("[data-edit]")) this.inspect(event.target);
+        });
+        presentation.stage.addEventListener("click", event => {
+            const field = event.target.closest("[data-edit]");
+            if (this.isActive && field) this.beginEditing(field);
+        });
+        document.addEventListener("pointermove", event => {
+            if (!this.isActive || this.activeField || event.pointerType === "touch") return;
+            const field = event.target instanceof Element ? event.target.closest(".slide.active [data-edit]") : null;
+            this.inspect(field);
+        });
+        document.documentElement.addEventListener("pointerleave", () => {
+            if (!this.activeField) this.inspect(null);
+        });
+        document.addEventListener("pointerdown", event => {
+            if (!this.isActive || event.button !== 0) return;
+            const field = event.target instanceof Element ? event.target.closest(".slide.active [data-edit]") : null;
+            if (this.activeField && !this.activeField.contains(event.target)) this.finishEditing();
+            if (field || event.pointerType === "touch" || !this.inspectedField) return;
+            const rect = this.inspector.getBoundingClientRect();
+            if (event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom) {
+                event.preventDefault();
+                this.beginEditing(this.inspectedField);
+            } else {
+                this.inspect(null);
+            }
+        }, true);
+        document.addEventListener("keydown", event => {
+            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
+                event.preventDefault();
+                if (!event.repeat) this.saveFile();
+                return;
+            }
+            if (event.ctrlKey || event.metaKey || event.altKey) return;
+            if (event.target.closest("input, select, textarea")) return;
+            if (event.key === "Escape" && this.activeField) {
+                event.preventDefault();
+                this.finishEditing();
+            } else if (event.key === "Escape" && this.isActive) {
+                event.preventDefault();
+                this.toggleMode();
+            } else if ((event.key === "Enter" || event.key === " ") && this.isActive && !this.activeField && event.target.matches("[data-edit]")) {
+                event.preventDefault();
+                this.beginEditing(event.target);
+            } else if (event.key.toLowerCase() === "e" && !event.target.isContentEditable && !event.target.closest("input, textarea")) {
+                event.preventDefault();
+                this.toggleMode();
+            }
+        });
+        this.setMode(false, false);
+    }
+    restore() {
+        try {
+            const raw = localStorage.getItem(this.storageKey);
+            if (!raw) return {};
+            const content = JSON.parse(raw);
+            if (!content || typeof content !== "object" || Array.isArray(content)) throw new Error("Invalid saved presentation data.");
+            this.fields.forEach(field => {
+                const text = content[field.dataset.edit];
+                if (typeof text === "string") field.textContent = text;
+            });
+            return content;
+        } catch (error) {
+            console.error("Presentation restore failed:", error);
+            notify("Saved edits could not be restored. The HTML file’s text is still available.", true);
+            return {};
+        }
+    }
+    groupTextBlocks(savedContent) {
+        // Migrate the original line-by-line fields without losing saved edits.
+        presentation.stage.querySelectorAll(".slide h1, .slide h2, .slide h3, .slide p").forEach(block => {
+            if (block.hasAttribute("data-edit")) return;
+            const lines = [...block.children];
+            if (!lines.length || !lines.every(line => line.matches("[data-edit]"))) return;
+            const key = `block-${lines[0].dataset.edit}`;
+            const savedText = savedContent[key];
+            block.dataset.edit = key;
+            block.textContent = typeof savedText === "string" ? savedText : lines.map(line => line.textContent).join("\n");
+        });
+        this.fields = [...presentation.stage.querySelectorAll("[data-edit]")];
+    }
+    fieldText(field) {
+        return field.isContentEditable ? field.innerText : field.textContent;
+    }
+    toggleMode(announce = true) {
+        this.setMode(!this.isActive, announce);
+    }
+    setMode(active, announce = true) {
+        active = active && !document.documentElement.classList.contains("promo-standalone");
+        const returnFocus = !active && this.tools.contains(document.activeElement);
+        this.finishEditing();
+        this.isActive = active;
+        document.body.classList.toggle("inspecting", this.isActive);
+        this.tools.classList.toggle("presenting", !this.isActive);
+        this.expandedControls.forEach(element => {
+            element.inert = !this.isActive;
+            element.setAttribute("aria-hidden", String(!this.isActive));
+        });
+        this.editButton.setAttribute("aria-pressed", String(this.isActive));
+        this.editButton.setAttribute("aria-expanded", String(this.isActive));
+        this.presentButton.setAttribute("aria-pressed", String(!this.isActive));
+        if (returnFocus) this.editButton.focus({ preventScroll: true });
+        this.fields.forEach(field => {
+            if (this.isActive) field.tabIndex = 0;
+            else field.removeAttribute("tabindex");
+        });
+        if (!this.isActive) this.inspect(null);
+        document.getElementById("slideOrganizer").hidden = !this.isActive;
+        presentation.fit();
+        document.dispatchEvent(new Event("editmodechange"));
+        if (announce) notify(this.isActive ? "Hover to inspect a whole text block. Click to edit. Click outside to save." : "Presentation mode. Press E to inspect text.");
+    }
+    inspect(field) {
+        this.inspectedField = field;
+        cancelAnimationFrame(this.inspectorFrame);
+        this.inspector.hidden = !field;
+        if (!field) return;
+        const position = () => {
+            if (!field.closest(".slide.active")) {
+                this.finishEditing();
+                this.inspect(null);
+                return;
+            }
+            const rect = field.getBoundingClientRect();
+            const scale = document.getElementById("deckStage").getBoundingClientRect().width / 1920;
+            this.inspector.style.left = `${rect.left - 3}px`;
+            this.inspector.style.top = `${rect.top - 3}px`;
+            this.inspector.style.width = `${rect.width + 6}px`;
+            this.inspector.style.height = `${rect.height + 6}px`;
+            this.inspector.classList.toggle("selected", field === this.activeField);
+            const type = field.matches("h1, h2, h3") ? "Headline" : field.matches("p") ? "Paragraph" : "Text";
+            this.inspectorLabel.textContent = this.activeField ? `Editing ${type.toLowerCase()} · click outside to save` : `${type} · ${Math.round(rect.width / scale)} × ${Math.round(rect.height / scale)} · click to edit`;
+            const labelWidth = this.inspectorLabel.offsetWidth;
+            this.inspectorLabel.style.left = `${Math.max(4, Math.min(rect.left - 3, innerWidth - labelWidth - 4))}px`;
+            this.inspectorLabel.style.top = `${Math.max(4, rect.top - this.inspectorLabel.offsetHeight - 7)}px`;
+            this.inspectorFrame = requestAnimationFrame(position);
+        };
+        position();
+    }
+    beginEditing(field) {
+        if (this.activeField === field) return;
+        this.finishEditing();
+        this.activeField = field;
+        document.dispatchEvent(new CustomEvent("textselect", { detail: field }));
+        this.dirty = false;
+        field.setAttribute("contenteditable", "plaintext-only");
+        document.body.classList.add("editing");
+        field.focus({ preventScroll: true });
+        this.inspect(field);
+    }
+    finishEditing() {
+        if (!this.activeField) return;
+        const field = this.activeField;
+        this.activeField = null;
+        const changed = this.dirty;
+        if (changed && this.persist()) notify("Text saved in this browser.");
+        field.textContent = this.fieldText(field);
+        this.dirty = false;
+        field.removeAttribute("contenteditable");
+        if (document.activeElement === field) field.blur();
+        document.body.classList.remove("editing");
+        this.inspect(null);
+        if (changed) document.dispatchEvent(new Event("deckcommit"));
+    }
+    persist() {
+        try {
+            const content = Object.fromEntries(this.fields.map(field => [field.dataset.edit, this.fieldText(field)]));
+            localStorage.setItem(this.storageKey, JSON.stringify(content));
+            document.dispatchEvent(new Event("deckchange"));
+            return true;
+        } catch (error) {
+            console.error("Presentation auto-save failed:", error);
+            notify("Browser auto-save is unavailable. Use Download HTML to keep your changes.", true);
+            return false;
+        }
+    }
+    saveFile(onlySlide = null) {
+        try {
+            const copy = document.documentElement.cloneNode(true);
+            copy.classList.remove("motion-ready");
+            copy.querySelector("#slideStrip").replaceChildren();
+            copy.querySelector("body").classList.remove("editing", "inspecting", "dragging-slides");
+            copy.querySelectorAll(".slide-drag-preview").forEach(element => element.remove());
+            copy.querySelectorAll("#deckStage [data-edit]").forEach((field, index) => {
+                field.textContent = this.fieldText(this.fields[index]);
+                field.removeAttribute("contenteditable");
+                field.removeAttribute("tabindex");
+            });
+            const inspector = copy.querySelector("#textInspector");
+            inspector.hidden = true;
+            inspector.classList.remove("selected");
+            inspector.removeAttribute("style");
+            copy.querySelector("#inspectorLabel").textContent = "";
+            copy.querySelector("#inspectorLabel").removeAttribute("style");
+            copy.querySelector("#editorTools").classList.add("presenting");
+            copy.querySelector("#editorTools").classList.remove("has-text-selection");
+            copy.querySelectorAll("#editorTools .tools-reveal, #modeLabel, #presentMode").forEach(element => {
+                element.inert = true;
+                element.setAttribute("aria-hidden", "true");
+            });
+            copy.querySelector("#typographyReveal").inert = true;
+            copy.querySelector("#typographyReveal").setAttribute("aria-hidden", "true");
+            copy.querySelector("#editMode").setAttribute("aria-pressed", "false");
+            copy.querySelector("#editMode").setAttribute("aria-expanded", "false");
+            copy.querySelector("#presentMode").setAttribute("aria-pressed", "true");
+            copy.querySelector("#slideOrganizer").hidden = true;
+            copy.querySelector("#status").classList.remove("show");
+            copy.querySelector("#status").textContent = "";
+            if (onlySlide) preparePromoExport(copy, onlySlide);
+            const blob = new Blob(["<!doctype html>\n", copy.outerHTML], { type: "text/html;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = onlySlide || copy.classList.contains("promo-standalone") ? "slidekick-promo.html" : "slidekick-showcase.html";
+            document.body.append(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 10000);
+            notify("Your edited HTML download is ready.");
+        } catch (error) {
+            console.error("Presentation HTML export failed:", error);
+            notify("The HTML download failed. Your changes are still open in this browser.", true);
+        }
+    }
+}
+
+/* === SLIDE ORGANIZATION, TYPOGRAPHY, AND UNDO === */
+class DesignTools {
+    constructor() {
+        this.storageKey = `heb-ai-prototyping-tools-v1:${location.pathname}`;
+        this.templates = new Map();
+        this.selectedField = null;
+        this.selectedSlides = new Set();
+        this.selectionAnchor = null;
+        this.history = [];
+        this.applying = false;
+        this.typeControls = document.getElementById("typeControls");
+        this.undoButton = document.getElementById("undoButton");
+        this.strip = document.getElementById("slideStrip");
+        this.typography = {
+            fontSize: document.getElementById("typeSize"),
+            fontWeight: document.getElementById("typeWeight"),
+            lineHeight: document.getElementById("typeLineHeight"),
+            textAlign: document.getElementById("typeAlign")
+        };
+        presentation.slides.forEach((slide, index) => {
+            slide.dataset.slideId ||= `slide-${index + 1}`;
+            slide.dataset.templateId ||= slide.dataset.slideId;
+            slide.querySelectorAll("[data-edit]").forEach(field => { field.dataset.baseEdit ||= field.dataset.edit; });
+            if (!this.templates.has(slide.dataset.templateId)) this.templates.set(slide.dataset.templateId, slide.cloneNode(true));
+        });
+        const initial = this.snapshot();
+        try {
+            const raw = localStorage.getItem(this.storageKey);
+            if (raw) this.apply(JSON.parse(raw));
+        } catch (error) {
+            console.error("Design tools restore failed:", error);
+            this.apply(initial);
+            notify("Slide organization or typography could not be restored. Your HTML content is still available.", true);
+        }
+        this.history = [this.snapshot()];
+        this.activeSlideId = presentation.slides[presentation.currentSlide].dataset.slideId;
+        this.undoButton.addEventListener("click", () => this.undo());
+        document.addEventListener("textselect", event => this.selectText(event.detail));
+        document.addEventListener("click", event => {
+            if (!editor.isActive || event.target.closest("#editorTools, #deckStage [data-edit]")) return;
+            editor.finishEditing();
+            editor.inspect(null);
+            this.selectText(null);
+        });
+        document.addEventListener("slidechange", () => {
+            if (!this.selectedField?.closest(".slide.active")) this.selectText(null);
+            const id = presentation.slides[presentation.currentSlide].dataset.slideId;
+            if (!this.gallerySelecting && id !== this.activeSlideId) {
+                this.selectedSlides = new Set([id]);
+                this.selectionAnchor = id;
+            }
+            this.activeSlideId = id;
+            this.render();
+        });
+        document.addEventListener("editmodechange", () => {
+            if (!editor.isActive) {
+                this.endDrag(false);
+                this.selectText(null);
+            }
+            this.render();
+        });
+        document.addEventListener("deckchange", () => {
+            if (this.applying) return;
+            this.persist();
+            this.undoButton.disabled = this.history.length < 2 && !editor.dirty;
+            cancelAnimationFrame(this.previewFrame);
+            this.previewFrame = requestAnimationFrame(() => this.render());
+        });
+        document.addEventListener("deckcommit", () => this.commit());
+        document.addEventListener("keydown", event => {
+            if ((event.metaKey || event.ctrlKey) && !event.shiftKey && event.key.toLowerCase() === "z" && !event.target.closest("input,select,textarea")) {
+                event.preventDefault();
+                if (!event.repeat) this.undo();
+            }
+        }, true);
+        Object.entries(this.typography).forEach(([property, input]) => {
+            input.addEventListener("change", () => this.changeType(property, input));
+        });
+        document.getElementById("duplicateSlide").addEventListener("click", () => this.organize("duplicate"));
+        document.getElementById("deleteSlide").addEventListener("click", () => this.organize("delete"));
+        if (!this.selectedSlides.size) {
+            const id = presentation.slides[presentation.currentSlide].dataset.slideId;
+            this.selectedSlides.add(id);
+            this.selectionAnchor = id;
+        }
+        this.setupDragging();
+        this.selectText(null);
+        this.render();
+    }
+    snapshot() {
+        return {
+            current: presentation.slides[presentation.currentSlide].dataset.slideId,
+            slides: presentation.slides.map(slide => ({
+                id: slide.dataset.slideId,
+                template: slide.dataset.templateId,
+                fields: [...slide.querySelectorAll("[data-edit]")].map(field => ({
+                    key: field.dataset.baseEdit,
+                    text: editor.fieldText(field),
+                    styles: Object.fromEntries(["fontSize", "fontWeight", "lineHeight", "textAlign"].map(name => [name, field.style[name]]))
+                }))
+            }))
+        };
+    }
+    apply(state) {
+        if (!state || !Array.isArray(state.slides) || !state.slides.length) throw new Error("Invalid saved slides.");
+        const ids = new Set();
+        const slides = state.slides.map(item => {
+            if (!item || typeof item.id !== "string" || ids.has(item.id) || !this.templates.has(item.template) || !Array.isArray(item.fields)) throw new Error("Invalid slide definition.");
+            ids.add(item.id);
+            const slide = this.templates.get(item.template).cloneNode(true);
+            slide.dataset.slideId = item.id;
+            slide.dataset.templateId = item.template;
+            slide.querySelectorAll("[id]").forEach((node, index) => { node.id = `${item.id}-node-${index}`; });
+            slide.setAttribute("aria-label", `Slide ${ids.size}`);
+            slide.removeAttribute("aria-labelledby");
+            const fields = new Map(item.fields.map(field => [field.key, field]));
+            slide.querySelectorAll("[data-edit]").forEach(field => {
+                const saved = fields.get(field.dataset.baseEdit);
+                if (!saved || typeof saved.text !== "string") throw new Error("Invalid saved text.");
+                field.dataset.edit = `${item.id}:${field.dataset.baseEdit}`;
+                field.textContent = saved.text;
+                field.removeAttribute("contenteditable");
+                field.removeAttribute("tabindex");
+                for (const name of ["fontSize", "fontWeight", "lineHeight", "textAlign"]) {
+                    const value = saved.styles?.[name];
+                    if (typeof value !== "string" || (value && !CSS.supports(name.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`), value))) throw new Error("Invalid typography setting.");
+                    field.style[name] = value;
+                }
+            });
+            return slide;
+        });
+        this.applying = true;
+        editor.finishEditing();
+        presentation.stage.replaceChildren(...slides);
+        presentation.slides = slides;
+        slides.forEach((slide, index) => {
+            const number = slide.querySelector(".slide-footer > span:last-child");
+            if (number && !number.hasAttribute("data-edit")) number.textContent = String(index + 1).padStart(2, "0");
+        });
+        editor.fields = [...presentation.stage.querySelectorAll("[data-edit]")];
+        editor.fields.forEach(field => { if (editor.isActive) field.tabIndex = 0; });
+        this.selectText(null);
+        this.selectedSlides = new Set([...this.selectedSlides].filter(id => ids.has(id)));
+        if (!this.selectedSlides.size) this.selectedSlides.add(ids.has(state.current) ? state.current : slides[0].dataset.slideId);
+        if (!ids.has(this.selectionAnchor)) this.selectionAnchor = [...this.selectedSlides][0];
+        this.gallerySelecting = true;
+        presentation.showSlide(Math.max(0, slides.findIndex(slide => slide.dataset.slideId === state.current)));
+        this.gallerySelecting = false;
+        this.applying = false;
+    }
+    persist() {
+        try {
+            localStorage.setItem(this.storageKey, JSON.stringify(this.snapshot()));
+            return true;
+        } catch (error) {
+            console.error("Design tools auto-save failed:", error);
+            notify("Slide changes could not be saved in this browser. Download HTML to keep them.", true);
+            return false;
+        }
+    }
+    commit() {
+        if (this.applying) return;
+        const state = this.snapshot();
+        if (JSON.stringify(state.slides) !== JSON.stringify(this.history.at(-1)?.slides)) {
+            this.history.push(state);
+            if (this.history.length > 50) this.history.shift();
+        }
+        this.undoButton.disabled = this.history.length < 2;
+        this.persist();
+        this.render();
+    }
+    undo() {
+        editor.finishEditing();
+        if (this.history.length < 2) return;
+        this.history.pop();
+        this.apply(this.history.at(-1));
+        this.persist();
+        this.undoButton.disabled = this.history.length < 2;
+        this.render();
+        notify("Last change undone.");
+    }
+    selectText(field) {
+        this.selectedField = field;
+        const reveal = document.getElementById("typographyReveal");
+        document.getElementById("editorTools").classList.toggle("has-text-selection", Boolean(field));
+        reveal.inert = !field;
+        reveal.setAttribute("aria-hidden", String(!field));
+        this.typeControls.disabled = !field;
+        document.getElementById("selectionHint").textContent = field
+            ? `${field.matches("h1,h2,h3") ? "Headline" : field.matches("p") ? "Paragraph" : "Text"} selected`
+            : "Select a text block on the slide.";
+        if (!field) {
+            Object.values(this.typography).forEach(input => { input.value = ""; });
+            return;
+        }
+        const style = getComputedStyle(field);
+        this.typography.fontSize.value = Math.round(parseFloat(style.fontSize));
+        this.typography.fontWeight.value = style.fontWeight;
+        this.typography.lineHeight.value = (parseFloat(style.lineHeight) / parseFloat(style.fontSize) || 1.2).toFixed(2);
+        this.typography.textAlign.value = ["center", "right"].includes(style.textAlign) ? style.textAlign : "left";
+    }
+    changeType(property, input) {
+        const field = this.selectedField;
+        if (!field || !editor.isActive) return;
+        if (!input.checkValidity() || input.value === "") {
+            input.reportValidity();
+            notify("Enter a typography value within the displayed range.", true);
+            return;
+        }
+        editor.finishEditing();
+        field.style[property] = property === "fontSize" ? `${input.value}px` : input.value;
+        this.commit();
+        this.selectText(field);
+        editor.inspect(field);
+    }
+    selectSlide(id, event = {}) {
+        const ids = presentation.slides.map(slide => slide.dataset.slideId);
+        const index = ids.indexOf(id);
+        if (index < 0) return;
+        if (event.shiftKey && ids.includes(this.selectionAnchor)) {
+            const anchor = ids.indexOf(this.selectionAnchor);
+            const range = ids.slice(Math.min(anchor, index), Math.max(anchor, index) + 1);
+            this.selectedSlides = new Set(event.metaKey || event.ctrlKey ? [...this.selectedSlides, ...range] : range);
+        } else if (event.metaKey || event.ctrlKey) {
+            if (this.selectedSlides.has(id)) this.selectedSlides.delete(id);
+            else this.selectedSlides.add(id);
+            this.selectionAnchor = id;
+        } else {
+            this.selectedSlides = new Set([id]);
+            this.selectionAnchor = id;
+        }
+        if (this.selectedSlides.has(id)) {
+            this.gallerySelecting = true;
+            presentation.showSlide(index);
+            this.gallerySelecting = false;
+        } else this.render();
+    }
+    organize(action, ids = this.selectedSlides) {
+        editor.finishEditing();
+        const state = this.snapshot();
+        const targets = new Set(ids);
+        const indices = state.slides.flatMap((slide, index) => targets.has(slide.id) ? [index] : []);
+        if (!indices.length) return;
+        if (action === "duplicate") {
+            const copies = [];
+            let currentCopy;
+            state.slides = state.slides.flatMap(slide => {
+                if (!targets.has(slide.id)) return [slide];
+                const copy = JSON.parse(JSON.stringify(slide));
+                copy.id = `slide-${crypto.randomUUID()}`;
+                copies.push(copy.id);
+                if (slide.id === state.current) currentCopy = copy.id;
+                return [slide, copy];
+            });
+            state.current = currentCopy || copies[0];
+            this.selectedSlides = new Set(copies);
+            this.selectionAnchor = state.current;
+        } else if (action === "delete") {
+            if (indices.length === state.slides.length) {
+                notify("Keep at least one slide in the presentation.", true);
+                return;
+            }
+            state.slides = state.slides.filter(slide => !targets.has(slide.id));
+            if (targets.has(state.current)) state.current = state.slides[Math.min(indices[0], state.slides.length - 1)].id;
+            this.selectedSlides = new Set([...this.selectedSlides].filter(id => !targets.has(id)));
+        }
+        this.apply(state);
+        this.commit();
+    }
+    reorderSlides(ids, targetId, before) {
+        editor.finishEditing();
+        const state = this.snapshot();
+        const moving = new Set(ids);
+        const group = state.slides.filter(slide => moving.has(slide.id));
+        const rest = state.slides.filter(slide => !moving.has(slide.id));
+        const index = rest.findIndex(slide => slide.id === targetId);
+        if (index < 0 || !group.length) return;
+        rest.splice(index + (before ? 0 : 1), 0, ...group);
+        if (rest.every((slide, i) => slide.id === state.slides[i].id)) return;
+        state.slides = rest;
+        this.selectedSlides = new Set(group.map(slide => slide.id));
+        this.apply(state);
+        this.commit();
+        notify(`${group.length === 1 ? "Slide" : `${group.length} slides`} moved.`);
+    }
+    setupDragging() {
+        addEventListener("pointerdown", event => {
+            if (event.target.closest(".slide-item")) this.galleryPointerId = event.pointerId;
+        }, true);
+        const releaseGalleryPointer = event => {
+            if (this.galleryPointerId !== event.pointerId) return;
+            this.galleryPointerId = null;
+            if (this.galleryRenderPending) requestAnimationFrame(() => this.render());
+        };
+        addEventListener("pointerup", releaseGalleryPointer, true);
+        addEventListener("pointercancel", releaseGalleryPointer, true);
+        this.strip.addEventListener("click", event => {
+            if (performance.now() < (this.suppressGalleryClickUntil || 0)) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+            }
+        }, true);
+        this.strip.addEventListener("pointerdown", event => {
+            const row = event.target.closest(".slide-item");
+            if (!row || event.button !== 0 || event.target.closest(".thumb-actions, .thumb-select")) return;
+            if (event.pointerType === "touch" && !event.target.closest(".thumb-grip")) return;
+            this.drag = { id: row.dataset.slideId, pointerId: event.pointerId, x: event.clientX, y: event.clientY, startX: event.clientX, startY: event.clientY, active: false };
+        });
+        addEventListener("pointermove", event => {
+            const drag = this.drag;
+            if (!drag || drag.pointerId !== event.pointerId) return;
+            drag.x = event.clientX;
+            drag.y = event.clientY;
+            if (!drag.active && Math.hypot(drag.x - drag.startX, drag.y - drag.startY) > 6) {
+                editor.finishEditing();
+                if (!this.selectedSlides.has(drag.id)) this.selectedSlides = new Set([drag.id]);
+                drag.ids = [...this.selectedSlides];
+                drag.active = true;
+                this.strip.setPointerCapture(event.pointerId);
+                document.body.classList.add("dragging-slides");
+                this.dragPreview = document.createElement("div");
+                this.dragPreview.className = "slide-drag-preview";
+                this.dragPreview.setAttribute("aria-hidden", "true");
+                this.dragPreview.textContent = `${drag.ids.length} ${drag.ids.length === 1 ? "slide" : "slides"}`;
+                document.body.append(this.dragPreview);
+                this.strip.querySelectorAll(".slide-item").forEach(row => row.classList.toggle("dragging", this.selectedSlides.has(row.dataset.slideId)));
+                this.dragFrame = requestAnimationFrame(() => this.updateDrag());
+            }
+            if (drag.active) event.preventDefault();
+        }, { passive: false });
+        addEventListener("pointerup", event => {
+            if (this.drag?.pointerId === event.pointerId) this.endDrag(true);
+        });
+        addEventListener("pointercancel", event => {
+            if (this.drag?.pointerId === event.pointerId) this.endDrag(false);
+        });
+        addEventListener("blur", () => {
+            this.galleryPointerId = null;
+            this.endDrag(false);
+            if (this.galleryRenderPending) this.render();
+        });
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape" && this.drag) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                this.endDrag(false);
+            }
+        }, true);
+        this.strip.addEventListener("keydown", event => {
+            const row = event.target.closest(".slide-item");
+            if (!row || !event.altKey || !["ArrowUp", "ArrowDown"].includes(event.key)) return;
+            event.preventDefault();
+            const id = row.dataset.slideId;
+            if (!this.selectedSlides.has(id)) this.selectedSlides = new Set([id]);
+            const ids = presentation.slides.map(slide => slide.dataset.slideId);
+            const selectedIndices = ids.flatMap((value, index) => this.selectedSlides.has(value) ? [index] : []);
+            const up = event.key === "ArrowUp";
+            const target = ids[up ? selectedIndices[0] - 1 : selectedIndices.at(-1) + 1];
+            if (target) this.reorderSlides(this.selectedSlides, target, up);
+        });
+    }
+    updateDrag() {
+        const drag = this.drag;
+        if (!drag?.active) return;
+        const panel = document.getElementById("editorTools");
+        const bounds = panel.getBoundingClientRect();
+        const footerTop = document.getElementById("toolsDownload").getBoundingClientRect().top;
+        const inside = drag.x >= bounds.left && drag.x <= bounds.right && drag.y >= bounds.top && drag.y <= footerTop;
+        if (inside) {
+            if (drag.y < bounds.top + 44) panel.scrollTop -= Math.min(16, (bounds.top + 44 - drag.y) / 3);
+            if (drag.y > footerTop - 44) panel.scrollTop += Math.min(16, (drag.y - footerTop + 44) / 3);
+        }
+        this.dragPreview.style.left = `${drag.x + 12}px`;
+        this.dragPreview.style.top = `${drag.y + 12}px`;
+        const rows = [...this.strip.children].filter(row => !this.selectedSlides.has(row.dataset.slideId));
+        this.strip.querySelectorAll(".drop-before, .drop-after").forEach(row => row.classList.remove("drop-before", "drop-after"));
+        drag.target = null;
+        const stripBounds = this.strip.getBoundingClientRect();
+        if (inside && drag.y >= Math.max(bounds.top, stripBounds.top) && rows.length) {
+            let target = rows.find(row => {
+                const rect = row.getBoundingClientRect();
+                return drag.y < rect.top + rect.height / 2;
+            });
+            const before = Boolean(target);
+            target ||= rows.at(-1);
+            target.classList.add(before ? "drop-before" : "drop-after");
+            drag.target = { id: target.dataset.slideId, before };
+        }
+        this.dragFrame = requestAnimationFrame(() => this.updateDrag());
+    }
+    endDrag(drop) {
+        const drag = this.drag;
+        if (!drag) return;
+        this.drag = null;
+        this.galleryPointerId = null;
+        cancelAnimationFrame(this.dragFrame);
+        if (!drag.active) return;
+        if (this.strip.hasPointerCapture(drag.pointerId)) this.strip.releasePointerCapture(drag.pointerId);
+        this.dragPreview.remove();
+        document.body.classList.remove("dragging-slides");
+        this.strip.querySelectorAll(".dragging, .drop-before, .drop-after").forEach(row => row.classList.remove("dragging", "drop-before", "drop-after"));
+        this.suppressGalleryClickUntil = performance.now() + 400;
+        if (drop && drag.target) this.reorderSlides(drag.ids, drag.target.id, drag.target.before);
+        else this.render();
+    }
+    render() {
+        if (!this.strip || this.drag?.active) return;
+        if (this.galleryPointerId != null) {
+            this.galleryRenderPending = true;
+            return;
+        }
+        this.galleryRenderPending = false;
+        const focusedRow = document.activeElement?.closest(".slide-item");
+        const focusedId = focusedRow?.dataset.slideId;
+        const focusedControl = document.activeElement?.dataset.control;
+        this.strip.replaceChildren();
+        presentation.slides.forEach((slide, index) => {
+            const id = slide.dataset.slideId;
+            const row = document.createElement("div");
+            row.className = "slide-item";
+            row.dataset.slideId = id;
+            const button = document.createElement("button");
+            button.className = "slide-thumb";
+            button.dataset.control = "thumbnail";
+            button.setAttribute("aria-current", String(index === presentation.currentSlide));
+            button.setAttribute("aria-pressed", String(this.selectedSlides.has(id)));
+            const title = slide.querySelector("h1,h2")?.textContent.replace(/\s+/g, " ").trim() || "Untitled slide";
+            button.setAttribute("aria-label", `Slide ${index + 1}: ${title}`);
+            const preview = document.createElement("span");
+            preview.className = "thumb-preview";
+            preview.setAttribute("aria-hidden", "true");
+            const clone = slide.cloneNode(true);
+            clone.inert = true;
+            clone.querySelectorAll("[id], [data-edit], [contenteditable], [tabindex]").forEach(node => {
+                if (node.hasAttribute("data-edit")) node.style.whiteSpace = "pre-wrap";
+                for (const attr of ["id", "data-edit", "data-base-edit", "contenteditable", "tabindex", "aria-labelledby"]) node.removeAttribute(attr);
+            });
+            clone.classList.add("active", "visible");
+            preview.append(clone);
+            const caption = document.createElement("span");
+            caption.className = "thumb-caption";
+            caption.textContent = `${index + 1}. ${title}`;
+            button.append(preview, caption);
+            button.addEventListener("click", event => this.selectSlide(id, event));
+            button.addEventListener("keydown", event => {
+                if (event.key === " " && !event.altKey) {
+                    event.preventDefault();
+                    this.selectSlide(id, { ctrlKey: true, shiftKey: event.shiftKey });
+                }
+            });
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.className = "thumb-select";
+            checkbox.dataset.control = "select";
+            checkbox.checked = this.selectedSlides.has(id);
+            checkbox.setAttribute("aria-label", `Select slide ${index + 1}`);
+            checkbox.addEventListener("change", () => this.selectSlide(id, { ctrlKey: true }));
+            const actions = document.createElement("div");
+            actions.className = "thumb-actions";
+            for (const [action, label, icon] of [
+                ["duplicate", "Duplicate", '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>'],
+                ["delete", "Delete", '<path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/>']
+            ]) {
+                const actionButton = document.createElement("button");
+                actionButton.dataset.control = action;
+                actionButton.title = `${label} slide ${index + 1}`;
+                actionButton.setAttribute("aria-label", actionButton.title);
+                actionButton.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icon}</svg>`;
+                actionButton.disabled = action === "delete" && presentation.slides.length === 1;
+                actionButton.addEventListener("click", () => this.organize(action, [id]));
+                actions.append(actionButton);
+            }
+            const grip = document.createElement("button");
+            grip.className = "thumb-grip";
+            grip.dataset.control = "grip";
+            grip.title = "Drag to reorder. Alt + Up/Down also moves selected slides.";
+            grip.setAttribute("aria-label", `Reorder slide ${index + 1}. Use Alt + ArrowUp or ArrowDown.`);
+            grip.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>';
+            row.append(button, checkbox, actions, grip);
+            this.strip.append(row);
+        });
+        const count = this.selectedSlides.size;
+        document.getElementById("slideSelectionCount").textContent = count ? `· ${count} selected` : "";
+        document.getElementById("duplicateSlide").disabled = count === 0;
+        document.getElementById("deleteSlide").disabled = count === 0 || count === presentation.slides.length;
+        document.getElementById("deleteSlide").title = count === presentation.slides.length ? "Keep at least one slide in the presentation" : `Delete ${count} selected ${count === 1 ? "slide" : "slides"}`;
+        if (focusedId) {
+            const row = [...this.strip.children].find(item => item.dataset.slideId === focusedId) || this.strip.children[presentation.currentSlide];
+            row?.querySelector(`[data-control="${focusedControl || "thumbnail"}"]`)?.focus({ preventScroll: true });
+        }
+    }
+}
+
+/* === STARTUP === */
+const presentation = new SlidePresentation();
+const editor = new InlineEditor();
+const designTools = new DesignTools();
+requestAnimationFrame(() => requestAnimationFrame(() => document.documentElement.classList.add("motion-ready")));
+</script>
+<script>
+
+/* === REAL PRODUCT SHOTS: ISOLATED, SELF-CONTAINED EXAMPLES === */
+const slidekickProductHTML = "\u003c!doctype html>\n\u003chtml lang=\"en\">\n\u003chead>\n\u003cmeta charset=\"utf-8\">\n\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\u003cmeta name=\"description\" content=\"An idea for more approachable AI-agent prototyping, without working inside a product codebase.\">\n\u003ctitle>An idea for better prototyping | H-E-B\u003c/title>\n\u003cstyle>\n/* ===========================================\n   FIXED 16:9 STAGE: MANDATORY BASE STYLES\n   Include this ENTIRE file in every presentation.\n   Slides are authored at 1920×1080 and scaled as a whole.\n   =========================================== */\n\n/* 1. Lock the browser viewport */\nhtml,\nbody {\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    overflow: hidden;\n    background: var(--stage-bg, #000);\n}\n\n/* 2. Full-window deck viewport */\n.deck-viewport {\n    position: fixed;\n    inset: 0;\n    overflow: hidden;\n    background: var(--stage-bg, #000);\n}\n\n/* 3. Fixed 16:9 design canvas.\n   JavaScript sets transform: translate(...) scale(...). */\n.deck-stage {\n    position: absolute;\n    left: 0;\n    top: 0;\n    width: 1920px;\n    height: 1080px;\n    overflow: hidden;\n    transform-origin: 0 0;\n    background: var(--slide-bg, #fff);\n}\n\n/* 4. Slides stack inside the fixed stage.\n   Content must be laid out at 1920×1080, not reflowed per device. */\n.slide {\n    position: absolute;\n    inset: 0;\n    width: 1920px;\n    height: 1080px;\n    overflow: hidden;\n    display: block;\n    visibility: hidden;\n    opacity: 0;\n    pointer-events: none;\n    background: var(--slide-bg, #fff);\n}\n\n.slide.active,\n.slide.visible {\n    visibility: visible;\n    opacity: 1;\n    pointer-events: auto;\n    z-index: 1;\n}\n\n/* 5. Keep media inside authored slide bounds */\nimg,\nvideo,\ncanvas,\nsvg {\n    max-width: 100%;\n    max-height: 100%;\n}\n\n/* 6. Presentation chrome stays outside the slide design system */\n.deck-controls {\n    position: fixed;\n    left: 50%;\n    bottom: 22px;\n    transform: translateX(-50%);\n    z-index: 1000;\n}\n\n/* 7. Print one fixed-size slide per page */\n@media print {\n    html,\n    body {\n        width: 1920px;\n        height: auto;\n        overflow: visible;\n        background: #fff;\n    }\n\n    .deck-viewport {\n        position: static;\n        overflow: visible;\n        background: #fff;\n    }\n\n    .deck-stage {\n        position: static;\n        width: auto;\n        height: auto;\n        transform: none !important;\n        background: none;\n    }\n\n    .slide {\n        position: relative;\n        display: block !important;\n        visibility: visible !important;\n        opacity: 1 !important;\n        pointer-events: auto !important;\n        width: 1920px;\n        height: 1080px;\n        break-after: page;\n        page-break-after: always;\n    }\n\n    .slide:last-child {\n        break-after: auto;\n        page-break-after: auto;\n    }\n\n    .deck-controls {\n        display: none !important;\n    }\n}\n\n/* 8. Reduced motion */\n@media (prefers-reduced-motion: reduce) {\n    *,\n    *::before,\n    *::after {\n        animation-duration: 0.01ms !important;\n        transition-duration: 0.2s !important;\n    }\n}\n\n/* === H-E-B THEME === */\n/* Brand colors follow the CXDL guide. Typography and monochrome logo\n   treatments follow the user's presentation-specific direction. */\n:root {\n    --stage-bg: #141414;\n    --slide-bg: #fff;\n    --primary: #e1251b;\n    --foreground: #323334;\n    --muted: #646668;\n    --surface: #f6f6f6;\n    --line: #dddede;\n    --logo: #000;\n    --on-primary: #fff;\n    --ui-background: #fff;\n    --ui-foreground: #323334;\n    --ui-line: #dddede;\n    --inspector-accent: #8a38f5;\n    --tools-background: #202020;\n    --tools-surface: #2c2c2c;\n    --tools-hover: #363636;\n    --tools-selected: #454545;\n    --tools-foreground: #f5f5f5;\n    --tools-muted: #c2c2c2;\n    --tools-border: #383838;\n    --tools-shadow: 0 12px 32px rgba(0, 0, 0, .22);\n    --font-display: var(--font-body);\n    --font-body: -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;\n    --ease-out: cubic-bezier(.16, 1, .3, 1);\n    --reveal-duration: 550ms;\n}\n.dark {\n    --slide-bg: #323334;\n    --foreground: #fff;\n    --muted: #dddede;\n    --surface: #414244;\n    --line: #737577;\n    --logo: #fff;\n}\n\n/* === FIXED GRID AND TYPE HIERARCHY === */\n* { box-sizing: border-box; }\nbody { font-family: var(--font-body); color: var(--foreground); }\nbutton { font: inherit; }\n.slide { padding: 84px 120px 110px; color: var(--foreground); }\n.slide-header { display: flex; justify-content: space-between; align-items: center; height: 64px; }\n.brand-logo { width: 154px; height: 54px; color: var(--logo); flex: none; overflow: visible; }\n.section-label { font-size: 25px; font-weight: 600; color: var(--muted); }\n.slide-footer { position: absolute; left: 120px; right: 120px; bottom: 64px; display: flex; justify-content: space-between; align-items: center; font-size: 22px; color: var(--muted); }\n.title-footer { justify-content: flex-end; }\nh1, h2, h3, p { margin: 0; }\nh1 { font: 900 124px/1.07 var(--font-display); letter-spacing: -5px; }\nh2 { font: 900 98px/1.12 var(--font-display); letter-spacing: -3.5px; }\nh3 { font: 900 38px/1.25 var(--font-display); letter-spacing: -.5px; }\n.line { display: block; }\n.accent { color: var(--foreground); }\n.lead { font-size: 36px; line-height: 1.5; }\n.kicker { font-size: 27px; font-weight: 700; }\n.content { margin-top: 86px; }\n.title-layout { max-width: 1100px; margin-top: 125px; }\n.title-layout .lead { margin-top: 48px; }\n.number { width: 68px; height: 68px; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--line); font-size: 30px; color: var(--muted); flex: none; }\n.focus { color: var(--foreground); }\n.focus .number { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }\n\n/* === SPECTRUM OVERVIEW === */\n.overview-title { font-size: 104px; }\n.overhead-spectrum { margin-top: 38px; padding: 24px 32px; background: var(--surface); border-radius: 16px; }\n.axis-horizontal { display: flex; align-items: center; gap: 30px; font-size: 28px; font-weight: 600; color: var(--foreground); }\n.axis-rule { height: 2px; background: var(--muted); flex: 1; position: relative; }\n.axis-rule::after { content: \"\"; position: absolute; right: 0; top: -6px; width: 12px; height: 12px; border-right: 2px solid var(--muted); border-top: 2px solid var(--muted); transform: rotate(45deg); }\n.methods { display: grid; grid-template-columns: repeat(4, 1fr); gap: 38px; margin-top: 58px; }\n.method { padding: 26px 0 0; border-top: 3px solid var(--line); }\n.method.focus { border-color: var(--primary); color: var(--foreground); }\n.method.focus .method-number { color: var(--foreground); }\n.method-number { display: block; font-size: 72px; line-height: 1; font-weight: 800; color: var(--muted); margin-bottom: 30px; }\n.method h3 { min-height: 104px; }\n.method p { font-size: 29px; line-height: 1.45; margin-top: 20px; color: var(--muted); }\n\n/* === FIGMA COMPARISON === */\n.comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; margin-top: 64px; }\n.comparison-panel { padding: 38px 46px; background: var(--surface); min-height: 330px; }\n.panel-heading { display: flex; align-items: center; gap: 24px; margin-bottom: 30px; }\n.comparison-panel p { font-size: 35px; line-height: 1.5; }\n.comparison-panel .number { border-color: var(--line); background: var(--slide-bg); }\n.personal-note { font-size: 24px; color: var(--muted); margin-top: 28px; }\n\n/* === REAL-DATA STATEMENT === */\n.real-data { display: grid; grid-template-columns: 1140px 440px; gap: 70px; margin-top: 96px; }\n.real-data h2 { font-size: 105px; }\n.data-lines { margin-top: 56px; font-size: 47px; line-height: 1.7; font-weight: 600; }\n.data-lines span { display: block; }\n.large-four { font-size: 540px; font-weight: 800; line-height: .9; letter-spacing: -25px; color: var(--foreground); text-align: center; margin-top: 22px; }\n.dark .real-caption { color: var(--muted); font-size: 29px; margin-top: 35px; text-align: center; }\n\n/* === SCAN YOUR LIST EXPERIENCE === */\n.experience { display: grid; grid-template-columns: 910px 690px; gap: 70px; margin-top: 80px; }\n.experience-summary { font-size: 57px; line-height: 1.35; font-weight: 700; margin-top: 52px; }\n.tradeoff { padding-top: 18px; }\n.tradeoff-row { border-top: 2px solid var(--line); padding: 34px 0 42px; }\n.tradeoff-row .kicker { color: var(--foreground); margin-bottom: 16px; }\n.tradeoff-row p { font-size: 35px; line-height: 1.45; }\n.tradeoff .kicker:first-child { margin-bottom: 35px; }\n\n/* === AI-AGENT OPPORTUNITY AND CLOSING === */\n.copilot { display: grid; grid-template-columns: 1120px 490px; gap: 70px; margin-top: 96px; }\n.copilot .lead { margin-top: 45px; max-width: 1010px; }\n.large-three { font-size: 510px; line-height: .96; font-weight: 800; color: var(--foreground); letter-spacing: -18px; text-align: center; }\n.copilot-label { font-size: 30px; text-align: center; font-weight: 600; margin-top: 30px; }\n.opportunity { margin-top: 90px; }\n.opportunity h2 { font-size: 105px; line-height: 1.16; margin-top: 38px; }\n.opportunity .lead { margin-top: 58px; font-weight: 600; }\n.closing { display: grid; grid-template-columns: 1140px 470px; gap: 70px; margin-top: 100px; }\n.closing h2 { font-size: 119px; line-height: 1.14; }\n.closing .lead { margin-top: 48px; max-width: 1020px; }\n.closing .large-three { font-size: 560px; margin-top: 2px; }\n\n/* === ORCHESTRATED REVEALS === */\n.reveal { opacity: 0; transform: translateY(24px); }\n.slide.visible .reveal { opacity: 1; transform: none; transition: opacity var(--reveal-duration) var(--ease-out), transform var(--reveal-duration) var(--ease-out); }\n.slide.visible .delay-1 { transition-delay: 90ms; }\n.slide.visible .delay-2 { transition-delay: 180ms; }\n.slide.visible .delay-3 { transition-delay: 270ms; }\n.slide.visible .delay-4 { transition-delay: 360ms; }\n@media (prefers-reduced-motion: reduce) {\n    .reveal { transform: none; }\n    .slide.visible .reveal { transition: none; }\n}\n\n/* === NAVIGATION AND INLINE EDITOR === */\n.deck-controls { display: flex; align-items: center; padding: 4px; gap: 4px; background: var(--ui-background); color: var(--ui-foreground); border: 1px solid var(--ui-line); border-radius: 12px; }\n.deck-controls button { border: 0; color: var(--ui-foreground); background: var(--ui-background); min-height: 44px; min-width: 44px; cursor: pointer; border-radius: 8px; }\n.deck-controls button:hover { background: var(--surface); }\n.deck-controls button:disabled { opacity: .35; cursor: default; }\n.deck-controls svg { width: 20px; height: 20px; vertical-align: middle; }\n.page-count { min-width: 54px; text-align: center; font-size: 14px; font-weight: 600; }\n.editor-tools { --tools-duration: 400ms; --tools-fade-delay: 60ms; display: flex; flex-direction: column; position: fixed; top: 16px; left: 16px; z-index: 1101; width: 288px; height: 54px; max-width: calc(100vw - 32px); padding: 14px; overflow: hidden; color: var(--tools-foreground); background: var(--tools-background); border: 1px solid var(--tools-border); border-radius: 18px; box-shadow: var(--tools-shadow); font: 13px/1.4 var(--font-body); }\n.tools-reveal { display: grid; grid-template-rows: 1fr; opacity: 1; visibility: visible; transition: grid-template-rows var(--tools-duration) var(--ease-out), opacity 140ms ease var(--tools-fade-delay), visibility 0s; }\n.tools-reveal > div { min-height: 0; overflow: hidden; }\n.tools-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 15px; font-weight: 600; white-space: nowrap; }\n.tools-header svg { width: 18px; height: 18px; color: var(--tools-muted); }\n.mode-row { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 4px 12px; background: var(--tools-surface); border-radius: 10px; transition: padding var(--tools-duration) var(--ease-out), background 150ms; }\n.mode-row > span { max-width: 80px; overflow: hidden; color: var(--tools-muted); white-space: nowrap; transition: max-width var(--tools-duration) var(--ease-out), opacity 100ms; }\n.mode-control { display: flex; gap: 2px; transition: gap var(--tools-duration) var(--ease-out); }\n.editor-tools button { min-height: 40px; border: 0; border-radius: 8px; padding: 0 13px; color: var(--tools-muted); background: transparent; font: inherit; white-space: nowrap; cursor: pointer; transition: background 150ms, color 150ms; }\n#presentMode { max-width: 94px; min-width: 0; overflow: hidden; transition: max-width var(--tools-duration) var(--ease-out), padding var(--tools-duration) var(--ease-out), opacity 100ms, visibility 0s, background 150ms, color 150ms; }\n.editor-tools button:hover { color: var(--tools-foreground); background: var(--tools-hover); }\n.editor-tools button:active { background: var(--tools-selected); }\n.editor-tools button[aria-pressed=\"true\"] { color: var(--tools-foreground); background: var(--tools-selected); }\n.editor-tools button:focus-visible { outline: 2px solid var(--inspector-accent); outline-offset: 2px; }\n.editor-tools .save-button { display: flex; align-items: center; justify-content: center; gap: 9px; width: 100%; min-height: 44px; margin-top: 10px; color: var(--tools-foreground); background: var(--tools-surface); }\n.save-button svg { width: 16px; height: 16px; }\n.tools-backdrop { position: fixed; inset: 0 auto 0 0; width: 312px; z-index: 1090; background: var(--stage-bg); opacity: 0; pointer-events: none; transition: opacity var(--workspace-duration) var(--ease-smooth-out); }\n.inspecting .tools-backdrop { opacity: 1; }\n.editor-tools:not(.presenting) { top: 12px; left: 12px; height: calc(100dvh - 24px); max-width: none; overflow-y: auto; border-radius: 20px; box-shadow: none; }\n.editor-tools > * { flex-shrink: 0; }\n#toolsEditing { flex: 1 0 auto; }\n#toolsDownload { position: sticky; bottom: 0; z-index: 2; margin-top: auto; padding: 8px 0 14px; background: var(--tools-background); box-shadow: 0 16px 0 var(--tools-background); }\n.editor-tools.presenting #toolsDownload { padding: 0; }\n.tool-section { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--tools-border); }\n.tool-section h2 { font: 600 13px/1.4 var(--font-body); letter-spacing: 0; }\n.selection-hint { margin: 6px 0 12px; color: var(--tools-muted); font-size: 12px; }\n.type-controls { display: grid; gap: 7px; margin: 0; padding: 0; border: 0; min-width: 0; }\n.type-controls label { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; padding: 0 12px; border-radius: 9px; background: var(--tools-surface); color: var(--tools-muted); font-size: 13px; min-width: 0; }\n.type-controls input, .type-controls select { width: 125px; min-width: 0; height: 36px; border: 0; border-radius: 5px; background: transparent; color: var(--tools-foreground); padding: 0 2px; font: 13px var(--font-body); text-align: right; color-scheme: dark; }\n.type-controls input { width: 100px; font-variant-numeric: tabular-nums; }\n.type-controls :focus-visible { outline: 2px solid var(--inspector-accent); outline-offset: 2px; }\n.type-controls:disabled { opacity: .45; }\n.editor-tools button:disabled, .organizer button:disabled { opacity: .4; cursor: default; }\n.editor-tools .undo-button { width: 100%; min-height: 40px; margin-top: 10px; text-align: left; background: var(--tools-surface); }\n.organizer { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--tools-border); color: var(--tools-foreground); font: 12px/1.4 var(--font-body); }\n.organizer[hidden] { display: none; }\n.organizer-top { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 10px; }\n.organizer-actions { display: flex; gap: 4px; }\n.gallery-hint { margin-bottom: 10px; color: var(--tools-muted); font-size: 11px; }\n.selection-count { color: var(--tools-muted); font-weight: 400; }\n.organizer button { border: 0; color: var(--tools-foreground); background: var(--tools-surface); border-radius: 6px; min-height: 32px; padding: 0 10px; font: inherit; cursor: pointer; }\n.organizer button:hover:not(:disabled) { background: var(--tools-selected); }\n.organizer button:focus-visible { outline: 2px solid var(--inspector-accent); outline-offset: 2px; }\n.slide-strip { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 3px; }\n.slide-item { position: relative; flex: none; max-width: 100%; }\n.organizer .slide-thumb { flex: none; padding: 0; overflow: hidden; border: 2px solid transparent; text-align: left; }\n.organizer .slide-thumb[aria-pressed=\"true\"] { border-color: var(--inspector-accent); }\n.slide-thumb[aria-current=\"true\"] .thumb-caption { font-weight: 600; }\n.thumb-actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 2px; padding: 3px; background: var(--tools-background); border-radius: 8px; }\n.thumb-actions, .thumb-select, .thumb-grip { opacity: 0; pointer-events: none; transition: opacity 150ms; }\n.slide-item:hover .thumb-actions, .slide-item:focus-within .thumb-actions,\n.slide-item:hover .thumb-select, .slide-item:focus-within .thumb-select, .thumb-select:checked,\n.slide-item:hover .thumb-grip, .slide-item:focus-within .thumb-grip { opacity: 1; pointer-events: auto; }\n.organizer .thumb-actions button { display: grid; place-items: center; min-height: 28px; width: 28px; padding: 0; background: transparent; }\n.thumb-actions svg, .thumb-grip svg { width: 16px; height: 16px; pointer-events: none; }\n.thumb-select { position: absolute; top: 12px; left: 12px; width: 18px; height: 18px; margin: 0; accent-color: var(--inspector-accent); cursor: pointer; }\n.thumb-select:focus-visible { outline: 2px solid var(--inspector-accent); outline-offset: 3px; }\n.organizer .thumb-grip { position: absolute; bottom: 4px; right: 4px; width: 28px; min-height: 28px; padding: 0; display: grid; place-items: center; color: var(--tools-muted); background: var(--tools-background); cursor: grab; touch-action: none; }\n.slide-item.dragging { opacity: .35; }\n.slide-item.drop-before::before, .slide-item.drop-after::after { content: \"\"; position: absolute; left: 0; right: 0; height: 3px; border-radius: 2px; background: var(--inspector-accent); }\n.slide-item.drop-before::before { top: -6px; }\n.slide-item.drop-after::after { bottom: -6px; }\n.slide-drag-preview { position: fixed; z-index: 1300; pointer-events: none; padding: 8px 12px; border: 1px solid var(--inspector-accent); border-radius: 8px; color: var(--tools-foreground); background: var(--tools-background); box-shadow: var(--tools-shadow); font: 600 12px/1.4 var(--font-body); }\nbody.dragging-slides { cursor: grabbing; user-select: none; }\n@media (hover: none) {\n    .thumb-actions, .thumb-select, .thumb-grip { opacity: 1; pointer-events: auto; }\n    .organizer .thumb-actions button, .organizer .thumb-grip { min-height: 36px; width: 36px; }\n}\n.thumb-preview { display: block; position: relative; isolation: isolate; width: 244px; height: 137.25px; overflow: hidden; pointer-events: none; background: white; }\n.thumb-preview .slide { width: 1920px; height: 1080px; transform: scale(.1270833333); transform-origin: top left; visibility: visible !important; opacity: 1 !important; }\n.thumb-preview .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }\n.thumb-caption { display: block; padding: 6px 34px 6px 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 244px; }\n@media (max-width: 700px) {\n    .tools-backdrop { bottom: auto; width: 100%; height: calc(min(190px, 30dvh) + 24px); }\n    .editor-tools:not(.presenting) { right: 12px; width: calc(100vw - 24px); height: min(190px, 30dvh); }\n}\n.editor-tools.presenting { --tools-duration: 350ms; --tools-fade-delay: 0ms; width: 76px; padding: 4px; border-radius: 12px; }\n.editor-tools.presenting .tools-reveal { grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows var(--tools-duration) var(--ease-out), opacity 80ms, visibility 0s 80ms; }\n.editor-tools.presenting .mode-row { justify-content: center; padding: 0; background: transparent; }\n.editor-tools.presenting .mode-row > span { max-width: 0; opacity: 0; }\n.editor-tools.presenting .mode-control { gap: 0; }\n.editor-tools.presenting #presentMode { max-width: 0; padding: 0; opacity: 0; visibility: hidden; }\n.editor-tools.presenting #editMode { min-height: 44px; color: var(--tools-foreground); }\n/* === SELECTION AND WORKSPACE MOTION === */\n:root { --ease-smooth-out: cubic-bezier(.22, 1, .36, 1); }\nbody { --workspace-duration: 350ms; }\nbody.inspecting { --workspace-duration: 400ms; }\n.motion-ready .deck-stage { transition: transform var(--workspace-duration) var(--ease-smooth-out); }\n.motion-ready .deck-controls { transition: left var(--workspace-duration) var(--ease-smooth-out); }\n.motion-ready .editor-tools { transition: width var(--tools-duration) var(--ease-smooth-out), height var(--tools-duration) var(--ease-smooth-out), top var(--tools-duration) var(--ease-smooth-out), left var(--tools-duration) var(--ease-smooth-out), padding var(--tools-duration) var(--ease-smooth-out), border-radius var(--tools-duration) var(--ease-smooth-out); }\n.tools-reveal, .mode-row, .mode-row > span, .mode-control, #presentMode { transition-timing-function: var(--ease-smooth-out); }\n.typography-reveal { display: grid; grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows 350ms var(--ease-smooth-out), opacity 150ms, visibility 0s 350ms; }\n.typography-reveal > div { min-height: 0; overflow: hidden; }\n.has-text-selection .typography-reveal { grid-template-rows: 1fr; opacity: 1; visibility: visible; transition: grid-template-rows 400ms var(--ease-smooth-out), opacity 250ms var(--ease-smooth-out), visibility 0s; }\n@media (prefers-reduced-motion: reduce) {\n    .deck-stage, .deck-controls, .tools-backdrop, .editor-tools, .editor-tools *, .editor-tools.presenting .tools-reveal { transition: none !important; }\n}\n.inspecting [data-edit] { cursor: text; }\n.inspecting [data-edit]:empty::before { content: \"\\200b\"; }\n.inspecting [data-edit]:empty { min-width: 24px; min-height: 1em; }\n.inspecting span[data-edit]:empty:not(.line) { display: inline-block; }\n.inspecting [data-edit]:focus { outline: none; }\n.inspecting [data-edit]:focus-visible { outline: 1px solid var(--inspector-accent); outline-offset: 3px; }\n[data-edit] { white-space: pre-wrap; }\n[data-edit][contenteditable] { outline: none; }\n.text-inspector { position: fixed; z-index: 1050; border: 1px solid var(--inspector-accent); pointer-events: none; }\n.text-inspector[hidden] { display: none; }\n.text-inspector.selected { border-width: 2px; }\n.inspector-handle { position: absolute; width: 6px; height: 6px; background: var(--ui-background); border: 1px solid var(--inspector-accent); }\n.inspector-handle:nth-child(1) { left: -3px; top: -3px; }\n.inspector-handle:nth-child(2) { right: -3px; top: -3px; }\n.inspector-handle:nth-child(3) { left: -3px; bottom: -3px; }\n.inspector-handle:nth-child(4) { right: -3px; bottom: -3px; }\n.inspector-label { position: fixed; padding: 4px 7px; background: var(--ui-background); color: var(--ui-foreground); border: 1px solid var(--inspector-accent); font: 12px/1.3 var(--font-body); white-space: nowrap; }\n.status { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); z-index: 1200; max-width: calc(100vw - 40px); background: var(--ui-background); color: var(--ui-foreground); padding: 12px 18px; border: 1px solid var(--ui-line); border-radius: 8px; font-size: 14px; opacity: 0; pointer-events: none; }\n.status.show { opacity: 1; }\nbutton:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }\n.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }\n\n/* === PRINT FINISHING === */\n@media print {\n    @page { size: 1920px 1080px; margin: 0; }\n    body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }\n    .slide { padding: 84px 120px 110px; }\n    .reveal { opacity: 1 !important; transform: none !important; }\n    .editor-tools, .tools-backdrop, .organizer, .status, .text-inspector, .slide-drag-preview { display: none !important; }\n    [data-edit] { outline: none !important; }\n}\n\u003c/style>\n\u003c/head>\n\u003cbody>\n\u003c!-- === AUTHENTIC LOGO ASSET ===\n     Vector geometry from the user-supplied H-E-B racetrack SVG.\n     The registered mark and original proportions are preserved.\n     Counter shapes follow the slide background for monochrome reversal. -->\n\u003csvg width=\"0\" height=\"0\" style=\"position:absolute\" aria-hidden=\"true\">\n\u003cdefs>\u003csymbol id=\"heb-logo\" viewBox=\"0 0 536.27 186.24\">\n\u003cpath d=\"M93.12,186.24C41.69,186.24,0,144.55,0,93.12S41.69,0,93.12,0h350.03c51.43,0,93.12,41.69,93.12,93.12s-41.69,93.12-93.12,93.12H93.12z\" fill=\"currentColor\"/>\n\u003cpath d=\"M93.12,174.19c-44.76,0-81.05-36.29-81.05-81.05s36.29-81.05,81.05-81.05h350.03c44.76,0,81.05,36.29,81.05,81.05s-36.29,81.05-81.05,81.05H93.12z\" fill=\"var(--slide-bg)\"/>\n\u003cpath d=\"M444.94,24.11L91.3,24.13c-37.07,0-67.2,30.95-67.16,69.07c0,37.93,30.16,68.88,67.16,68.88l353.63-0.07c37.1-0.03,67.15-30.89,67.2-68.85C512.09,54.96,482.04,24.11,444.94,24.11z\" fill=\"currentColor\"/>\n\u003cpolygon points=\"224.21,132.23 312.31,132.23 313.07,119.25 256.89,119.25 256.89,104.41 301.7,104.41 301.7,89.33 256.89,89.33 256.89,73.25 315.81,73.24 316.96,53.95 219.56,53.95\" fill=\"var(--slide-bg)\"/>\n\u003cpolygon points=\"132.46,53.95 132.46,89.33 108.6,89.33 108.6,53.95 71.27,53.95 75.92,132.23 108.6,132.23 108.6,104.41 132.46,104.41 132.46,132.23 165.14,132.23 169.79,53.95\" fill=\"var(--slide-bg)\"/>\n\u003cpath d=\"M448.52,97.02c9.9-2.83,16.49-8.59,16.49-20.67c0.03-13.82-11.06-22.4-25.29-22.4h-73.28l4.65,78.29h64.06c27.98,0,26.39-18.8,26.39-18.8C461.54,105.48,456.21,98.83,448.52,97.02z M417.5,119.24h-13.71v-14.83l13.22,0c7.23,0,11.09,2.31,11.09,7.48C428.11,116.83,424.61,119.24,417.5,119.24z M418.56,89.33h-14.77V73.25l14.25,0c7.85,0,12.03,2.5,12.03,8.11C430.07,86.71,426.28,89.33,418.56,89.33z\" fill=\"var(--slide-bg)\"/>\n\u003cpolygon points=\"182.76,89.33 183.66,104.41 205.69,104.41 206.59,89.33\" fill=\"var(--slide-bg)\"/>\n\u003cpolygon points=\"329.64,89.33 330.54,104.41 352.57,104.41 353.47,89.33\" fill=\"var(--slide-bg)\"/>\n\u003cpath d=\"M528.34,170.77c0-2.46-1.46-3.54-4.4-3.54h-4.74v12.44h1.88v-5.39h2.17l3.28,5.39h2.11l-3.54-5.48C526.94,173.97,528.34,173,528.34,170.77z M521.09,172.69v-3.86h2.57c1.31,0,2.71,0.29,2.71,1.83c0,1.92-1.43,2.03-3.03,2.03H521.09z\" fill=\"currentColor\"/>\n\u003cpath d=\"M523.37,162.67c-5.93,0-10.96,4.57-10.96,10.76c0,6.24,5.02,10.81,10.96,10.81c5.88,0,10.9-4.57,10.9-10.81C534.27,167.23,529.25,162.67,523.37,162.67z M523.37,182.45c-4.93,0-8.79-3.83-8.79-9.02c0-5.11,3.85-8.96,8.79-8.96c4.88,0,8.73,3.85,8.73,8.96C532.1,178.62,528.25,182.45,523.37,182.45z\" fill=\"currentColor\"/>\n\u003c/symbol>\u003c/defs>\n\u003c/svg>\n\n\u003cdiv class=\"deck-viewport\">\n\u003cmain class=\"deck-stage\" id=\"deckStage\" aria-label=\"An idea for better prototyping\">\n\n\u003c!-- === 1: OPEN WITH CANDID UNCERTAINTY === -->\n\u003csection class=\"slide active\" aria-labelledby=\"title-1\">\n\u003cheader class=\"slide-header\">\u003csvg class=\"brand-logo\" role=\"img\" aria-label=\"H-E-B\">\u003cuse href=\"#heb-logo\"/>\u003c/svg>\u003c/header>\n\u003cdiv class=\"title-layout\">\n\u003cdiv class=\"reveal\">\u003ch1 id=\"title-1\">\u003cspan class=\"line\" data-edit=\"s1-title-a\">An idea for\u003c/span>\u003cspan class=\"line accent\" data-edit=\"s1-title-b\">better\u003c/span>\u003cspan class=\"line accent\" data-edit=\"s1-title-c\">prototyping.\u003c/span>\u003c/h1>\u003cp class=\"lead\">\u003cspan class=\"line\" data-edit=\"s1-copy-a\">Could be a bad idea.\u003c/span>\u003cspan class=\"line\" data-edit=\"s1-copy-b\">Could be a good one.\u003c/span>\u003c/p>\u003c/div>\n\u003c/div>\n\u003cfooter class=\"slide-footer title-footer\">\u003cspan>01\u003c/span>\u003c/footer>\n\u003c/section>\n\n\u003c!-- === 2: THE FOUR CURRENT APPROACHES === -->\n\u003csection class=\"slide\" aria-labelledby=\"title-2\" aria-hidden=\"true\" inert>\n\u003cheader class=\"slide-header\">\u003csvg class=\"brand-logo\" role=\"img\" aria-label=\"H-E-B\">\u003cuse href=\"#heb-logo\"/>\u003c/svg>\u003cspan class=\"section-label\" data-edit=\"s2-section\">The landscape\u003c/span>\u003c/header>\n\u003cdiv class=\"content\">\u003ch2 class=\"overview-title reveal\" id=\"title-2\" data-edit=\"s2-title\">Four ways. One spectrum.\u003c/h2>\n\u003cdiv class=\"methods\">\n\u003carticle class=\"method reveal delay-1\">\u003cspan class=\"method-number\">1\u003c/span>\u003ch3>\u003cspan class=\"line\" data-edit=\"s2-m1-title-a\">Traditional\u003c/span>\u003cspan class=\"line\" data-edit=\"s2-m1-title-b\">Figma\u003c/span>\u003c/h3>\u003cp>\u003cspan class=\"line\" data-edit=\"s2-m1-copy-a\">Manual interactions.\u003c/span>\u003cspan class=\"line\" data-edit=\"s2-m1-copy-b\">Limited functionality.\u003c/span>\u003c/p>\u003c/article>\n\u003carticle class=\"method reveal delay-2\">\u003cspan class=\"method-number\">2\u003c/span>\u003ch3 data-edit=\"s2-m2-title\">Figma Make\u003c/h3>\u003cp>\u003cspan class=\"line\" data-edit=\"s2-m2-copy-a\">Not working well\u003c/span>\u003cspan class=\"line\" data-edit=\"s2-m2-copy-b\">for me so far.\u003c/span>\u003c/p>\u003c/article>\n\u003carticle class=\"method focus reveal delay-3\">\u003cspan class=\"method-number\">3\u003c/span>\u003ch3>\u003cspan class=\"line\" data-edit=\"s2-m3-title-a\">GitHub\u003c/span>\u003cspan class=\"line\" data-edit=\"s2-m3-title-b\">Copilot\u003c/span>\u003c/h3>\u003cp>\u003cspan class=\"line\" data-edit=\"s2-m3-copy-a\">Design to code.\u003c/span>\u003cspan class=\"line\" data-edit=\"s2-m3-copy-b\">Mixed success.\u003c/span>\u003c/p>\u003c/article>\n\u003carticle class=\"method reveal delay-4\">\u003cspan class=\"method-number\">4\u003c/span>\u003ch3>\u003cspan class=\"line\" data-edit=\"s2-m4-title-a\">In the\u003c/span>\u003cspan class=\"line\" data-edit=\"s2-m4-title-b\">codebase\u003c/span>\u003c/h3>\u003cp>\u003cspan class=\"line\" data-edit=\"s2-m4-copy-a\">Real data.\u003c/span>\u003cspan class=\"line\" data-edit=\"s2-m4-copy-b\">More setup.\u003c/span>\u003c/p>\u003c/article>\n\u003c/div>\n\u003cdiv class=\"overhead-spectrum reveal delay-4\">\n\u003cdiv class=\"axis-horizontal\">\u003cspan data-edit=\"s2-overhead-a\">Less technical overhead\u003c/span>\u003cspan class=\"axis-rule\" aria-hidden=\"true\">\u003c/span>\u003cspan data-edit=\"s2-overhead-b\">More technical overhead\u003c/span>\u003c/div>\n\u003c/div>\n\u003c/div>\n\u003cfooter class=\"slide-footer\">\u003cspan data-edit=\"s2-footer\">Different tools, different tradeoffs\u003c/span>\u003cspan>02\u003c/span>\u003c/footer>\n\u003c/section>\n\n\u003c/main>\n\u003c/div>\n\n\u003c!-- === NON-SLIDE CONTROLS === -->\n\u003cnav class=\"deck-controls\" aria-label=\"Slide navigation\">\n\u003cbutton id=\"previousSlide\" aria-label=\"Previous slide\" title=\"Previous slide (Left arrow)\">\u003csvg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\">\u003cpath d=\"m14 6-6 6 6 6\"/>\u003c/svg>\u003c/button>\n\u003cspan class=\"page-count\" id=\"pageCount\" aria-live=\"polite\">1 / 2\u003c/span>\n\u003cbutton id=\"nextSlide\" aria-label=\"Next slide\" title=\"Next slide (Right arrow or Space)\">\u003csvg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\">\u003cpath d=\"m10 6 6 6-6 6\"/>\u003c/svg>\u003c/button>\n\u003c/nav>\n\u003cdiv class=\"tools-backdrop\" aria-hidden=\"true\">\u003c/div>\n\u003caside class=\"editor-tools presenting\" id=\"editorTools\" aria-label=\"Slidekick presentation tools\">\n\u003cdiv class=\"tools-reveal\" id=\"toolsHeading\" inert aria-hidden=\"true\">\u003cdiv>\u003cdiv class=\"tools-header\">\u003cspan>Slidekick\u003c/span>\u003csvg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" aria-hidden=\"true\">\u003cpath d=\"M4 6h16M4 12h16M4 18h16\"/>\u003cpath d=\"M9 3v6M15 9v6M9 15v6\"/>\u003c/svg>\u003c/div>\u003c/div>\u003c/div>\n\u003cdiv class=\"mode-row\">\u003cspan id=\"modeLabel\" inert aria-hidden=\"true\">Mode\u003c/span>\u003cdiv class=\"mode-control\" role=\"group\" aria-label=\"Presentation mode\">\u003cbutton id=\"editMode\" title=\"Inspect and edit text (E)\" aria-pressed=\"false\" aria-expanded=\"false\" aria-controls=\"toolsHeading modeLabel presentMode toolsDownload\">Edit\u003c/button>\u003cbutton id=\"presentMode\" title=\"Present without the text inspector (E)\" aria-pressed=\"true\" inert aria-hidden=\"true\">Present\u003c/button>\u003c/div>\u003c/div>\n\u003cdiv class=\"tools-reveal\" id=\"toolsEditing\" inert aria-hidden=\"true\">\u003cdiv>\n\u003cbutton class=\"undo-button\" id=\"undoButton\" disabled title=\"Undo the last change (Command or Control + Z)\">↶ Undo\u003c/button>\n\u003cdiv class=\"typography-reveal\" id=\"typographyReveal\" inert aria-hidden=\"true\">\u003cdiv>\n\u003csection class=\"tool-section\" aria-labelledby=\"typographyTitle\">\n\u003ch2 id=\"typographyTitle\">Typography\u003c/h2>\n\u003cp class=\"selection-hint\" id=\"selectionHint\">Select a text block on the slide.\u003c/p>\n\u003cfieldset class=\"type-controls\" id=\"typeControls\" disabled aria-label=\"Selected text typography\">\n\u003clabel>Size (px)\u003cinput id=\"typeSize\" type=\"number\" min=\"8\" max=\"240\" step=\"1\">\u003c/label>\n\u003clabel>Weight\u003cselect id=\"typeWeight\">\u003coption value=\"400\">Regular\u003c/option>\u003coption value=\"500\">Medium\u003c/option>\u003coption value=\"600\">Semibold\u003c/option>\u003coption value=\"700\">Bold\u003c/option>\u003coption value=\"800\">Extra bold\u003c/option>\u003coption value=\"900\">Heavy\u003c/option>\u003c/select>\u003c/label>\n\u003clabel>Line height\u003cinput id=\"typeLineHeight\" type=\"number\" min=\"0.8\" max=\"3\" step=\"0.05\">\u003c/label>\n\u003clabel>Alignment\u003cselect id=\"typeAlign\">\u003coption value=\"left\">Left\u003c/option>\u003coption value=\"center\">Center\u003c/option>\u003coption value=\"right\">Right\u003c/option>\u003c/select>\u003c/label>\n\u003c/fieldset>\n\u003c/section>\n\u003c/div>\u003c/div>\n\u003csection class=\"organizer\" id=\"slideOrganizer\" aria-label=\"Slide organizer\" hidden>\n\u003cdiv class=\"organizer-top\">\u003cstrong>Slides \u003cspan class=\"selection-count\" id=\"slideSelectionCount\">\u003c/span>\u003c/strong>\u003cdiv class=\"organizer-actions\">\n\u003cbutton id=\"duplicateSlide\">Duplicate\u003c/button>\u003cbutton id=\"deleteSlide\">Delete\u003c/button>\n\u003c/div>\u003c/div>\n\u003cp class=\"gallery-hint\" id=\"slideGalleryHint\">Drag to reorder. Shift-click for a range.\u003cbr>⌘/Ctrl-click or use checkboxes to select more.\u003c/p>\n\u003cdiv class=\"slide-strip\" id=\"slideStrip\" role=\"group\" aria-label=\"Choose slides\" aria-describedby=\"slideGalleryHint\">\u003c/div>\n\u003c/section>\n\u003c/div>\u003c/div>\n\u003cdiv class=\"tools-reveal\" id=\"toolsDownload\" inert aria-hidden=\"true\">\u003cdiv>\u003cbutton class=\"save-button\" id=\"saveButton\" title=\"Download your edited HTML file (Ctrl+S or Command+S)\">\u003csvg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\">\u003cpath d=\"M12 3v12m-4-4 4 4 4-4M4 16v5h16v-5\"/>\u003c/svg>\u003cspan>Download HTML\u003c/span>\u003c/button>\u003c/div>\u003c/div>\n\u003c/aside>\n\u003cp class=\"status\" id=\"status\" role=\"status\" aria-live=\"polite\">\u003c/p>\n\u003cdiv class=\"text-inspector\" id=\"textInspector\" hidden aria-hidden=\"true\">\u003cspan class=\"inspector-handle\">\u003c/span>\u003cspan class=\"inspector-handle\">\u003c/span>\u003cspan class=\"inspector-handle\">\u003c/span>\u003cspan class=\"inspector-handle\">\u003c/span>\u003cspan class=\"inspector-label\" id=\"inspectorLabel\">\u003c/span>\u003c/div>\n\u003cp class=\"sr-only\">Hover over a headline or paragraph to inspect its entire text block, then click to edit. Use Typography in the panel to adjust the selected block. Press Enter within a block to add a line break. Click outside to save in this browser. Tab to text and press Enter to edit with the keyboard. Escape finishes editing. Press E to toggle the inspector. In presentation mode, tap Edit to expand the tools again. The Slides row selects, reorders, duplicates, and deletes slides. Undo reverses changes made during this session; Control or Command and Z also works outside form controls. Use the arrow keys or Space to navigate when not editing. Swipe horizontally on touch screens. Press Control or Command and S to download your edited presentation.\u003c/p>\n\n\u003cscript>\n/* === STATUS AND ERROR REPORTING === */\nconst statusElement = document.getElementById(\"status\");\nlet statusTimeout;\nfunction notify(message, isError = false) {\n    clearTimeout(statusTimeout);\n    statusElement.textContent = message;\n    statusElement.classList.add(\"show\");\n    if (isError) console.error(message);\n    statusTimeout = setTimeout(() => statusElement.classList.remove(\"show\"), isError ? 9000 : 4500);\n}\n\n/* === PRESENTATION CONTROLLER === */\nclass SlidePresentation {\n    constructor() {\n        this.slides = [...document.querySelectorAll(\".slide\")];\n        this.stage = document.getElementById(\"deckStage\");\n        this.currentSlide = 0;\n        this.wheelTotal = 0;\n        this.lastWheel = 0;\n        this.lastWheelNavigation = 0;\n        this.touchStart = null;\n        this.transitionFrame = null;\n        this.previous = document.getElementById(\"previousSlide\");\n        this.next = document.getElementById(\"nextSlide\");\n        this.previous.addEventListener(\"click\", () => this.showSlide(this.currentSlide - 1));\n        this.next.addEventListener(\"click\", () => this.showSlide(this.currentSlide + 1));\n        addEventListener(\"resize\", () => this.fit());\n        addEventListener(\"hashchange\", () => this.showSlide(this.indexFromHash()));\n        this.setupInput();\n        this.fit();\n        this.showSlide(this.indexFromHash());\n    }\n    fit() {\n        const editing = document.body.classList.contains(\"inspecting\");\n        const sideDock = editing && innerWidth > 700;\n        const left = sideDock ? 328 : 0;\n        const top = editing && !sideDock ? Math.min(190, innerHeight * .3) + 40 : 0;\n        const width = Math.max(1, innerWidth - left);\n        const height = Math.max(1, innerHeight - top);\n        const factor = Math.min(width / 1920, height / 1080);\n        this.stage.style.transform = `translate(${left + (width - 1920 * factor) / 2}px, ${top + (height - 1080 * factor) / 2}px) scale(${factor})`;\n        document.querySelector(\".deck-controls\").style.left = `${left + width / 2}px`;\n        statusElement.style.left = `${left + width / 2}px`;\n    }\n    indexFromHash() {\n        const match = location.hash.match(/^#slide-(\\d+)$/);\n        return match ? Number(match[1]) - 1 : 0;\n    }\n    showSlide(index) {\n        this.currentSlide = Math.max(0, Math.min(index, this.slides.length - 1));\n        if (document.activeElement?.closest(\".slide\")) document.activeElement.blur();\n        cancelAnimationFrame(this.transitionFrame);\n        this.slides.forEach((slide, i) => {\n            const selected = i === this.currentSlide;\n            slide.classList.toggle(\"active\", selected);\n            slide.classList.remove(\"visible\");\n            slide.setAttribute(\"aria-hidden\", String(!selected));\n            slide.inert = !selected;\n        });\n        this.transitionFrame = requestAnimationFrame(() => {\n            this.stage.offsetWidth;\n            this.slides[this.currentSlide].classList.add(\"visible\");\n        });\n        this.previous.disabled = this.currentSlide === 0;\n        this.next.disabled = this.currentSlide === this.slides.length - 1;\n        document.getElementById(\"pageCount\").textContent = `${this.currentSlide + 1} / ${this.slides.length}`;\n        if (location.hash !== `#slide-${this.currentSlide + 1}`) location.hash = `slide-${this.currentSlide + 1}`;\n        document.dispatchEvent(new Event(\"slidechange\"));\n    }\n    isInteractive(target) {\n        return target instanceof Element && Boolean(target.closest(\"button, a, input, select, textarea, [contenteditable], .editor-tools, .organizer\"));\n    }\n    setupInput() {\n        document.addEventListener(\"keydown\", event => {\n            if (event.ctrlKey || event.metaKey || event.altKey) return;\n            const target = event.target instanceof Element ? event.target : null;\n            if (target?.closest(\"a, input, select, textarea, [contenteditable], .organizer, .editor-tools\")) return;\n            if (target?.closest(\"[data-edit]\") && event.key === \" \") return;\n            if (event.key === \" \" && target?.closest(\"button\")) return;\n            const nextKeys = [\"ArrowRight\", \"ArrowDown\", \" \", \"PageDown\"];\n            const previousKeys = [\"ArrowLeft\", \"ArrowUp\", \"PageUp\"];\n            if (nextKeys.includes(event.key)) {\n                event.preventDefault();\n                this.showSlide(this.currentSlide + 1);\n            } else if (previousKeys.includes(event.key)) {\n                event.preventDefault();\n                this.showSlide(this.currentSlide - 1);\n            } else if (event.key === \"Home\" || event.key === \"End\") {\n                event.preventDefault();\n                this.showSlide(event.key === \"Home\" ? 0 : this.slides.length - 1);\n            }\n        });\n        document.addEventListener(\"wheel\", event => {\n            if (document.body.classList.contains(\"editing\") || this.isInteractive(event.target) || event.ctrlKey) return;\n            event.preventDefault();\n            const now = performance.now();\n            if (now - this.lastWheel > 180) this.wheelTotal = 0;\n            this.lastWheel = now;\n            if (now - this.lastWheelNavigation \u003c 650) return;\n            const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;\n            this.wheelTotal += delta * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? innerHeight : 1);\n            if (Math.abs(this.wheelTotal) \u003c 60) return;\n            this.showSlide(this.currentSlide + Math.sign(this.wheelTotal));\n            this.wheelTotal = 0;\n            this.lastWheelNavigation = now;\n        }, { passive: false });\n        this.stage.addEventListener(\"touchstart\", event => {\n            if (event.touches.length !== 1 || this.isInteractive(event.target)) { this.touchStart = null; return; }\n            const touch = event.touches[0];\n            this.touchStart = { x: touch.clientX, y: touch.clientY };\n        }, { passive: true });\n        this.stage.addEventListener(\"touchend\", event => {\n            if (!this.touchStart || document.body.classList.contains(\"editing\")) return;\n            const touch = event.changedTouches[0];\n            const dx = touch.clientX - this.touchStart.x;\n            const dy = touch.clientY - this.touchStart.y;\n            this.touchStart = null;\n            if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) this.showSlide(this.currentSlide + (dx \u003c 0 ? 1 : -1));\n        }, { passive: true });\n        this.stage.addEventListener(\"touchcancel\", () => { this.touchStart = null; }, { passive: true });\n    }\n}\n\n/* === PLAIN-TEXT EDITING AND LOCAL RESTORE === */\nclass InlineEditor {\n    constructor() {\n        this.isActive = false;\n        this.activeField = null;\n        this.inspectedField = null;\n        this.dirty = false;\n        this.inspectorFrame = null;\n        this.fields = [...presentation.stage.querySelectorAll(\"[data-edit]\")];\n        this.storageKey = `heb-ai-prototyping-v1:${location.pathname}`;\n        this.tools = document.getElementById(\"editorTools\");\n        this.expandedControls = [...this.tools.querySelectorAll(\".tools-reveal, #modeLabel, #presentMode\")];\n        this.editButton = document.getElementById(\"editMode\");\n        this.presentButton = document.getElementById(\"presentMode\");\n        this.saveButton = document.getElementById(\"saveButton\");\n        this.inspector = document.getElementById(\"textInspector\");\n        this.inspectorLabel = document.getElementById(\"inspectorLabel\");\n        const savedContent = this.restore();\n        this.groupTextBlocks(savedContent);\n        this.editButton.addEventListener(\"click\", () => this.setMode(true));\n        this.presentButton.addEventListener(\"click\", () => this.setMode(false));\n        this.saveButton.addEventListener(\"click\", () => this.saveFile());\n        presentation.stage.addEventListener(\"input\", event => {\n            if (event.target.matches(\"[data-edit]\")) {\n                this.dirty = true;\n                this.persist();\n            }\n        });\n        presentation.stage.addEventListener(\"focusout\", event => {\n            if (this.activeField === event.target) this.finishEditing();\n        });\n        presentation.stage.addEventListener(\"focusin\", event => {\n            if (this.isActive && event.target.matches(\"[data-edit]\")) this.inspect(event.target);\n        });\n        presentation.stage.addEventListener(\"click\", event => {\n            const field = event.target.closest(\"[data-edit]\");\n            if (this.isActive && field) this.beginEditing(field);\n        });\n        document.addEventListener(\"pointermove\", event => {\n            if (!this.isActive || this.activeField || event.pointerType === \"touch\") return;\n            const field = event.target instanceof Element ? event.target.closest(\".slide.active [data-edit]\") : null;\n            this.inspect(field);\n        });\n        document.documentElement.addEventListener(\"pointerleave\", () => {\n            if (!this.activeField) this.inspect(null);\n        });\n        document.addEventListener(\"pointerdown\", event => {\n            if (!this.isActive || event.button !== 0) return;\n            const field = event.target instanceof Element ? event.target.closest(\".slide.active [data-edit]\") : null;\n            if (this.activeField && !this.activeField.contains(event.target)) this.finishEditing();\n            if (field || event.pointerType === \"touch\" || !this.inspectedField) return;\n            const rect = this.inspector.getBoundingClientRect();\n            if (event.clientX >= rect.left && event.clientX \u003c= rect.right && event.clientY >= rect.top && event.clientY \u003c= rect.bottom) {\n                event.preventDefault();\n                this.beginEditing(this.inspectedField);\n            } else {\n                this.inspect(null);\n            }\n        }, true);\n        document.addEventListener(\"keydown\", event => {\n            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === \"s\") {\n                event.preventDefault();\n                if (!event.repeat) this.saveFile();\n                return;\n            }\n            if (event.ctrlKey || event.metaKey || event.altKey) return;\n            if (event.target.closest(\"input, select, textarea\")) return;\n            if (event.key === \"Escape\" && this.activeField) {\n                event.preventDefault();\n                this.finishEditing();\n            } else if (event.key === \"Escape\" && this.isActive) {\n                event.preventDefault();\n                this.toggleMode();\n            } else if ((event.key === \"Enter\" || event.key === \" \") && this.isActive && !this.activeField && event.target.matches(\"[data-edit]\")) {\n                event.preventDefault();\n                this.beginEditing(event.target);\n            } else if (event.key.toLowerCase() === \"e\" && !event.target.isContentEditable && !event.target.closest(\"input, textarea\")) {\n                event.preventDefault();\n                this.toggleMode();\n            }\n        });\n        this.setMode(false, false);\n    }\n    restore() {\n        try {\n            const raw = localStorage.getItem(this.storageKey);\n            if (!raw) return {};\n            const content = JSON.parse(raw);\n            if (!content || typeof content !== \"object\" || Array.isArray(content)) throw new Error(\"Invalid saved presentation data.\");\n            this.fields.forEach(field => {\n                const text = content[field.dataset.edit];\n                if (typeof text === \"string\") field.textContent = text;\n            });\n            return content;\n        } catch (error) {\n            console.error(\"Presentation restore failed:\", error);\n            notify(\"Saved edits could not be restored. The HTML file’s text is still available.\", true);\n            return {};\n        }\n    }\n    groupTextBlocks(savedContent) {\n        // Migrate the original line-by-line fields without losing saved edits.\n        presentation.stage.querySelectorAll(\".slide h1, .slide h2, .slide h3, .slide p\").forEach(block => {\n            if (block.hasAttribute(\"data-edit\")) return;\n            const lines = [...block.children];\n            if (!lines.length || !lines.every(line => line.matches(\"[data-edit]\"))) return;\n            const key = `block-${lines[0].dataset.edit}`;\n            const savedText = savedContent[key];\n            block.dataset.edit = key;\n            block.textContent = typeof savedText === \"string\" ? savedText : lines.map(line => line.textContent).join(\"\\n\");\n        });\n        this.fields = [...presentation.stage.querySelectorAll(\"[data-edit]\")];\n    }\n    fieldText(field) {\n        return field.isContentEditable ? field.innerText : field.textContent;\n    }\n    toggleMode(announce = true) {\n        this.setMode(!this.isActive, announce);\n    }\n    setMode(active, announce = true) {\n        const returnFocus = !active && this.tools.contains(document.activeElement);\n        this.finishEditing();\n        this.isActive = active;\n        document.body.classList.toggle(\"inspecting\", this.isActive);\n        this.tools.classList.toggle(\"presenting\", !this.isActive);\n        this.expandedControls.forEach(element => {\n            element.inert = !this.isActive;\n            element.setAttribute(\"aria-hidden\", String(!this.isActive));\n        });\n        this.editButton.setAttribute(\"aria-pressed\", String(this.isActive));\n        this.editButton.setAttribute(\"aria-expanded\", String(this.isActive));\n        this.presentButton.setAttribute(\"aria-pressed\", String(!this.isActive));\n        if (returnFocus) this.editButton.focus({ preventScroll: true });\n        this.fields.forEach(field => {\n            if (this.isActive) field.tabIndex = 0;\n            else field.removeAttribute(\"tabindex\");\n        });\n        if (!this.isActive) this.inspect(null);\n        document.getElementById(\"slideOrganizer\").hidden = !this.isActive;\n        presentation.fit();\n        document.dispatchEvent(new Event(\"editmodechange\"));\n        if (announce) notify(this.isActive ? \"Hover to inspect a whole text block. Click to edit. Click outside to save.\" : \"Presentation mode. Press E to inspect text.\");\n    }\n    inspect(field) {\n        this.inspectedField = field;\n        cancelAnimationFrame(this.inspectorFrame);\n        this.inspector.hidden = !field;\n        if (!field) return;\n        const position = () => {\n            if (!field.closest(\".slide.active\")) {\n                this.finishEditing();\n                this.inspect(null);\n                return;\n            }\n            const rect = field.getBoundingClientRect();\n            const scale = document.getElementById(\"deckStage\").getBoundingClientRect().width / 1920;\n            this.inspector.style.left = `${rect.left - 3}px`;\n            this.inspector.style.top = `${rect.top - 3}px`;\n            this.inspector.style.width = `${rect.width + 6}px`;\n            this.inspector.style.height = `${rect.height + 6}px`;\n            this.inspector.classList.toggle(\"selected\", field === this.activeField);\n            const type = field.matches(\"h1, h2, h3\") ? \"Headline\" : field.matches(\"p\") ? \"Paragraph\" : \"Text\";\n            this.inspectorLabel.textContent = this.activeField ? `Editing ${type.toLowerCase()} · click outside to save` : `${type} · ${Math.round(rect.width / scale)} × ${Math.round(rect.height / scale)} · click to edit`;\n            const labelWidth = this.inspectorLabel.offsetWidth;\n            this.inspectorLabel.style.left = `${Math.max(4, Math.min(rect.left - 3, innerWidth - labelWidth - 4))}px`;\n            this.inspectorLabel.style.top = `${Math.max(4, rect.top - this.inspectorLabel.offsetHeight - 7)}px`;\n            this.inspectorFrame = requestAnimationFrame(position);\n        };\n        position();\n    }\n    beginEditing(field) {\n        if (this.activeField === field) return;\n        this.finishEditing();\n        this.activeField = field;\n        document.dispatchEvent(new CustomEvent(\"textselect\", { detail: field }));\n        this.dirty = false;\n        field.setAttribute(\"contenteditable\", \"plaintext-only\");\n        document.body.classList.add(\"editing\");\n        field.focus({ preventScroll: true });\n        this.inspect(field);\n    }\n    finishEditing() {\n        if (!this.activeField) return;\n        const field = this.activeField;\n        this.activeField = null;\n        const changed = this.dirty;\n        if (changed && this.persist()) notify(\"Text saved in this browser.\");\n        field.textContent = this.fieldText(field);\n        this.dirty = false;\n        field.removeAttribute(\"contenteditable\");\n        if (document.activeElement === field) field.blur();\n        document.body.classList.remove(\"editing\");\n        this.inspect(null);\n        if (changed) document.dispatchEvent(new Event(\"deckcommit\"));\n    }\n    persist() {\n        try {\n            const content = Object.fromEntries(this.fields.map(field => [field.dataset.edit, this.fieldText(field)]));\n            localStorage.setItem(this.storageKey, JSON.stringify(content));\n            document.dispatchEvent(new Event(\"deckchange\"));\n            return true;\n        } catch (error) {\n            console.error(\"Presentation auto-save failed:\", error);\n            notify(\"Browser auto-save is unavailable. Use Download HTML to keep your changes.\", true);\n            return false;\n        }\n    }\n    saveFile() {\n        try {\n            const copy = document.documentElement.cloneNode(true);\n            copy.classList.remove(\"motion-ready\");\n            copy.querySelector(\"#slideStrip\").replaceChildren();\n            copy.querySelector(\"body\").classList.remove(\"editing\", \"inspecting\", \"dragging-slides\");\n            copy.querySelectorAll(\".slide-drag-preview\").forEach(element => element.remove());\n            copy.querySelectorAll(\"#deckStage [data-edit]\").forEach((field, index) => {\n                field.textContent = this.fieldText(this.fields[index]);\n                field.removeAttribute(\"contenteditable\");\n                field.removeAttribute(\"tabindex\");\n            });\n            const inspector = copy.querySelector(\"#textInspector\");\n            inspector.hidden = true;\n            inspector.classList.remove(\"selected\");\n            inspector.removeAttribute(\"style\");\n            copy.querySelector(\"#inspectorLabel\").textContent = \"\";\n            copy.querySelector(\"#inspectorLabel\").removeAttribute(\"style\");\n            copy.querySelector(\"#editorTools\").classList.add(\"presenting\");\n            copy.querySelector(\"#editorTools\").classList.remove(\"has-text-selection\");\n            copy.querySelectorAll(\"#editorTools .tools-reveal, #modeLabel, #presentMode\").forEach(element => {\n                element.inert = true;\n                element.setAttribute(\"aria-hidden\", \"true\");\n            });\n            copy.querySelector(\"#typographyReveal\").inert = true;\n            copy.querySelector(\"#typographyReveal\").setAttribute(\"aria-hidden\", \"true\");\n            copy.querySelector(\"#editMode\").setAttribute(\"aria-pressed\", \"false\");\n            copy.querySelector(\"#editMode\").setAttribute(\"aria-expanded\", \"false\");\n            copy.querySelector(\"#presentMode\").setAttribute(\"aria-pressed\", \"true\");\n            copy.querySelector(\"#slideOrganizer\").hidden = true;\n            copy.querySelector(\"#status\").classList.remove(\"show\");\n            copy.querySelector(\"#status\").textContent = \"\";\n            const blob = new Blob([\"\u003c!doctype html>\\n\", copy.outerHTML], { type: \"text/html;charset=utf-8\" });\n            const url = URL.createObjectURL(blob);\n            const link = document.createElement(\"a\");\n            link.href = url;\n            link.download = \"heb-ai-prototyping.html\";\n            document.body.append(link);\n            link.click();\n            link.remove();\n            setTimeout(() => URL.revokeObjectURL(url), 10000);\n            notify(\"Your edited HTML download is ready.\");\n        } catch (error) {\n            console.error(\"Presentation HTML export failed:\", error);\n            notify(\"The HTML download failed. Your changes are still open in this browser.\", true);\n        }\n    }\n}\n\n/* === SLIDE ORGANIZATION, TYPOGRAPHY, AND UNDO === */\nclass DesignTools {\n    constructor() {\n        this.storageKey = `heb-ai-prototyping-tools-v1:${location.pathname}`;\n        this.templates = new Map();\n        this.selectedField = null;\n        this.selectedSlides = new Set();\n        this.selectionAnchor = null;\n        this.history = [];\n        this.applying = false;\n        this.typeControls = document.getElementById(\"typeControls\");\n        this.undoButton = document.getElementById(\"undoButton\");\n        this.strip = document.getElementById(\"slideStrip\");\n        this.typography = {\n            fontSize: document.getElementById(\"typeSize\"),\n            fontWeight: document.getElementById(\"typeWeight\"),\n            lineHeight: document.getElementById(\"typeLineHeight\"),\n            textAlign: document.getElementById(\"typeAlign\")\n        };\n        presentation.slides.forEach((slide, index) => {\n            slide.dataset.slideId ||= `slide-${index + 1}`;\n            slide.dataset.templateId ||= slide.dataset.slideId;\n            slide.querySelectorAll(\"[data-edit]\").forEach(field => { field.dataset.baseEdit ||= field.dataset.edit; });\n            if (!this.templates.has(slide.dataset.templateId)) this.templates.set(slide.dataset.templateId, slide.cloneNode(true));\n        });\n        const initial = this.snapshot();\n        try {\n            const raw = localStorage.getItem(this.storageKey);\n            if (raw) this.apply(JSON.parse(raw));\n        } catch (error) {\n            console.error(\"Design tools restore failed:\", error);\n            this.apply(initial);\n            notify(\"Slide organization or typography could not be restored. Your HTML content is still available.\", true);\n        }\n        this.history = [this.snapshot()];\n        this.activeSlideId = presentation.slides[presentation.currentSlide].dataset.slideId;\n        this.undoButton.addEventListener(\"click\", () => this.undo());\n        document.addEventListener(\"textselect\", event => this.selectText(event.detail));\n        document.addEventListener(\"click\", event => {\n            if (!editor.isActive || event.target.closest(\"#editorTools, #deckStage [data-edit]\")) return;\n            editor.finishEditing();\n            editor.inspect(null);\n            this.selectText(null);\n        });\n        document.addEventListener(\"slidechange\", () => {\n            if (!this.selectedField?.closest(\".slide.active\")) this.selectText(null);\n            const id = presentation.slides[presentation.currentSlide].dataset.slideId;\n            if (!this.gallerySelecting && id !== this.activeSlideId) {\n                this.selectedSlides = new Set([id]);\n                this.selectionAnchor = id;\n            }\n            this.activeSlideId = id;\n            this.render();\n        });\n        document.addEventListener(\"editmodechange\", () => {\n            if (!editor.isActive) {\n                this.endDrag(false);\n                this.selectText(null);\n            }\n            this.render();\n        });\n        document.addEventListener(\"deckchange\", () => {\n            if (this.applying) return;\n            this.persist();\n            this.undoButton.disabled = this.history.length \u003c 2 && !editor.dirty;\n            cancelAnimationFrame(this.previewFrame);\n            this.previewFrame = requestAnimationFrame(() => this.render());\n        });\n        document.addEventListener(\"deckcommit\", () => this.commit());\n        document.addEventListener(\"keydown\", event => {\n            if ((event.metaKey || event.ctrlKey) && !event.shiftKey && event.key.toLowerCase() === \"z\" && !event.target.closest(\"input,select,textarea\")) {\n                event.preventDefault();\n                if (!event.repeat) this.undo();\n            }\n        }, true);\n        Object.entries(this.typography).forEach(([property, input]) => {\n            input.addEventListener(\"change\", () => this.changeType(property, input));\n        });\n        document.getElementById(\"duplicateSlide\").addEventListener(\"click\", () => this.organize(\"duplicate\"));\n        document.getElementById(\"deleteSlide\").addEventListener(\"click\", () => this.organize(\"delete\"));\n        if (!this.selectedSlides.size) {\n            const id = presentation.slides[presentation.currentSlide].dataset.slideId;\n            this.selectedSlides.add(id);\n            this.selectionAnchor = id;\n        }\n        this.setupDragging();\n        this.selectText(null);\n        this.render();\n    }\n    snapshot() {\n        return {\n            current: presentation.slides[presentation.currentSlide].dataset.slideId,\n            slides: presentation.slides.map(slide => ({\n                id: slide.dataset.slideId,\n                template: slide.dataset.templateId,\n                fields: [...slide.querySelectorAll(\"[data-edit]\")].map(field => ({\n                    key: field.dataset.baseEdit,\n                    text: editor.fieldText(field),\n                    styles: Object.fromEntries([\"fontSize\", \"fontWeight\", \"lineHeight\", \"textAlign\"].map(name => [name, field.style[name]]))\n                }))\n            }))\n        };\n    }\n    apply(state) {\n        if (!state || !Array.isArray(state.slides) || !state.slides.length) throw new Error(\"Invalid saved slides.\");\n        const ids = new Set();\n        const slides = state.slides.map(item => {\n            if (!item || typeof item.id !== \"string\" || ids.has(item.id) || !this.templates.has(item.template) || !Array.isArray(item.fields)) throw new Error(\"Invalid slide definition.\");\n            ids.add(item.id);\n            const slide = this.templates.get(item.template).cloneNode(true);\n            slide.dataset.slideId = item.id;\n            slide.dataset.templateId = item.template;\n            slide.querySelectorAll(\"[id]\").forEach((node, index) => { node.id = `${item.id}-node-${index}`; });\n            slide.setAttribute(\"aria-label\", `Slide ${ids.size}`);\n            slide.removeAttribute(\"aria-labelledby\");\n            const fields = new Map(item.fields.map(field => [field.key, field]));\n            slide.querySelectorAll(\"[data-edit]\").forEach(field => {\n                const saved = fields.get(field.dataset.baseEdit);\n                if (!saved || typeof saved.text !== \"string\") throw new Error(\"Invalid saved text.\");\n                field.dataset.edit = `${item.id}:${field.dataset.baseEdit}`;\n                field.textContent = saved.text;\n                field.removeAttribute(\"contenteditable\");\n                field.removeAttribute(\"tabindex\");\n                for (const name of [\"fontSize\", \"fontWeight\", \"lineHeight\", \"textAlign\"]) {\n                    const value = saved.styles?.[name];\n                    if (typeof value !== \"string\" || (value && !CSS.supports(name.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`), value))) throw new Error(\"Invalid typography setting.\");\n                    field.style[name] = value;\n                }\n            });\n            return slide;\n        });\n        this.applying = true;\n        editor.finishEditing();\n        presentation.stage.replaceChildren(...slides);\n        presentation.slides = slides;\n        slides.forEach((slide, index) => {\n            const number = slide.querySelector(\".slide-footer > span:last-child\");\n            if (number && !number.hasAttribute(\"data-edit\")) number.textContent = String(index + 1).padStart(2, \"0\");\n        });\n        editor.fields = [...presentation.stage.querySelectorAll(\"[data-edit]\")];\n        editor.fields.forEach(field => { if (editor.isActive) field.tabIndex = 0; });\n        this.selectText(null);\n        this.selectedSlides = new Set([...this.selectedSlides].filter(id => ids.has(id)));\n        if (!this.selectedSlides.size) this.selectedSlides.add(ids.has(state.current) ? state.current : slides[0].dataset.slideId);\n        if (!ids.has(this.selectionAnchor)) this.selectionAnchor = [...this.selectedSlides][0];\n        this.gallerySelecting = true;\n        presentation.showSlide(Math.max(0, slides.findIndex(slide => slide.dataset.slideId === state.current)));\n        this.gallerySelecting = false;\n        this.applying = false;\n    }\n    persist() {\n        try {\n            localStorage.setItem(this.storageKey, JSON.stringify(this.snapshot()));\n            return true;\n        } catch (error) {\n            console.error(\"Design tools auto-save failed:\", error);\n            notify(\"Slide changes could not be saved in this browser. Download HTML to keep them.\", true);\n            return false;\n        }\n    }\n    commit() {\n        if (this.applying) return;\n        const state = this.snapshot();\n        if (JSON.stringify(state.slides) !== JSON.stringify(this.history.at(-1)?.slides)) {\n            this.history.push(state);\n            if (this.history.length > 50) this.history.shift();\n        }\n        this.undoButton.disabled = this.history.length \u003c 2;\n        this.persist();\n        this.render();\n    }\n    undo() {\n        editor.finishEditing();\n        if (this.history.length \u003c 2) return;\n        this.history.pop();\n        this.apply(this.history.at(-1));\n        this.persist();\n        this.undoButton.disabled = this.history.length \u003c 2;\n        this.render();\n        notify(\"Last change undone.\");\n    }\n    selectText(field) {\n        this.selectedField = field;\n        const reveal = document.getElementById(\"typographyReveal\");\n        document.getElementById(\"editorTools\").classList.toggle(\"has-text-selection\", Boolean(field));\n        reveal.inert = !field;\n        reveal.setAttribute(\"aria-hidden\", String(!field));\n        this.typeControls.disabled = !field;\n        document.getElementById(\"selectionHint\").textContent = field\n            ? `${field.matches(\"h1,h2,h3\") ? \"Headline\" : field.matches(\"p\") ? \"Paragraph\" : \"Text\"} selected`\n            : \"Select a text block on the slide.\";\n        if (!field) {\n            Object.values(this.typography).forEach(input => { input.value = \"\"; });\n            return;\n        }\n        const style = getComputedStyle(field);\n        this.typography.fontSize.value = Math.round(parseFloat(style.fontSize));\n        this.typography.fontWeight.value = style.fontWeight;\n        this.typography.lineHeight.value = (parseFloat(style.lineHeight) / parseFloat(style.fontSize) || 1.2).toFixed(2);\n        this.typography.textAlign.value = [\"center\", \"right\"].includes(style.textAlign) ? style.textAlign : \"left\";\n    }\n    changeType(property, input) {\n        const field = this.selectedField;\n        if (!field || !editor.isActive) return;\n        if (!input.checkValidity() || input.value === \"\") {\n            input.reportValidity();\n            notify(\"Enter a typography value within the displayed range.\", true);\n            return;\n        }\n        editor.finishEditing();\n        field.style[property] = property === \"fontSize\" ? `${input.value}px` : input.value;\n        this.commit();\n        this.selectText(field);\n        editor.inspect(field);\n    }\n    selectSlide(id, event = {}) {\n        const ids = presentation.slides.map(slide => slide.dataset.slideId);\n        const index = ids.indexOf(id);\n        if (index \u003c 0) return;\n        if (event.shiftKey && ids.includes(this.selectionAnchor)) {\n            const anchor = ids.indexOf(this.selectionAnchor);\n            const range = ids.slice(Math.min(anchor, index), Math.max(anchor, index) + 1);\n            this.selectedSlides = new Set(event.metaKey || event.ctrlKey ? [...this.selectedSlides, ...range] : range);\n        } else if (event.metaKey || event.ctrlKey) {\n            if (this.selectedSlides.has(id)) this.selectedSlides.delete(id);\n            else this.selectedSlides.add(id);\n            this.selectionAnchor = id;\n        } else {\n            this.selectedSlides = new Set([id]);\n            this.selectionAnchor = id;\n        }\n        if (this.selectedSlides.has(id)) {\n            this.gallerySelecting = true;\n            presentation.showSlide(index);\n            this.gallerySelecting = false;\n        } else this.render();\n    }\n    organize(action, ids = this.selectedSlides) {\n        editor.finishEditing();\n        const state = this.snapshot();\n        const targets = new Set(ids);\n        const indices = state.slides.flatMap((slide, index) => targets.has(slide.id) ? [index] : []);\n        if (!indices.length) return;\n        if (action === \"duplicate\") {\n            const copies = [];\n            let currentCopy;\n            state.slides = state.slides.flatMap(slide => {\n                if (!targets.has(slide.id)) return [slide];\n                const copy = JSON.parse(JSON.stringify(slide));\n                copy.id = `slide-${crypto.randomUUID()}`;\n                copies.push(copy.id);\n                if (slide.id === state.current) currentCopy = copy.id;\n                return [slide, copy];\n            });\n            state.current = currentCopy || copies[0];\n            this.selectedSlides = new Set(copies);\n            this.selectionAnchor = state.current;\n        } else if (action === \"delete\") {\n            if (indices.length === state.slides.length) {\n                notify(\"Keep at least one slide in the presentation.\", true);\n                return;\n            }\n            state.slides = state.slides.filter(slide => !targets.has(slide.id));\n            if (targets.has(state.current)) state.current = state.slides[Math.min(indices[0], state.slides.length - 1)].id;\n            this.selectedSlides = new Set([...this.selectedSlides].filter(id => !targets.has(id)));\n        }\n        this.apply(state);\n        this.commit();\n    }\n    reorderSlides(ids, targetId, before) {\n        editor.finishEditing();\n        const state = this.snapshot();\n        const moving = new Set(ids);\n        const group = state.slides.filter(slide => moving.has(slide.id));\n        const rest = state.slides.filter(slide => !moving.has(slide.id));\n        const index = rest.findIndex(slide => slide.id === targetId);\n        if (index \u003c 0 || !group.length) return;\n        rest.splice(index + (before ? 0 : 1), 0, ...group);\n        if (rest.every((slide, i) => slide.id === state.slides[i].id)) return;\n        state.slides = rest;\n        this.selectedSlides = new Set(group.map(slide => slide.id));\n        this.apply(state);\n        this.commit();\n        notify(`${group.length === 1 ? \"Slide\" : `${group.length} slides`} moved.`);\n    }\n    setupDragging() {\n        addEventListener(\"pointerdown\", event => {\n            if (event.target.closest(\".slide-item\")) this.galleryPointerId = event.pointerId;\n        }, true);\n        const releaseGalleryPointer = event => {\n            if (this.galleryPointerId !== event.pointerId) return;\n            this.galleryPointerId = null;\n            if (this.galleryRenderPending) requestAnimationFrame(() => this.render());\n        };\n        addEventListener(\"pointerup\", releaseGalleryPointer, true);\n        addEventListener(\"pointercancel\", releaseGalleryPointer, true);\n        this.strip.addEventListener(\"click\", event => {\n            if (performance.now() \u003c (this.suppressGalleryClickUntil || 0)) {\n                event.preventDefault();\n                event.stopImmediatePropagation();\n            }\n        }, true);\n        this.strip.addEventListener(\"pointerdown\", event => {\n            const row = event.target.closest(\".slide-item\");\n            if (!row || event.button !== 0 || event.target.closest(\".thumb-actions, .thumb-select\")) return;\n            if (event.pointerType === \"touch\" && !event.target.closest(\".thumb-grip\")) return;\n            this.drag = { id: row.dataset.slideId, pointerId: event.pointerId, x: event.clientX, y: event.clientY, startX: event.clientX, startY: event.clientY, active: false };\n        });\n        addEventListener(\"pointermove\", event => {\n            const drag = this.drag;\n            if (!drag || drag.pointerId !== event.pointerId) return;\n            drag.x = event.clientX;\n            drag.y = event.clientY;\n            if (!drag.active && Math.hypot(drag.x - drag.startX, drag.y - drag.startY) > 6) {\n                editor.finishEditing();\n                if (!this.selectedSlides.has(drag.id)) this.selectedSlides = new Set([drag.id]);\n                drag.ids = [...this.selectedSlides];\n                drag.active = true;\n                this.strip.setPointerCapture(event.pointerId);\n                document.body.classList.add(\"dragging-slides\");\n                this.dragPreview = document.createElement(\"div\");\n                this.dragPreview.className = \"slide-drag-preview\";\n                this.dragPreview.setAttribute(\"aria-hidden\", \"true\");\n                this.dragPreview.textContent = `${drag.ids.length} ${drag.ids.length === 1 ? \"slide\" : \"slides\"}`;\n                document.body.append(this.dragPreview);\n                this.strip.querySelectorAll(\".slide-item\").forEach(row => row.classList.toggle(\"dragging\", this.selectedSlides.has(row.dataset.slideId)));\n                this.dragFrame = requestAnimationFrame(() => this.updateDrag());\n            }\n            if (drag.active) event.preventDefault();\n        }, { passive: false });\n        addEventListener(\"pointerup\", event => {\n            if (this.drag?.pointerId === event.pointerId) this.endDrag(true);\n        });\n        addEventListener(\"pointercancel\", event => {\n            if (this.drag?.pointerId === event.pointerId) this.endDrag(false);\n        });\n        addEventListener(\"blur\", () => {\n            this.galleryPointerId = null;\n            this.endDrag(false);\n            if (this.galleryRenderPending) this.render();\n        });\n        document.addEventListener(\"keydown\", event => {\n            if (event.key === \"Escape\" && this.drag) {\n                event.preventDefault();\n                event.stopImmediatePropagation();\n                this.endDrag(false);\n            }\n        }, true);\n        this.strip.addEventListener(\"keydown\", event => {\n            const row = event.target.closest(\".slide-item\");\n            if (!row || !event.altKey || ![\"ArrowUp\", \"ArrowDown\"].includes(event.key)) return;\n            event.preventDefault();\n            const id = row.dataset.slideId;\n            if (!this.selectedSlides.has(id)) this.selectedSlides = new Set([id]);\n            const ids = presentation.slides.map(slide => slide.dataset.slideId);\n            const selectedIndices = ids.flatMap((value, index) => this.selectedSlides.has(value) ? [index] : []);\n            const up = event.key === \"ArrowUp\";\n            const target = ids[up ? selectedIndices[0] - 1 : selectedIndices.at(-1) + 1];\n            if (target) this.reorderSlides(this.selectedSlides, target, up);\n        });\n    }\n    updateDrag() {\n        const drag = this.drag;\n        if (!drag?.active) return;\n        const panel = document.getElementById(\"editorTools\");\n        const bounds = panel.getBoundingClientRect();\n        const footerTop = document.getElementById(\"toolsDownload\").getBoundingClientRect().top;\n        const inside = drag.x >= bounds.left && drag.x \u003c= bounds.right && drag.y >= bounds.top && drag.y \u003c= footerTop;\n        if (inside) {\n            if (drag.y \u003c bounds.top + 44) panel.scrollTop -= Math.min(16, (bounds.top + 44 - drag.y) / 3);\n            if (drag.y > footerTop - 44) panel.scrollTop += Math.min(16, (drag.y - footerTop + 44) / 3);\n        }\n        this.dragPreview.style.left = `${drag.x + 12}px`;\n        this.dragPreview.style.top = `${drag.y + 12}px`;\n        const rows = [...this.strip.children].filter(row => !this.selectedSlides.has(row.dataset.slideId));\n        this.strip.querySelectorAll(\".drop-before, .drop-after\").forEach(row => row.classList.remove(\"drop-before\", \"drop-after\"));\n        drag.target = null;\n        const stripBounds = this.strip.getBoundingClientRect();\n        if (inside && drag.y >= Math.max(bounds.top, stripBounds.top) && rows.length) {\n            let target = rows.find(row => {\n                const rect = row.getBoundingClientRect();\n                return drag.y \u003c rect.top + rect.height / 2;\n            });\n            const before = Boolean(target);\n            target ||= rows.at(-1);\n            target.classList.add(before ? \"drop-before\" : \"drop-after\");\n            drag.target = { id: target.dataset.slideId, before };\n        }\n        this.dragFrame = requestAnimationFrame(() => this.updateDrag());\n    }\n    endDrag(drop) {\n        const drag = this.drag;\n        if (!drag) return;\n        this.drag = null;\n        this.galleryPointerId = null;\n        cancelAnimationFrame(this.dragFrame);\n        if (!drag.active) return;\n        if (this.strip.hasPointerCapture(drag.pointerId)) this.strip.releasePointerCapture(drag.pointerId);\n        this.dragPreview.remove();\n        document.body.classList.remove(\"dragging-slides\");\n        this.strip.querySelectorAll(\".dragging, .drop-before, .drop-after\").forEach(row => row.classList.remove(\"dragging\", \"drop-before\", \"drop-after\"));\n        this.suppressGalleryClickUntil = performance.now() + 400;\n        if (drop && drag.target) this.reorderSlides(drag.ids, drag.target.id, drag.target.before);\n        else this.render();\n    }\n    render() {\n        if (!this.strip || this.drag?.active) return;\n        if (this.galleryPointerId != null) {\n            this.galleryRenderPending = true;\n            return;\n        }\n        this.galleryRenderPending = false;\n        const focusedRow = document.activeElement?.closest(\".slide-item\");\n        const focusedId = focusedRow?.dataset.slideId;\n        const focusedControl = document.activeElement?.dataset.control;\n        this.strip.replaceChildren();\n        presentation.slides.forEach((slide, index) => {\n            const id = slide.dataset.slideId;\n            const row = document.createElement(\"div\");\n            row.className = \"slide-item\";\n            row.dataset.slideId = id;\n            const button = document.createElement(\"button\");\n            button.className = \"slide-thumb\";\n            button.dataset.control = \"thumbnail\";\n            button.setAttribute(\"aria-current\", String(index === presentation.currentSlide));\n            button.setAttribute(\"aria-pressed\", String(this.selectedSlides.has(id)));\n            const title = slide.querySelector(\"h1,h2\")?.textContent.replace(/\\s+/g, \" \").trim() || \"Untitled slide\";\n            button.setAttribute(\"aria-label\", `Slide ${index + 1}: ${title}`);\n            const preview = document.createElement(\"span\");\n            preview.className = \"thumb-preview\";\n            preview.setAttribute(\"aria-hidden\", \"true\");\n            const clone = slide.cloneNode(true);\n            clone.inert = true;\n            clone.querySelectorAll(\"[id], [data-edit], [contenteditable], [tabindex]\").forEach(node => {\n                if (node.hasAttribute(\"data-edit\")) node.style.whiteSpace = \"pre-wrap\";\n                for (const attr of [\"id\", \"data-edit\", \"data-base-edit\", \"contenteditable\", \"tabindex\", \"aria-labelledby\"]) node.removeAttribute(attr);\n            });\n            clone.classList.add(\"active\", \"visible\");\n            preview.append(clone);\n            const caption = document.createElement(\"span\");\n            caption.className = \"thumb-caption\";\n            caption.textContent = `${index + 1}. ${title}`;\n            button.append(preview, caption);\n            button.addEventListener(\"click\", event => this.selectSlide(id, event));\n            button.addEventListener(\"keydown\", event => {\n                if (event.key === \" \" && !event.altKey) {\n                    event.preventDefault();\n                    this.selectSlide(id, { ctrlKey: true, shiftKey: event.shiftKey });\n                }\n            });\n            const checkbox = document.createElement(\"input\");\n            checkbox.type = \"checkbox\";\n            checkbox.className = \"thumb-select\";\n            checkbox.dataset.control = \"select\";\n            checkbox.checked = this.selectedSlides.has(id);\n            checkbox.setAttribute(\"aria-label\", `Select slide ${index + 1}`);\n            checkbox.addEventListener(\"change\", () => this.selectSlide(id, { ctrlKey: true }));\n            const actions = document.createElement(\"div\");\n            actions.className = \"thumb-actions\";\n            for (const [action, label, icon] of [\n                [\"duplicate\", \"Duplicate\", '\u003crect x=\"8\" y=\"8\" width=\"12\" height=\"12\" rx=\"2\"/>\u003cpath d=\"M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3\"/>'],\n                [\"delete\", \"Delete\", '\u003cpath d=\"M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7\"/>']\n            ]) {\n                const actionButton = document.createElement(\"button\");\n                actionButton.dataset.control = action;\n                actionButton.title = `${label} slide ${index + 1}`;\n                actionButton.setAttribute(\"aria-label\", actionButton.title);\n                actionButton.innerHTML = `\u003csvg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\">${icon}\u003c/svg>`;\n                actionButton.disabled = action === \"delete\" && presentation.slides.length === 1;\n                actionButton.addEventListener(\"click\", () => this.organize(action, [id]));\n                actions.append(actionButton);\n            }\n            const grip = document.createElement(\"button\");\n            grip.className = \"thumb-grip\";\n            grip.dataset.control = \"grip\";\n            grip.title = \"Drag to reorder. Alt + Up/Down also moves selected slides.\";\n            grip.setAttribute(\"aria-label\", `Reorder slide ${index + 1}. Use Alt + ArrowUp or ArrowDown.`);\n            grip.innerHTML = '\u003csvg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\">\u003ccircle cx=\"9\" cy=\"5\" r=\"1.5\"/>\u003ccircle cx=\"15\" cy=\"5\" r=\"1.5\"/>\u003ccircle cx=\"9\" cy=\"12\" r=\"1.5\"/>\u003ccircle cx=\"15\" cy=\"12\" r=\"1.5\"/>\u003ccircle cx=\"9\" cy=\"19\" r=\"1.5\"/>\u003ccircle cx=\"15\" cy=\"19\" r=\"1.5\"/>\u003c/svg>';\n            row.append(button, checkbox, actions, grip);\n            this.strip.append(row);\n        });\n        const count = this.selectedSlides.size;\n        document.getElementById(\"slideSelectionCount\").textContent = count ? `· ${count} selected` : \"\";\n        document.getElementById(\"duplicateSlide\").disabled = count === 0;\n        document.getElementById(\"deleteSlide\").disabled = count === 0 || count === presentation.slides.length;\n        document.getElementById(\"deleteSlide\").title = count === presentation.slides.length ? \"Keep at least one slide in the presentation\" : `Delete ${count} selected ${count === 1 ? \"slide\" : \"slides\"}`;\n        if (focusedId) {\n            const row = [...this.strip.children].find(item => item.dataset.slideId === focusedId) || this.strip.children[presentation.currentSlide];\n            row?.querySelector(`[data-control=\"${focusedControl || \"thumbnail\"}\"]`)?.focus({ preventScroll: true });\n        }\n    }\n}\n\n/* === STARTUP === */\nconst presentation = new SlidePresentation();\nconst editor = new InlineEditor();\nconst designTools = new DesignTools();\nwindow.slidekickDemo = { editor, presentation, tools: designTools };\nrequestAnimationFrame(() => requestAnimationFrame(() => document.documentElement.classList.add(\"motion-ready\")));\n\u003c/script>\n\u003c/body>\n\u003c/html>\n";
+const readyProductFrames = new WeakSet();
+const productScenes = {
+  hello: { headline:'Good slides.\nGreat ideas.', copy:'A little help.\nA lot more flow.' },
+  type: { headline:'Make it\nyour own.', copy:'The right words.\nJust the right weight.' },
+  present: { headline:'Let the\nidea shine.', copy:'Nothing in the way.\nEverything on the slide.' },
+  takeaway: { headline:'Ready when\nyou are.', copy:'One HTML file.\nThe whole presentation.' }
+};
+function prepareProductFrame(frame) {
+  if (readyProductFrames.has(frame)) return;
+  readyProductFrames.add(frame);
+  const memory = new Map();
+  Object.defineProperty(frame.contentWindow, 'localStorage', {
+    configurable:true,
+    value:{
+      getItem:key => memory.get(key) ?? null,
+      setItem:(key,value) => memory.set(key,String(value)),
+      removeItem:key => memory.delete(key)
+    }
+  });
+  const view = frame.contentDocument;
+  view.open();
+  view.write(slidekickProductHTML);
+  view.close();
+  // No scrollbars in the demo: the side panel still scrolls (the promo scrolls it), it just doesn't show a bar
+  const quiet = view.createElement('style');
+  quiet.textContent = '* { scrollbar-width: none; } *::-webkit-scrollbar { display: none; }';
+  view.head.append(quiet);
+  const api = frame.contentWindow.slidekickDemo;
+  const scene = frame.dataset.scene;
+  if (scene === 'promo') {
+    api.presentation.showSlide(1);
+    api.editor.setMode(false, false);
+    frame.contentWindow.requestAnimationFrame(() => api.presentation.fit());
+    return;
+  }
+  api.editor.setMode(true, false);
+  const headline = view.querySelector('#deckStage h1');
+  if (scene === 'organize') {
+    api.tools.organize('duplicate');
+    api.tools.organize('duplicate');
+    api.tools.organize('duplicate');
+    const titles = ['Start with an idea.', 'Make it your own.', 'Find the flow.', 'Take the stage.', 'Keep it moving.'];
+    api.presentation.slides.forEach((slide, index) => {
+      slide.querySelector('h1,h2').textContent = titles[index];
+      const paragraph = slide.querySelector('p');
+      if (paragraph) paragraph.textContent = 'A little room for a big idea.';
+    });
+    api.tools.commit();
+    api.tools.selectSlide(api.presentation.slides[0].dataset.slideId);
+    api.tools.selectSlide(api.presentation.slides[2].dataset.slideId, { ctrlKey:true });
+    api.tools.selectText(null);
+  } else {
+    const content = productScenes[scene] || productScenes.hello;
+    headline.textContent = content.headline;
+    view.querySelector('#deckStage .lead').textContent = content.copy;
+    api.tools.commit();
+    if (scene === 'present') api.editor.setMode(false, false);
+    else if (scene === 'takeaway') {
+      api.tools.selectText(null);
+    } else {
+      if (scene === 'type') headline.style.fontSize = '136px';
+      api.tools.selectText(headline);
+      api.editor.inspect(headline);
+    }
+  }
+  view.querySelector('#status').classList.remove('show');
+  view.querySelector('#editorTools').scrollTop = 0;
+  frame.contentWindow.requestAnimationFrame(() => api.presentation.fit());
+}
+function prepareProductShots() {
+  presentation.stage.querySelectorAll('.product-frame').forEach(prepareProductFrame);
+}
+prepareProductShots();
+new MutationObserver(prepareProductShots).observe(presentation.stage, { childList:true });
+document.addEventListener('slidechange', prepareProductShots);
+
+/* === FEATURE PROMO: ONE CONTINUOUS CAMERA AND REAL TOOL INTERACTIONS === */
+function preparePromoExport(copy, root) {
+  const index = presentation.slides.indexOf(root);
+  const promo = copy.querySelectorAll('#deckStage > .slide')[index];
+  if (!promo?.classList.contains('scene-promo')) throw new Error('The promo slide could not be exported.');
+  copy.querySelector('#deckStage').replaceChildren(promo);
+  copy.querySelector('#deckStage').setAttribute('aria-label', 'Slidekick feature promo');
+  promo.classList.add('active', 'visible');
+  promo.inert = false;
+  promo.setAttribute('aria-hidden', 'false');
+  promo.querySelector('.promo-footer > span:last-child')?.remove();
+  copy.classList.add('promo-standalone');
+  copy.querySelector('title').textContent = 'Slidekick feature promo | H-E-B';
+  copy.querySelector('meta[name="description"]').content = 'A standalone animated tour of Slidekick.';
+}
+
+class SlidekickPromo {
+  constructor(root) {
+    this.root = root;
+    this.viewport = root.querySelector('.promo-viewport');
+    this.camera = root.querySelector('.promo-camera');
+    this.cursor = root.querySelector('.promo-cursor');
+    this.file = root.querySelector('.promo-file');
+    this.caption = root.querySelector('.promo-step');
+    this.pauseButton = root.querySelector('.promo-pause');
+    this.replayButton = root.querySelector('.promo-replay');
+    this.pose = { x:0, y:0, scale:1720 / 1440 };
+    this.pointer = { x:1300, y:580 };
+    this.reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    this.pauseButton.addEventListener('click', () => this.setPaused(!this.paused));
+    this.replayButton.addEventListener('click', () => this.play());
+    this.onReducedChange = () => {
+      if (this.root.classList.contains('active') && !editor.isActive) this.play();
+    };
+    this.reduced.addEventListener('change', this.onReducedChange);
+    this.reset();
+  }
+  reset() {
+    const old = this.root.querySelector('.promo-frame');
+    const fresh = old.cloneNode(false);
+    old.replaceWith(fresh);
+    prepareProductFrame(fresh);
+    this.frame = fresh;
+    this.view = fresh.contentDocument;
+    this.api = fresh.contentWindow.slidekickDemo;
+    this.file.style.opacity = '0';
+    this.file.style.transform = 'translateY(16px)';
+    this.file.setAttribute('aria-hidden', 'true');
+    this.cursor.style.opacity = '0';
+    this.cursor.classList.remove('pressed');
+    this.setPose({ x:0, y:0, scale:1720 / 1440 });
+    this.setPointer({ x:1300, y:580 });
+    this.caption.textContent = 'Start with the big picture.';
+    this.beat = 'wide';
+    this.finished = false;
+    this.exportedBlob = null;
+    this.setPaused(false);
+  }
+  setPaused(paused) {
+    this.paused = paused;
+    this.pauseButton.textContent = paused ? 'Resume' : 'Pause';
+    this.pauseButton.setAttribute('aria-label', paused ? 'Resume demo' : 'Pause demo');
+  }
+  setPose(pose) {
+    this.pose = pose;
+    this.camera.style.transform = `translate(${pose.x}px,${pose.y}px) scale(${pose.scale})`;
+  }
+  setPointer(point) {
+    this.pointer = point;
+    this.cursor.style.transform = `translate(${point.x}px,${point.y}px)`;
+  }
+  target(selector, x = .85, y = .6) {
+    const element = this.view.querySelector(selector);
+    if (!element) throw new Error(`Slidekick demo target missing: ${selector}`);
+    const rect = element.getBoundingClientRect();
+    return { x:rect.x + rect.width * x, y:rect.y + rect.height * y };
+  }
+  animate(duration, update = () => {}) {
+    const signal = this.abort.signal;
+    return new Promise((resolve, reject) => {
+      let previous;
+      let elapsed = 0;
+      let frame;
+      const cancel = () => {
+        cancelAnimationFrame(frame);
+        reject(new DOMException('Demo stopped', 'AbortError'));
+      };
+      signal.addEventListener('abort', cancel, { once:true });
+      const tick = time => {
+        if (signal.aborted) return;
+        if (previous !== undefined && !this.paused && !document.hidden) {
+          elapsed += Math.min(64, time - previous) * (this.speed || 1);
+        }
+        previous = time;
+        const progress = Math.min(1, elapsed / duration);
+        update(progress);
+        if (progress === 1) {
+          signal.removeEventListener('abort', cancel);
+          resolve();
+        } else frame = requestAnimationFrame(tick);
+      };
+      if (signal.aborted) cancel();
+      else frame = requestAnimationFrame(tick);
+    });
+  }
+  ease(t) {
+    return t * t * (3 - 2 * t);
+  }
+  async move(selector, duration = 650, x = .85, y = .6) {
+    const from = { ...this.pointer };
+    const to = this.target(selector, x, y);
+    this.cursor.style.opacity = '1';
+    await this.animate(duration, progress => {
+      const t = this.ease(progress);
+      this.setPointer({ x:from.x + (to.x - from.x) * t, y:from.y + (to.y - from.y) * t });
+    });
+  }
+  async press(action) {
+    this.cursor.classList.add('pressed');
+    await this.animate(110);
+    action();
+    this.cursor.classList.remove('pressed');
+    await this.animate(220);
+  }
+  async focus(selector, duration = 1100, scale = 2.15, top = false, centerY = 380) {
+    const rect = this.view.querySelector(selector).getBoundingClientRect();
+    const from = { ...this.pose };
+    // The side panel's left edge (12px into the screen) sits 28px in from the frame, the same margin as the top
+    const to = {
+      x:28 - 12 * scale,
+      y:top ? 28 - rect.top * scale : centerY - (rect.top + rect.height / 2) * scale,
+      scale
+    };
+    await this.animate(duration, progress => {
+      const t = this.ease(progress);
+      this.setPose(Object.fromEntries(Object.keys(to).map(key => [key, from[key] + (to[key] - from[key]) * t])));
+    });
+  }
+  mark(beat, caption) {
+    this.beat = beat;
+    this.caption.textContent = caption;
+    if (this.pauseAt === beat) this.setPaused(true);
+  }
+  exportDemo() {
+    // Generate the real export, but do not download files during an authored demo.
+    const win = this.frame.contentWindow;
+    const click = win.HTMLAnchorElement.prototype.click;
+    const createURL = win.URL.createObjectURL;
+    let filename;
+    win.URL.createObjectURL = blob => {
+      this.exportedBlob = blob;
+      return createURL.call(win.URL, blob);
+    };
+    win.HTMLAnchorElement.prototype.click = function () {
+      if (this.download) filename = this.download;
+      else click.call(this);
+    };
+    try {
+      this.api.editor.saveFile();
+    } finally {
+      win.HTMLAnchorElement.prototype.click = click;
+      win.URL.createObjectURL = createURL;
+    }
+    if (!filename || !this.exportedBlob) throw new Error('Slidekick demo export did not create an HTML file.');
+    this.file.querySelector('strong').textContent = filename;
+    this.view.querySelector('#status').classList.remove('show');
+  }
+  stop() {
+    this.abort?.abort();
+    this.running = false;
+  }
+  dispose() {
+    this.stop();
+    this.reduced.removeEventListener('change', this.onReducedChange);
+  }
+  async play() {
+    this.stop();
+    this.reset();
+    const abort = new AbortController();
+    this.abort = abort;
+    this.running = true;
+    this.pauseButton.hidden = this.reduced.matches;
+    try {
+      if (this.reduced.matches) {
+        this.api.editor.setMode(true, false);
+        this.api.tools.organize('duplicate');
+        this.exportDemo();
+        this.file.style.opacity = '1';
+        this.file.style.transform = 'none';
+        this.file.setAttribute('aria-hidden', 'false');
+        this.mark('complete', 'Edit. Arrange. Take it with you.');
+        this.finished = true;
+        return;
+      }
+      await this.animate(1200);
+      await this.move('#editMode');
+      await this.press(() => this.api.editor.setMode(true, false));
+      await this.animate(600);
+      await this.move('.slide.active .overview-title', 750, .55, .7);
+      await this.press(() => {
+        const headline = this.view.querySelector('.slide.active .overview-title');
+        this.api.tools.selectText(headline);
+        this.api.editor.inspect(headline);
+      });
+      await this.animate(500);
+      this.mark('opening', 'A little help, right where you work.');
+      await this.focus('#editorTools', 1300, 2.15, true);
+      await this.animate(450);
+      await this.focus('#typeControls', 950);
+      await this.move('#typeSize', 550, .7, .55);
+      await this.press(() => this.view.querySelector('#typeSize').setAttribute('data-demo-selected', 'true'));
+      const size = this.view.querySelector('#typeSize');
+      for (const value of ['1', '11', '112']) {
+        size.value = value;
+        await this.animate(95);
+      }
+      this.api.tools.changeType('fontSize', size);
+      this.mark('typography', 'Dial in the details.');
+      await this.animate(1000);
+      await this.move('#selectionHint', 450);
+      await this.press(() => {
+        this.api.editor.finishEditing();
+        this.api.tools.selectText(null);
+        this.api.editor.inspect(null);
+      });
+      await this.animate(500);
+      await this.focus('.organizer-top', 1000);
+      await this.move('#duplicateSlide', 650);
+      await this.press(() => this.api.tools.organize('duplicate'));
+      await this.animate(450);
+      this.mark('organize', 'Make room for another idea.');
+      await this.move('.slide-strip', 550, .6, .35);
+      const panel = this.view.querySelector('#editorTools');
+      const start = panel.scrollTop;
+      await this.animate(1100, progress => {
+        panel.scrollTop = start + (panel.scrollHeight - panel.clientHeight - start) * this.ease(progress);
+      });
+      await this.animate(450);
+      await this.focus('#saveButton', 1400, 2.15, false, 580);
+      await this.move('#saveButton', 650, .85, .55);
+      this.mark('download', 'One HTML file. The whole deck.');
+      await this.press(() => this.exportDemo());
+      await this.animate(500);
+      const from = { ...this.pose };
+      await this.animate(1300, progress => {
+        const t = this.ease(progress);
+        this.setPose({ x:from.x * (1 - t), y:from.y * (1 - t), scale:from.scale + (1720 / 1440 - from.scale) * t });
+        this.cursor.style.opacity = String(1 - t);
+      });
+      this.file.setAttribute('aria-hidden', 'false');
+      await this.animate(450, progress => {
+        this.file.style.opacity = String(progress);
+        this.file.style.transform = `translateY(${16 * (1 - this.ease(progress))}px)`;
+      });
+      this.mark('complete', 'Your deck. Ready to go.');
+      this.finished = true;
+      this.pauseButton.hidden = true;
+      await this.animate(3000);
+      this.play();
+      return;
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        console.error('Slidekick feature demo failed:', error);
+        this.caption.textContent = 'Demo paused. Use Replay to try again.';
+        this.pauseButton.hidden = true;
+      }
+    } finally {
+      if (!abort.signal.aborted) this.running = false;
+    }
+  }
+}
+const slidekickPromos = new Map();
+function syncSlidekickPromos() {
+  for (const [root, demo] of slidekickPromos) {
+    if (!root.isConnected) {
+      demo.dispose();
+      slidekickPromos.delete(root);
+    }
+  }
+  for (const root of presentation.stage.querySelectorAll('.scene-promo')) {
+    let demo = slidekickPromos.get(root);
+    if (!demo) {
+      demo = new SlidekickPromo(root);
+      slidekickPromos.set(root, demo);
+    }
+    if (root.classList.contains('active') && !editor.isActive) {
+      if (!demo.running && !demo.finished) demo.play();
+    } else {
+      demo.stop();
+      demo.finished = false;
+    }
+  }
+}
+syncSlidekickPromos();
+new MutationObserver(syncSlidekickPromos).observe(presentation.stage, { childList:true });
+new MutationObserver(syncSlidekickPromos).observe(document.body, { attributes:true, attributeFilter:['class'] });
+document.addEventListener('slidechange', syncSlidekickPromos);
+window.slidekickPromo = { demos:slidekickPromos };
+
+</script>
+
+
+</body></html>
