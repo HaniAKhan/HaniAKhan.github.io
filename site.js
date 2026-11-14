@@ -490,7 +490,14 @@
     if (about) { about.style.width = `${textWidth}px`; below = about.offsetHeight + ABOUT_GAP; }
     let h = w / ratio;
     if (h + below > room) { h = room - below; w = h * ratio; }
-    const top = (innerHeight - h - below) / 2;
+    let top = (innerHeight - h - below) / 2;
+    // Keep clear of the close button, which sits in the top right
+    const clear = innerWidth <= 640 ? 64 : 72;
+    if (top < clear) {
+      const fit = innerHeight - clear - 16 - below;
+      if (h > fit) { h = fit; w = h * ratio; }
+      top = clear;
+    }
     return { w, h, left: (innerWidth - w) / 2, top, textTop: top + h + ABOUT_GAP, textLeft: (innerWidth - textWidth) / 2 };
   }
   // The thumbnail's place, size and tilt, measured untilted, as a transform from the lightbox box
@@ -540,6 +547,12 @@
     const source = link.closest('.tool')?.querySelector('.tool__about');
     const about = source ? Object.assign(document.createElement('p'), { className: 'promo-lightbox__about', textContent: source.textContent }) : null;
     if (about) shade.append(about);
+    // An obvious way out, in the top right like the sheet's
+    const closer = document.createElement('button');
+    closer.type = 'button';
+    closer.className = 'promo-lightbox__close';
+    closer.setAttribute('aria-label', 'Close');
+    shade.append(closer);
     document.body.append(shade);
 
     const [sw, sh] = (link.dataset.promoSize || '').split('x').map(Number);
@@ -556,7 +569,8 @@
     link.style.visibility = 'hidden';
     box.animate([{ transform: fromThumb(shot, place) }, { transform: 'none' }], { duration: time, easing: EASE_OUT });
     shade.animate([{ backgroundColor: 'transparent' }, {}], { duration: time, easing: EASE_OUT });
-    shade.focus({ preventScroll: true });
+    closer.animate([{ opacity: 0, transform: 'scale(0.9)' }, { opacity: 1, transform: 'none' }], { duration: time, easing: EASE_OUT });
+    closer.focus({ preventScroll: true });
     // Once it has landed and the promo has loaded, the screenshot fades away to reveal it
     const landed = new Promise((resolve) => setTimeout(resolve, time));
     const loaded = new Promise((resolve) => frame.addEventListener('load', resolve, { once: true }));
@@ -577,6 +591,7 @@
       still.style.opacity = '1';
       frame.remove();
       if (about) about.animate([{ opacity: 1 }, { opacity: 0 }], { duration: time / 2, fill: 'forwards' });
+      closer.animate([{ opacity: 1 }, { opacity: 0 }], { duration: time / 2, fill: 'forwards' });
       box.animate([{ transform: 'none' }, { transform: fromThumb(shot, place) }], { duration: time, easing: EASE_OUT, fill: 'forwards' });
       shade.animate([{}, { backgroundColor: 'transparent' }], { duration: time, easing: EASE_OUT, fill: 'forwards' })
         .finished.then(() => {
@@ -589,6 +604,7 @@
     function onKey(e) { if (e.key === 'Escape') close(); }
     addEventListener('keydown', onKey);
     shade.addEventListener('click', (e) => { if (!box.contains(e.target) && !(about && about.contains(e.target))) close(); });
+    closer.addEventListener('click', (e) => { e.stopPropagation(); close(); });
   });
 
   /* ---------- Resume: a preview in the sheet, with the PDF to download or open ---------- */

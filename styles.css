@@ -890,6 +890,36 @@ html.is-loading .theme-toggle { opacity: 0; }
   border: 0;
 }
 .promo-lightbox__still { object-fit: cover; pointer-events: none; }
+/* Close, in the top right; drawn like the sheet's close button */
+.promo-lightbox__close {
+  position: absolute;
+  top: calc(20px + var(--safe-top, 0px));
+  right: 20px;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--toggle-bg);
+  cursor: pointer;
+  transition: transform 400ms var(--ease-out);
+}
+.promo-lightbox__close::before,
+.promo-lightbox__close::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: var(--text);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.promo-lightbox__close::after { transform: translate(-50%, -50%) rotate(-45deg); }
+@media (hover: hover) { .promo-lightbox__close:hover { transform: rotate(90deg); } }
+.promo-lightbox__close:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
 /* For a promo with its own window frame: no backing, so the frame and its shadow sit on the wash.
    The screenshot fades out as the promo appears, so it can keep its rounded corners. */
 .promo-lightbox__box--frameless { overflow: visible; border-radius: 0; background: none; box-shadow: none; }
@@ -907,6 +937,7 @@ html.is-loading .theme-toggle { opacity: 0; }
 }
 @media (max-width: 640px) {
   .promo-lightbox__box { border-radius: 8px; }
+  .promo-lightbox__close { top: calc(12px + var(--safe-top, 0px)); right: 12px; }
   .promo-lightbox__about { font-size: 17px; line-height: 26px; }
 }
 
