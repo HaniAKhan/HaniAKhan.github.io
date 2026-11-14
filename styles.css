@@ -580,7 +580,6 @@ body { overflow-x: clip; }
   height: 100%;
   object-fit: cover;
 }
-.case:hover .case__art { transform: scale(1.015); }
 /* Phone-only artwork (shown in the mobile breakpoint) */
 .case__art--mobile { display: none; }
 
@@ -706,7 +705,6 @@ html.is-loading .theme-toggle { opacity: 0; }
 .js .case.is-visible > * { opacity: 1; transform: none; }
 .js .case.is-visible .case__media { clip-path: inset(0 0 0 0 round 6px); }
 .js .case.is-visible .case__art { transform: none; }
-.js .case.is-visible:hover .case__art { transform: scale(1.015); transition-duration: 900ms; }
 
 /* ---------- Lightbox ---------- */
 .case__media { cursor: zoom-in; }
