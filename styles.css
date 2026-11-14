@@ -888,6 +888,10 @@ html.is-loading .theme-toggle { opacity: 0; }
   border: 0;
 }
 .promo-lightbox__still { object-fit: cover; pointer-events: none; }
+/* On a phone, when the paragraph runs past the screen, the lightbox scrolls; the close button stays put */
+.promo-lightbox--scrolls { overflow: hidden auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.promo-lightbox--scrolls .promo-lightbox__about { padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px)); }
+.promo-lightbox--scrolls .promo-lightbox__close { position: fixed; }
 /* Close, in the top right; drawn like the sheet's close button */
 .promo-lightbox__close {
   position: absolute;
@@ -936,6 +940,8 @@ html.is-loading .theme-toggle { opacity: 0; }
 @media (max-width: 640px) {
   .promo-lightbox__box { border-radius: 8px; }
   .promo-lightbox__close { top: calc(12px + var(--safe-top, 0px)); right: 12px; }
+  /* Solid on a phone, so the page behind doesn't show through the paragraph as it scrolls */
+  .promo-lightbox { background: var(--bg); }
   .promo-lightbox__about { font-size: 17px; line-height: 26px; }
 }
 

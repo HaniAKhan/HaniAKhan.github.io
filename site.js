@@ -481,6 +481,15 @@
   const ABOUT_GAP = 20;
   // The largest box of the promo's shape that fits the middle of the screen with its paragraph under it
   function promoBox(about, ratio = PROMO_RATIO) {
+    // On a phone the promo takes the full width, less the page's margin, and the paragraph follows below
+    // it; if they don't both fit, the lightbox scrolls instead of shrinking the promo
+    if (innerWidth <= 640) {
+      const w = innerWidth - 32, h = w / ratio, clear = 64;
+      let below = 0;
+      if (about) { about.style.width = `${w}px`; below = about.offsetHeight + ABOUT_GAP; }
+      const top = Math.max(clear, (innerHeight - h - below) / 2);
+      return { w, h, left: 16, top, textTop: top + h + ABOUT_GAP, textLeft: 16, scrolls: top + h + below > innerHeight - 16 };
+    }
     const room = innerHeight * 0.88;
     let w = Math.min(innerWidth * 0.92, 1100);
     // The paragraph keeps a readable line length: the page's text column, or the screen's width if narrower.
@@ -558,6 +567,7 @@
     const [sw, sh] = (link.dataset.promoSize || '').split('x').map(Number);
     const fixed = sw && sh;
     const place = promoBox(about, fixed ? sw / sh : PROMO_RATIO);
+    if (place.scrolls) shade.classList.add('promo-lightbox--scrolls');
     if (fixed) Object.assign(frame.style, { width: `${sw}px`, height: `${sh}px`, transform: `scale(${place.w / sw})`, transformOrigin: '0 0' });
     Object.assign(box.style, { left: `${place.left}px`, top: `${place.top}px`, width: `${place.w}px`, height: `${place.h}px` });
     if (about) {
@@ -586,6 +596,7 @@
       if (closing) return;
       closing = true;
       clearTimeout(watched);
+      shade.scrollTop = 0; // back to the top, so the promo shrinks into its card from where it opened
       removeEventListener('keydown', onKey);
       still.getAnimations().forEach((a) => a.cancel());
       still.style.opacity = '1';
