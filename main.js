@@ -19,7 +19,8 @@
 
   /* ---------- Headline word split ---------- */
   const title = document.querySelector('[data-split]');
-  const words = title.textContent.trim().split(/\s+/);
+  // Split on ordinary whitespace only, so a non-breaking space in the markup keeps a phrase on one line
+  const words = title.textContent.trim().split(/[ \t\n\r]+/);
   title.setAttribute('aria-label', title.textContent.trim());
   title.innerHTML = words
     .map((word) => `<span class="split-mask" aria-hidden="true"><span class="split-word">${word}</span></span>`)
