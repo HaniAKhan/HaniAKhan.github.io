@@ -1044,8 +1044,7 @@ html.is-loading .theme-toggle { opacity: 0; }
   .site-header { padding: calc(16px + var(--safe-top)) var(--gutter) 0 var(--gutter); align-items: center; }
   .wordmark { margin-top: 0; }
   .page { padding: calc(112px + var(--safe-top)) 0 120px; }
-  /* Scales with the screen so "prompt optimization," always fits on one line (the phrase is about 8.1em wide) */
-  .hero__title { font-size: min(46px, (100vw - 2 * var(--gutter)) / 8.3); }
+  .hero__title { font-size: 46px; }
   .hero__intro { font-size: 17px; line-height: 26px; }
   .social { width: 44px; height: 44px; }
   /* A little tighter, so LinkedIn, email and resume share one row on most phones */
