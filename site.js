@@ -46,15 +46,25 @@
     document.head.append(counter);
   }
   const caseName = (path) => path.split('/').filter(Boolean).pop() || 'home';
-  document.addEventListener('click', (event) => {
-    if (event.target.closest('[data-email-copy]')) count('copy-email');
-    else if (event.target.closest('a[href*="linkedin.com"]')) count('open-linkedin');
-    else if (event.target.closest('[data-resume-download]')) count('download-resume');
-    else {
-      const toolLink = event.target.closest('a[data-tool-link]');
-      if (toolLink) count('open-tool-' + toolLink.dataset.toolLink);
-    }
-  });
+  const toolSlug = (name) => (name || 'Tool').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  // Every way of opening a link counts once: a plain click, a Cmd/Ctrl/Shift-click and a middle-click
+  // (which browsers report as an auxclick, not a click). Each is counted the moment it happens.
+  const countOpen = (event) => {
+    const t = event.target;
+    // Opened in a new tab or window, so this page stays and the event can be sent from here
+    const newTab = event.type === 'auxclick' || event.metaKey || event.ctrlKey || event.shiftKey;
+    let link;
+    if (event.type === 'click' && t.closest('[data-email-copy]')) count('copy-email');
+    else if ((link = t.closest('a[data-track]'))) count(link.dataset.track);
+    else if (t.closest('[data-resume-download]')) count('download-resume');
+    else if ((link = t.closest('a[data-tool-link]'))) count('open-tool-' + link.dataset.toolLink);
+    else if ((link = t.closest('a[data-promo]'))) count('open-tool-' + toolSlug(link.dataset.promoName));
+    else if (t.closest('a[data-resume]')) count('open-resume');
+    // A case study opened in this tab is counted when it loads (see the password gate below)
+    else if ((link = t.closest('a[data-case-link]')) && newTab) count('open-case-' + caseName(link.pathname));
+  };
+  document.addEventListener('click', countOpen);
+  document.addEventListener('auxclick', (event) => { if (event.button === 1) countOpen(event); });
 
   /* ---------- Theme ---------- */
   const toggle = document.querySelector('.theme-toggle');
@@ -528,8 +538,7 @@
     event.preventDefault();
     if (document.querySelector('.promo-lightbox')) return;
     const name = link.dataset.promoName || 'Tool';
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    count('open-tool-' + slug);
+    const slug = toolSlug(name); // the open itself is counted by countOpen
     // Kept open long enough to watch a good part of it, rather than closed straight away
     const watched = setTimeout(() => count('watch-tool-' + slug), PROMO_WATCHED);
     const shot = link.querySelector('img');
@@ -626,8 +635,7 @@
   document.addEventListener('click', (event) => {
     const link = event.target.closest('a[data-resume]');
     if (!link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    count('open-resume');
+    event.preventDefault(); // the open is counted by countOpen
     const view = document.createElement('div');
     view.className = 'resume';
     view.innerHTML = `
@@ -644,7 +652,10 @@
     const link = event.target.closest('a[data-case-link]');
     if (!link) return;
     const opened = 'open-case-' + caseName(link.pathname);
-    if (isUnlocked() || event.metaKey || event.ctrlKey || event.shiftKey) {
+    // Into a new tab: the browser opens it as it is, and countOpen has already counted it
+    if (event.metaKey || event.ctrlKey || event.shiftKey) return;
+    // In this tab: counted when the case study loads, so it isn't lost as this page is left
+    if (isUnlocked()) {
       countOnArrival(opened, link.pathname);
       return;
     }
