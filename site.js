@@ -50,6 +50,10 @@
     if (event.target.closest('[data-email-copy]')) count('copy-email');
     else if (event.target.closest('a[href*="linkedin.com"]')) count('open-linkedin');
     else if (event.target.closest('[data-resume-download]')) count('download-resume');
+    else {
+      const toolLink = event.target.closest('a[data-tool-link]');
+      if (toolLink) count('open-tool-' + toolLink.dataset.toolLink);
+    }
   });
 
   /* ---------- Theme ---------- */
