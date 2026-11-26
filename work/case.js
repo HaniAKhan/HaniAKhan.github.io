@@ -116,7 +116,8 @@
       stop() { clearInterval(timer); },
     };
   }
-  const deviceStatus = statusCycler(device.querySelector('[data-status]'), false);
+  const deviceStatusEl = device.querySelector('[data-status]');
+  const deviceStatus = deviceStatusEl ? statusCycler(deviceStatusEl, false) : { start() {}, stop() {} };
   const shotStatusEl = document.querySelector('.canvas__app--loading [data-status]');
   if (shotStatusEl && 'IntersectionObserver' in window) {
     const shotStatus = statusCycler(shotStatusEl, true);
@@ -257,9 +258,11 @@
   async function startSequence() {
     if (sequenceStarted) return;
     sequenceStarted = true;
+    const camera = device.querySelector('[data-state="camera"]');
+    // A phone with a flow of its own (the meal planning page) runs it from its page script
+    if (!camera) { device.dispatchEvent(new CustomEvent('device:in-view')); return; }
     await wait(250); // a brief beat on the camera before the photo
 
-    const camera = device.querySelector('[data-state="camera"]');
     if (!reduceMotion) {
       camera.querySelector('.camera__shutter').animate(
         [{ transform: 'scale(1)' }, { transform: 'scale(0.86)', offset: 0.35 }, { transform: 'scale(1)' }],
@@ -337,6 +340,14 @@
     });
     copy.querySelectorAll('[data-swap-demo]').forEach((app) => {
       const demo = swapDemo(app);
+      demo.start();
+      running.push(demo);
+    });
+    // Demos a page script registers (window.caseDemos[name] = (el) => ({ start, stop })) keep playing in a copy
+    copy.querySelectorAll('[data-demo]').forEach((el) => {
+      const make = window.caseDemos && window.caseDemos[el.dataset.demo];
+      if (!make) return;
+      const demo = make(el);
       demo.start();
       running.push(demo);
     });
