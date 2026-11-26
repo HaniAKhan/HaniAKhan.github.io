@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Meal planning assistant — Hani Khan</title>
+  <meta name="description" content="Meal planning assistant: a guided, AI-powered way to plan a week of H-E-B recipes without writing a prompt.">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    // Theme before first paint, and keep the case study hidden until it's unlocked.
+    (function () {
+      var root = document.documentElement, theme;
+      try { theme = localStorage.getItem('theme'); } catch (e) {}
+      if (theme !== 'light' && theme !== 'dark') {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      root.dataset.theme = theme;
+      root.classList.add('js');
+      var unlocked = false;
+      try { unlocked = localStorage.getItem('case-access') === '184713e42b7a88ff777846701a47ae4b68d85b191544d07156acb8212520914e'; } catch (e) {}
+      if (!unlocked) root.classList.add('case-locked');
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Boldonse&family=Fraunces:opsz,wght,SOFT,WONK@144,436,100,0&family=Open+Sans:wght@400;600;700;800&family=Source+Sans+3:wght@400;600&display=block">
+  <link rel="preload" as="image" href="/assets/work/scan-your-list/iphone-frame.png">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/work/case.css">
+  <!-- Shared section blocks (learnings cards, the grey panel) live with the AI-assisted search page -->
+  <link rel="stylesheet" href="/work/ai-search/ai-search.css">
+  <link rel="stylesheet" href="/work/meal-planning/meal-planning.css">
+</head>
+<body data-case-page>
+  <header class="site-header">
+    <a href="/" class="wordmark wordmark-text" aria-label="Hani Khan, home"><span>H</span><span>a</span><span>n</span><span>i</span></a>
+    <div class="theme-toggle" role="radiogroup" aria-label="Color theme">
+      <span class="theme-toggle__thumb" aria-hidden="true"></span>
+      <button type="button" role="radio" class="theme-toggle__option" data-theme-value="light" aria-label="Light mode">
+        <img src="/assets/sun.svg" alt="" width="18" height="18" class="icon icon--light">
+        <img src="/assets/sun-dark.svg" alt="" width="18" height="18" class="icon icon--dark">
+      </button>
+      <button type="button" role="radio" class="theme-toggle__option" data-theme-value="dark" aria-label="Dark mode">
+        <img src="/assets/moon.svg" alt="" width="18" height="18" class="icon icon--light">
+        <img src="/assets/moon-dark.svg" alt="" width="18" height="18" class="icon icon--dark">
+      </button>
+    </div>
+  </header>
+
+  <main class="cs">
+    <!-- Hero: once the phone is fully in view it plans a week: proteins, preferences, the plan, then two
+         recipes replaced (meal-planning.js). Screens from the Meal Planning Assistant Figma file. -->
+    <section class="cs-hero" aria-labelledby="cs-title">
+      <div class="cs-hero__intro">
+        <p class="cs-date">Feb 2024</p>
+        <h1 class="cs-title" id="cs-title">Meal planning assistant</h1>
+        <p class="cs-lede">When generative AI was new, I saw the potential of the technology and partnered with Data Science to design and build a meal planning experience that guided people to make selections rather than having them type a prompt themselves. I designed the experience, shaped and visualized the data journey, and led this project to its completion, which resulted in green-lighting investments in further AI initiatives.</p>
+        <p class="cs-role">Design lead</p>
+      </div>
+
+      <div class="cs-hero__device">
+        <div class="device" role="img" aria-label="A phone running the meal planning assistant: it picks turkey, chicken and bell pepper, chooses quick and easy Mexican meals, gets a plan of five recipes, then replaces two of them.">
+          <div class="device__screen">
+            <div class="mp" data-mp-demo>
+              <!-- Status bar, shared by every screen -->
+              <div class="mp-status" aria-hidden="true">
+                <span class="mp-status__time">9:41</span>
+                <span class="mp-status__icons">
+                  <img src="/assets/work/scan-your-list/cellular.svg" alt="" width="17" height="10.7">
+                  <img src="/assets/work/scan-your-list/wifi.svg" alt="" width="15.3" height="11">
+                  <img src="/assets/work/scan-your-list/battery.svg" alt="" width="24.3" height="11.3">
+                </span>
+              </div>
+
+              <!-- 1. Landing -->
+              <section class="mp-screen is-active" data-screen="landing">
+                <div class="mp-landing__art">
+                  <img class="mp-landing__book" src="/assets/work/meal-planning/cookbook.svg" width="151.334" height="151.56" alt="">
+                  <img class="mp-landing__shadow" src="/assets/work/meal-planning/cookbook-shadow.svg" width="60" height="10" alt="">
+                  <img class="mp-landing__spark mp-landing__spark--lg" src="/assets/work/meal-planning/sparkle-lg.svg" width="20" height="20" alt="">
+                  <img class="mp-landing__spark mp-landing__spark--md" src="/assets/work/meal-planning/sparkle-md.svg" width="13" height="13" alt="">
+                  <img class="mp-landing__spark mp-landing__spark--sm" src="/assets/work/meal-planning/sparkle-sm.svg" width="9" height="9" alt="">
+                </div>
+                <div class="mp-landing__content">
+                  <div class="mp-landing__text">
+                    <p class="mp-title">Meal plan in no time</p>
+                    <p class="mp-text">We’ll create a meal plan for you<br>to easily shop at your store</p>
+                  </div>
+                  <div class="mp-landing__actions">
+                    <span class="mp-button" data-start>Get started</span>
+                    <p class="mp-small">Powered by AI</p>
+                    <span class="mp-logo">
+                      <img style="left: 0.24%; top: 0; width: 99.42%; height: 98.87%" src="/assets/work/meal-planning/heb-logo-1.svg" alt="">
+                      <img style="left: 2.48%; top: 6.42%; width: 94.94%; height: 86.05%" src="/assets/work/meal-planning/heb-logo-2.svg" alt="">
+                      <img style="left: 4.72%; top: 12.8%; width: 90.46%; height: 73.24%" src="/assets/work/meal-planning/heb-logo-3.svg" alt="">
+                      <img style="left: 13.45%; top: 28.64%; width: 45.55%; height: 41.56%" src="/assets/work/meal-planning/heb-logo-4.svg" alt="">
+                      <img style="left: 68.17%; top: 28.64%; width: 18.28%; height: 41.56%" src="/assets/work/meal-planning/heb-logo-5.svg" alt="">
+                      <img style="left: 34.12%; top: 47.42%; width: 4.42%; height: 8.01%" src="/assets/work/meal-planning/heb-logo-6.svg" alt="">
+                      <img style="left: 61.35%; top: 47.42%; width: 4.42%; height: 8.01%" src="/assets/work/meal-planning/heb-logo-7.svg" alt="">
+                      <img style="left: 95.6%; top: 87.42%; width: 4.06%; height: 11.45%" src="/assets/work/meal-planning/heb-logo-8.svg" alt="">
+                    </span>
+                  </div>
+                </div>
+              </section>
+
+              <!-- 2. Select your proteins: picks move up into their own row -->
+              <section class="mp-screen" data-screen="proteins">
+                <div class="mp-head">
+                  <div class="mp-head__row">
+                    <span class="mp-back"><img class="mp-back__circle" src="/assets/work/meal-planning/back-circle.svg" width="32" height="41" alt=""><img class="mp-back__arrow" src="/assets/work/meal-planning/arrow.svg" width="20" height="14" alt=""></span>
+                    <span class="mp-stepper" style="--progress: 33.33%"><i class="mp-stepper__fill"></i><img class="mp-stepper__step" src="/assets/work/meal-planning/step.svg" width="14" height="14" alt=""></span>
+                    <span class="mp-close"><img src="/assets/work/meal-planning/close.svg" width="16" height="16" alt=""></span>
+                  </div>
+                  <span class="mp-head__rule"></span>
+                </div>
+                <div class="mp-body">
+                  <div class="mp-body__text">
+                    <p class="mp-title">Select your proteins</p>
+                    <p class="mp-text">We’ll incorporate these into your meals for the week</p>
+                  </div>
+                  <div class="mp-picker">
+                    <div class="mp-chips mp-chips--picked" data-picked></div>
+                    <div class="mp-chips" data-pool>
+                      <span class="mp-chip">Chicken</span>
+                      <span class="mp-chip">Beef</span>
+                      <span class="mp-chip">Lamb</span>
+                      <span class="mp-chip">Turkey</span>
+                      <span class="mp-chip">Pork</span>
+                      <span class="mp-chip">Fish</span>
+                      <span class="mp-chip">Shellfish</span>
+                      <span class="mp-chip">Tofu, soy, or tempeh</span>
+                      <span class="mp-chip">Cheese</span>
+                      <span class="mp-chip">Beans or lentils</span>
+                    </div>
+                    <div class="mp-field">
+                      <span class="mp-field__line"><span class="mp-field__label">Other ingredients to use</span><span class="mp-field__typed" data-typed></span></span>
+                      <span class="mp-add" data-add><img src="/assets/work/meal-planning/plus.svg" width="16" height="16" alt="">Add</span>
+                    </div>
+                  </div>
+                  <span class="mp-avoid"><img src="/assets/work/meal-planning/plus.svg" width="16" height="16" alt="">Ingredients to avoid</span>
+                </div>
+                <div class="mp-sticky"><span class="mp-button" data-next>Next</span></div>
+              </section>
+
+              <!-- 3. Any other considerations? -->
+              <section class="mp-screen" data-screen="prefs">
+                <div class="mp-head">
+                  <div class="mp-head__row">
+                    <span class="mp-back"><img class="mp-back__circle" src="/assets/work/meal-planning/back-circle.svg" width="32" height="41" alt=""><img class="mp-back__arrow" src="/assets/work/meal-planning/arrow.svg" width="20" height="14" alt=""></span>
+                    <span class="mp-stepper" style="--progress: 65.45%"><i class="mp-stepper__fill"></i><img class="mp-stepper__step" src="/assets/work/meal-planning/step.svg" width="14" height="14" alt=""></span>
+                    <span class="mp-close"><img src="/assets/work/meal-planning/close.svg" width="16" height="16" alt=""></span>
+                  </div>
+                  <span class="mp-head__rule"></span>
+                </div>
+                <div class="mp-body">
+                  <div class="mp-body__text">
+                    <p class="mp-title">Any other considerations?</p>
+                  </div>
+                  <div class="mp-picker">
+                    <div class="mp-chips mp-chips--picked" data-picked></div>
+                    <div class="mp-chips" data-pool>
+                      <span class="mp-chip">Kid-friendly</span>
+                      <span class="mp-chip">Quick and easy</span>
+                      <span class="mp-chip">One dish dinner</span>
+                      <span class="mp-chip">High protein</span>
+                      <span class="mp-chip">Dairy-free</span>
+                      <span class="mp-chip">Mediterranean</span>
+                      <span class="mp-chip">Italian</span>
+                      <span class="mp-chip">Mexican</span>
+                      <span class="mp-chip">BBQ</span>
+                      <span class="mp-chip">Low carb</span>
+                      <span class="mp-chip">Vegan</span>
+                      <span class="mp-chip">Vegetarian</span>
+                    </div>
+                    <div class="mp-field">
+                      <span class="mp-field__line"><span class="mp-field__label">Other meal preferences</span></span>
+                      <span class="mp-add"><img src="/assets/work/meal-planning/plus.svg" width="16" height="16" alt="">Add</span>
+                    </div>
+                    <p class="mp-hint">Example: high protein, dairy-free</p>
+                  </div>
+                </div>
+                <div class="mp-sticky"><span class="mp-button" data-next>Next</span></div>
+              </section>
+
+              <!-- 4. Your meal plan is ready: five recipes to swipe through, replace or remove -->
+              <section class="mp-screen mp-screen--plan" data-screen="plan">
+                <div class="mp-banner">
+                  <img class="mp-banner__bg" src="/assets/work/meal-planning/banner-bg.svg" width="391" height="285" alt="">
+                  <img class="mp-banner__spark mp-banner__spark--left" src="/assets/work/meal-planning/sparkle-left.svg" width="26" height="38" alt="">
+                  <img class="mp-banner__spark mp-banner__spark--right" src="/assets/work/meal-planning/sparkle-right.svg" width="21" height="34" alt="">
+                  <div class="mp-banner__text">
+                    <p class="mp-title">Your meal plan is ready</p>
+                    <p class="mp-text">Replace and add more recipes to customize it further</p>
+                  </div>
+                </div>
+                <div class="mp-cards">
+                  <div class="mp-cards__track" data-track>
+                    <!-- Cards are filled from the recipe list in meal-planning.js -->
+                    <article class="mp-card" data-card="0"></article>
+                    <article class="mp-card" data-card="1"></article>
+                    <article class="mp-card" data-card="2"></article>
+                    <article class="mp-card" data-card="3"></article>
+                    <article class="mp-card" data-card="4"></article>
+                    <div class="mp-card mp-card--add">
+                      <img src="/assets/work/meal-planning/pot.svg" width="91" height="69" alt="">
+                      <span class="mp-card__add"><img src="/assets/work/meal-planning/plus-plan.svg" width="16" height="16" alt="">Add a meal</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mp-survey">
+                  <p class="mp-survey__title">How’d we do?</p>
+                  <img src="/assets/work/meal-planning/stars.svg" width="248" height="40" alt="">
+                  <p class="mp-survey__title">Explain your rating</p>
+                  <span class="mp-survey__field"></span>
+                </div>
+              </section>
+
+              <span class="swap-tap" aria-hidden="true"></span>
+              <span class="mp-wipe" aria-hidden="true"></span>
+            </div>
+          </div>
+          <img class="device__frame" src="/assets/work/scan-your-list/iphone-frame.png" alt="">
+        </div>
+      </div>
+    </section>
+
+    <!-- RecipeBot: Data Science's proof of concept, a chat that answers with a recipe -->
+    <section class="cs-section mp-wide reveal">
+      <div class="mp-wide__copy">
+        <h2 class="cs-heading">It started as a chatbot</h2>
+        <p class="cs-body">Our Data Science team built a proof of concept called RecipeBot. You could chat with an H-E-B assistant, ask it for a recipe, and it answered with ingredients and instructions. I volunteered to stay close to the project because I was curious about AI. This was 2024, very much the early days of LLMs.</p>
+      </div>
+      <!-- Plays a conversation while in view; follows the site's light or dark theme (meal-planning.js) -->
+      <div class="canvas canvas--grey" data-canvas="1231x820" data-caption="RecipeBot, the proof of concept Data Science built">
+        <div class="canvas__inner">
+          <div class="rb" data-demo="recipebot" aria-hidden="true">
+            <div class="rb__chrome">
+              <div class="rb__tabs">
+                <span class="rb__lights"><i></i><i></i><i></i></span>
+                <span class="rb__tab"><img class="rb__favicon" src="/assets/work/ai-search/home/heb-small.svg" width="16" height="16" alt="">H-E-B Recipe Bot<span class="rb__tab-close"></span></span>
+                <span class="rb__new-tab">+</span>
+              </div>
+              <div class="rb__toolbar">
+                <span class="rb__nav">
+                  <svg width="16" height="16" viewBox="0 0 16 16"><path d="M13 8H3m4.5-4.5L3 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 16 16" class="rb__nav--off"><path d="M3 8h10M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 16 16"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="rb__url">recipe-bot.app</span>
+              </div>
+            </div>
+            <div class="rb__page">
+              <div class="rb__thread" data-thread></div>
+              <div class="rb__composer">
+                <span class="rb__input"><span class="rb__placeholder">Ask your question</span><span class="rb__typed" data-input></span><span class="rb__caret"></span></span>
+                <svg class="rb__send" width="22" height="22" viewBox="0 0 24 24"><path d="M3 20.5 21.5 12 3 3.5l.01 6.6L15 12 3.01 13.9z" fill="currentColor"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- The workshop with internal testers -->
+    <section class="cs-section cs-split cs-split--copy-first reveal">
+      <div class="cs-copy">
+        <h2 class="cs-heading">People saw potential, but chat was polarizing and generated recipes lacked trust</h2>
+        <p class="cs-body">I facilitated a workshop with internal testers to share their experiences. The outcome of the discussion was that people saw the potential of the technology, but the experience of chatting with AI was polarizing.</p>
+      </div>
+      <!-- A FigJam board filling up with sticky notes, cursors and all (meal-planning.js) -->
+      <div class="canvas canvas--grey" data-canvas="686x738" data-caption="The RecipeBot workshop">
+        <div class="canvas__inner">
+          <div class="fj" data-demo="figjam" aria-hidden="true">
+            <div class="fj__bar"><span class="rb__lights"><i></i><i></i><i></i></span><span class="fj__title">RecipeBot workshop</span><span class="fj__people"><i style="--c:#0d99ff">A</i><i style="--c:#14ae5c">J</i><i style="--c:#9747ff">S</i></span></div>
+            <div class="fj__board">
+              <div class="fj__section fj__section--good">
+                <p class="fj__label">What worked well</p>
+                <div class="fj__notes" data-notes="good"></div>
+              </div>
+              <div class="fj__section fj__section--bad">
+                <p class="fj__label">What didn’t</p>
+                <div class="fj__notes" data-notes="bad"></div>
+              </div>
+              <span class="fj__cursor" style="--c:#0d99ff" data-cursor="0"><svg width="18" height="20" viewBox="0 0 18 20"><path d="M1 1v16l4.5-4 3 6.5 2.7-1.2-3-6.3H15z" fill="var(--c)" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg><b>Alex</b></span>
+              <span class="fj__cursor" style="--c:#14ae5c" data-cursor="1"><svg width="18" height="20" viewBox="0 0 18 20"><path d="M1 1v16l4.5-4 3 6.5 2.7-1.2-3-6.3H15z" fill="var(--c)" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg><b>Jordan</b></span>
+              <span class="fj__cursor" style="--c:#9747ff" data-cursor="2"><svg width="18" height="20" viewBox="0 0 18 20"><path d="M1 1v16l4.5-4 3 6.5 2.7-1.2-3-6.3H15z" fill="var(--c)" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg><b>Sam</b></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- The guided experience: the two selection steps, picked -->
+    <section class="cs-section cs-duo mp-guided reveal reveal--stagger">
+      <div class="mp-guided__copy">
+        <h2 class="cs-heading">Guiding people instead of asking them to prompt</h2>
+        <p class="cs-body">I designed a guided experience that helped people make a few key selections, like proteins, ingredients they already have and lifestyle preferences. Each one increased the chance of relevant results, without anyone having to write a prompt. People could then replace or remove any recipe to make the plan their own.</p>
+      </div>
+      <figure class="cs-figure">
+        <div class="canvas canvas--grey" data-canvas="593x960">
+          <div class="canvas__inner"><div class="mp-shot" data-copy-screen="proteins"></div></div>
+        </div>
+        <figcaption class="cs-caption">Proteins and ingredients to use come first, since they shape the meals the most. This also mirrored what we heard from customers about how they plan their meals.</figcaption>
+      </figure>
+      <figure class="cs-figure">
+        <div class="canvas canvas--grey" data-canvas="593x960">
+          <div class="canvas__inner"><div class="mp-shot" data-copy-screen="prefs"></div></div>
+        </div>
+        <figcaption class="cs-caption">Lifestyle and cuisine preferences narrow it down further</figcaption>
+      </figure>
+    </section>
+
+    <!-- The results page: replacing, removing and adding recipes -->
+    <section class="cs-section cs-split reveal">
+      <!-- The meal plan acting out a replace, a remove, and a recipe added at the end (meal-planning.js) -->
+      <div class="canvas canvas--grey" data-canvas="617x780" data-caption="Replacing, removing and adding recipes">
+        <div class="canvas__inner"><div class="mp-shot mp-shot--plan" data-copy-screen="plan" data-demo="plan" aria-hidden="true"></div></div>
+      </div>
+      <div class="cs-copy">
+        <h2 class="cs-heading">Swapping recipes felt like a game</h2>
+        <p class="cs-body">On the results page, people could replace any recipe, remove the ones they didn’t want, and swipe to the end to add another. Letting people replace recipes made the experience feel exciting, almost like a game, and we found that giving people that level of control increased their delight.</p>
+      </div>
+    </section>
+
+    <!-- The data journey: the recipe recommendation API, one step at a time -->
+    <section class="cs-section mp-wide reveal">
+      <div class="mp-wide__copy">
+        <h2 class="cs-heading">Visualizing the data journey</h2>
+        <p class="cs-body">I worked closely with Data Science as they built the backend workflow, and visualized the data journey so we could share what we were building with stakeholders. Selections from the interface and anything people typed became filters, which narrowed the search space before a semantic search found the closest recipes.</p>
+      </div>
+      <div class="canvas canvas--grey" data-canvas="1231x720" data-caption="The recipe recommendation API">
+        <div class="canvas__inner">
+          <div class="dj" data-demo="journey">
+            <ol class="dj__rail" aria-label="Steps in the recipe recommendation API">
+              <li class="dj__step"><button type="button" data-step="0"><span class="dj__num">1</span><span class="dj__name">Selections</span></button></li>
+              <li class="dj__step"><button type="button" data-step="1"><span class="dj__num">2</span><span class="dj__name">Derive preferences</span><span class="dj__llm">LLM</span></button></li>
+              <li class="dj__step"><button type="button" data-step="2"><span class="dj__num">3</span><span class="dj__name">Generate filters</span><span class="dj__llm">LLM</span></button></li>
+              <li class="dj__step"><button type="button" data-step="3"><span class="dj__num">4</span><span class="dj__name">Merge and override</span></button></li>
+              <li class="dj__step"><button type="button" data-step="4"><span class="dj__num">5</span><span class="dj__name">Narrow the search</span></button></li>
+              <li class="dj__step"><button type="button" data-step="5"><span class="dj__num">6</span><span class="dj__name">Semantic search</span></button></li>
+              <li class="dj__step"><button type="button" data-step="6"><span class="dj__num">7</span><span class="dj__name">Re-evaluate</span><span class="dj__llm">LLM</span></button></li>
+              <li class="dj__step"><button type="button" data-step="7"><span class="dj__num">8</span><span class="dj__name">Rank and send</span></button></li>
+            </ol>
+            <div class="dj__stage">
+              <div class="dj__copy" data-copy aria-live="polite"></div>
+              <div class="dj__visual" data-visual aria-hidden="true"></div>
+            </div>
+            <button type="button" class="dj__pause" data-pause aria-label="Pause the steps">
+              <svg class="dj__pause-icon" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="2.5" y="1.5" width="3" height="11" rx="1" fill="currentColor"/><rect x="8.5" y="1.5" width="3" height="11" rx="1" fill="currentColor"/></svg>
+              <svg class="dj__play-icon" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3.5 2.2v9.6a.8.8 0 0 0 1.2.7l7.6-4.8a.8.8 0 0 0 0-1.4L4.7 1.5a.8.8 0 0 0-1.2.7Z" fill="currentColor"/></svg>
+              <span data-label>Pause</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Customers tried the functional POC -->
+    <section class="cs-section cs-learnings reveal reveal--stagger">
+      <h2 class="cs-heading">Customers planned their week with it</h2>
+      <p class="cs-body cs-learnings__intro">I worked with Design Technology to build a functional prototype, and we let customers use it for their weekly planning and report back on its value. Here’s what we learned.</p>
+      <ul class="cs-learnings__list">
+        <li class="cs-learning"><p>Customers were excited about the experience, and many felt it would help them quickly narrow down what to make that week.</p></li>
+        <li class="cs-learning"><p>They talked about how it helped them figure out what to make with a set of ingredients they already have.</p></li>
+        <li class="cs-learning"><p>They were looking for more diverse options in their meal plan results.</p></li>
+      </ul>
+    </section>
+
+    <!-- Outcome -->
+    <section class="cs-section mp-outcome reveal">
+      <div class="cs-problems__panel">
+        <p class="cs-date">Outcome</p>
+        <h2 class="cs-heading cs-problems__heading">The assistant was sunset, but what we learned lives on in search</h2>
+        <p class="cs-body cs-problems__body">The project ended up being sunset. However, its learnings resulted in green-lighting investments in multiple projects that use semantic search and AI to improve our global search experience.</p>
+      </div>
+    </section>
+
+    <!-- End of the case study: the next project, and the way back home -->
+    <nav class="cs-section cs-next reveal" aria-label="More work">
+      <p class="cs-date">Next project</p>
+      <p class="cs-next__title">
+        <a class="case__link" href="/work/ai-search/" data-case-link>
+          <span class="case__link-text">AI-assisted search results</span>
+          <span class="case__link-icon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 11 11 5M6 5h5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+        </a>
+      </p>
+      <a class="cs-next__home" href="/">Back to home</a>
+    </nav>
+  </main>
+
+  <script src="/site.js"></script>
+  <script src="/work/meal-planning/meal-planning.js"></script>
+  <script src="/work/case.js"></script>
+</body>
+</html>
